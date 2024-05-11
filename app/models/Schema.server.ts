@@ -1,7 +1,49 @@
-const mongoose = require("mongoose");
+import mongoose, { Document, Model, Types } from "mongoose";
 
+// User Document Interface
+export interface UserDocument {
+    username: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface ReplyDocument {
+    content: string;
+    userId: Types.ObjectId;
+    commentId: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+// Interface
+export interface CommentDocument {
+    content: string;
+    userId: Types.ObjectId;
+    postId: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+// Content Schema Interface
+interface Content {
+    heading: string;
+    image?: string;
+    content: string;
+}
+
+export interface PostDocument {
+    title: string;
+    desc: string;
+    image: string;
+    content: Content[];
+    author: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
 // User Schema
-const userSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema<UserDocument>(
     {
         username: { type: String, required: true, unique: true },
         email: { type: String, required: true, unique: true },
@@ -11,7 +53,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Reply Schema
-const replySchema = new mongoose.Schema(
+const replySchema = new mongoose.Schema<ReplyDocument>(
     {
         content: { type: String, required: true },
         userId: {
@@ -29,7 +71,7 @@ const replySchema = new mongoose.Schema(
 );
 
 // Comment Schema
-const commentSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema<CommentDocument>(
     {
         content: { type: String, required: true },
         userId: {
@@ -46,7 +88,7 @@ const commentSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const contentSchema = new mongoose.Schema({
+const contentSchema = new mongoose.Schema<Content>({
     heading: { type: String, required: true },
     image: {
         type: String,
@@ -58,7 +100,7 @@ const contentSchema = new mongoose.Schema({
     content: { type: String, required: true },
 });
 
-const postSchema = new mongoose.Schema(
+const postSchema = new mongoose.Schema<PostDocument>(
     {
         title: { type: String, required: true, maxLength: 150 },
         desc: { type: String, required: true, maxLength: 250 },
@@ -81,11 +123,13 @@ const postSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-export const Users =
-    mongoose.models.Users || mongoose.model("Users", userSchema);
-export const Replies =
-    mongoose.models.Replies || mongoose.model("Replies", replySchema);
-export const Comments =
-    mongoose.models.Comments || mongoose.model("Comments", commentSchema);
-export const Posts =
-    mongoose.models.Posts || mongoose.model("Posts", postSchema);
+export const Users: Model<UserDocument> =
+    mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
+export const Replies: Model<ReplyDocument> =
+    mongoose.models.Replies ||
+    mongoose.model<ReplyDocument>("Replies", replySchema);
+export const Comments: Model<CommentDocument> =
+    mongoose.models.Comments ||
+    mongoose.model<CommentDocument>("Comments", commentSchema);
+export const Posts: Model<PostDocument> =
+    mongoose.models.Posts || mongoose.model<PostDocument>("Posts", postSchema);
