@@ -28,7 +28,7 @@ const Dashboard = (props: Props) => {
     return (
         <div className="w-full h-full flex relative">
             <DashboardAside isOpen={isOpen} setIsOpen={setIsOpen} />
-            <section className="flex-1 flex flex-col bg-secondary text-secondary-foreground">
+            <section className="flex-1 flex flex-col">
                 <div className="flex items-center justify-start bg-background/60 p-2">
                     <button
                         onClick={() => setIsOpen(true)}

@@ -5,6 +5,30 @@
     a.active {
         @apply underline underline-offset-4;
     }
+    /* .ver_scroll {
+        @apply transition-all;
+    } */
+    .ver_scroll::-webkit-scrollbar {
+        @apply hidden md:block w-2 h-2;
+    }
+    /* .ver_scroll:hover::-webkit-scrollbar {
+        @apply hidden lg:block lg:h-3;
+    } */
+
+    /* Track */
+    .ver_scroll::-webkit-scrollbar-track {
+        @apply bg-background;
+    }
+
+    /* Handle */
+    .ver_scroll::-webkit-scrollbar-thumb {
+        @apply bg-secondary rounded-lg transition-colors shadow-md;
+    }
+
+    /* Handle on hover */
+    .ver_scroll::-webkit-scrollbar-thumb:hover {
+        @apply bg-secondary/80;
+    }
 }
 
 @layer base {

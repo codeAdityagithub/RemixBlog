@@ -27,16 +27,16 @@ export interface CommentDocument {
 }
 
 // Content Schema Interface
-interface Content {
+export interface Content {
     heading: string;
     image?: string;
     content: string;
 }
 
-export interface PostDocument {
+export interface BlogDocument {
     title: string;
     desc: string;
-    image: string;
+    thumbnail: string;
     content: Content[];
     author: Types.ObjectId;
     createdAt: Date;
@@ -100,11 +100,11 @@ const contentSchema = new mongoose.Schema<Content>({
     content: { type: String, required: true },
 });
 
-const postSchema = new mongoose.Schema<PostDocument>(
+const blogSchema = new mongoose.Schema<BlogDocument>(
     {
         title: { type: String, required: true, maxLength: 150 },
         desc: { type: String, required: true, maxLength: 250 },
-        image: {
+        thumbnail: {
             type: String,
             required: true,
             match: [
@@ -131,5 +131,5 @@ export const Replies: Model<ReplyDocument> =
 export const Comments: Model<CommentDocument> =
     mongoose.models.Comments ||
     mongoose.model<CommentDocument>("Comments", commentSchema);
-export const Posts: Model<PostDocument> =
-    mongoose.models.Posts || mongoose.model<PostDocument>("Posts", postSchema);
+export const Blogs: Model<BlogDocument> =
+    mongoose.models.Blogs || mongoose.model<BlogDocument>("Blogs", blogSchema);

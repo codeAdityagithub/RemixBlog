@@ -66,13 +66,13 @@ export default function App() {
                 <Links />
             </head>
             <body>
-                <div className="w-full min-h-screen flex flex-col">
+                <div className="w-full h-screen flex flex-col">
                     <Navbar />
-                    <main className="flex-1 grid place-items-center">
+                    <main className="h-full flex-1 grid place-items-center">
                         <Outlet />
                     </main>
                 </div>
-                <Toaster />
+                <Toaster expand />
                 <ScrollRestoration />
                 <Scripts />
             </body>

@@ -32,14 +32,16 @@ const DashboardAside = ({
                 <Cross1Icon />
             </button>
             <div className="flex flex-col gap-2 items-start justify-center w-full">
-                <Link
-                    to="/dashboard/new"
-                    onClick={handleCLick}
-                    className="p-2 w-full text-center bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg"
-                >
-                    Create a new
-                </Link>
                 <Button className="w-full" size="icon">
+                    <Link
+                        to="/dashboard/new"
+                        onClick={handleCLick}
+                        className="w-full h-full flex items-center justify-center"
+                    >
+                        Create a new
+                    </Link>
+                </Button>
+                <Button className="w-full" size="icon" variant="secondary">
                     <Link
                         to="/dashboard/blogs"
                         onClick={handleCLick}

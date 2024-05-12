@@ -61,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (error instanceof Response) return error;
         if (error instanceof AuthorizationError) {
             if (error.cause instanceof ZodError) {
-                console.log(error.cause.flatten());
+                // console.log(error.cause.flatten());
                 return json({ error: error.cause.flatten() }, { status: 400 });
             }
             return json({ error: error.message }, { status: 400 });

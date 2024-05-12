@@ -34,7 +34,7 @@ const Navbar = (props: Props) => {
     const { pathname } = useLocation();
     const user = useUser();
     return (
-        <NavigationMenu className="min-w-full justify-between py-2 px-6 border-b border-border">
+        <NavigationMenu className="min-w-full justify-between py-2 h-14 px-6 border-b border-border">
             <NavigationMenuList className="gap-10">
                 <NavigationMenuItem className="">
                     <h1 className="font-bold text-lg">RemixBlog</h1>
