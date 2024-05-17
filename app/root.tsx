@@ -4,6 +4,7 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
+    ShouldRevalidateFunctionArgs,
     useLoaderData,
     useRouteError,
 } from "@remix-run/react";
@@ -18,6 +19,14 @@ import { authenticator } from "./auth.server";
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
+// export const shouldRevalidate = ({
+//     defaultShouldRevalidate,
+//     currentUrl,
+//     nextUrl,
+// }: ShouldRevalidateFunctionArgs) => {
+//     if (currentUrl.pathname === nextUrl.pathname) return false;
+//     return defaultShouldRevalidate;
+// };
 export async function loader({ request }: LoaderFunctionArgs) {
     const theme: Themes = await themeCookie.parse(
         request.headers.get("Cookie")
@@ -68,7 +77,7 @@ export default function App() {
             <body>
                 <div className="w-full h-screen flex flex-col">
                     <Navbar />
-                    <main className="h-full flex-1 grid place-items-center">
+                    <main className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground">
                         <Outlet />
                     </main>
                 </div>

@@ -8,14 +8,20 @@ import { Content } from "~/models/Schema.server";
 type Props = {
     index: number;
     deleteContent: (index: number) => void;
-
     errors: Content | undefined;
-    // handleChange?: (
-    //     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    // ) => void;
+    values: Content;
+    handleChange?: (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => void;
 };
 
-const ContentItem = ({ index, deleteContent, errors }: Props) => {
+const ContentItemwChange = ({
+    index,
+    deleteContent,
+    errors,
+    values,
+    handleChange,
+}: Props) => {
     return (
         <div className="flex flex-col gap-1.5 mb-6 relative">
             {index !== 0 ? (
@@ -39,6 +45,8 @@ const ContentItem = ({ index, deleteContent, errors }: Props) => {
                 name={`heading${index + 1}`}
                 type="text"
                 className="mb-1.5"
+                onChange={handleChange}
+                value={values.heading}
                 placeholder="Link to your blog heading"
             />
             <Label htmlFor={`image${index + 1}`}>
@@ -50,6 +58,8 @@ const ContentItem = ({ index, deleteContent, errors }: Props) => {
                 name={`image${index + 1}`}
                 type="text"
                 className="mb-1.5"
+                onChange={handleChange}
+                value={values.image}
                 placeholder="Link to your blog image"
             />
             <Label htmlFor={`content${index + 1}`}>
@@ -59,6 +69,8 @@ const ContentItem = ({ index, deleteContent, errors }: Props) => {
             <Textarea
                 id={`content${index + 1}`}
                 required
+                onChange={handleChange}
+                value={values.content}
                 name={`content${index + 1}`}
                 placeholder="Your content"
             />
@@ -66,4 +78,4 @@ const ContentItem = ({ index, deleteContent, errors }: Props) => {
     );
 };
 
-export default ContentItem;
+export default ContentItemwChange;

@@ -27,7 +27,7 @@ const DashboardAside = ({
         >
             <button
                 onClick={() => setIsOpen(false)}
-                className="lg:hidden self-end p-2 hover:text-primary-foreground/80 i text-primary-foreground"
+                className="lg:hidden self-end p-2 mb-2"
             >
                 <Cross1Icon />
             </button>

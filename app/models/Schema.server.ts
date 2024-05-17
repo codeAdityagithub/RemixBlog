@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Types } from "mongoose";
+import mongoose, { Document, Model, ObjectId, Types } from "mongoose";
 
 // User Document Interface
 export interface UserDocument {
@@ -21,7 +21,7 @@ export interface ReplyDocument {
 export interface CommentDocument {
     content: string;
     userId: Types.ObjectId;
-    postId: Types.ObjectId;
+    blogId: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -34,13 +34,40 @@ export interface Content {
 }
 
 export interface BlogDocument {
+    _id: ObjectId;
     title: string;
     desc: string;
+    likes: number;
+    views: number;
+    comments: number;
     thumbnail: string;
     content: Content[];
     author: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
+}
+export interface BlogDocumentwUser {
+    _id: ObjectId | string | any;
+    title: string;
+    desc: string;
+    likes: number;
+    comments: number;
+    views: number;
+    thumbnail: string;
+    content: Content[];
+    author: Partial<
+        Omit<Partial<UserDocument>, "password" | "createdAt" | "updatedAt">
+    >;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+}
+export interface EngagementDoc {
+    _id: string;
+    blogId: string;
+    userId: string;
+    views: number;
+    likes: number;
+    comments: number;
 }
 // User Schema
 const userSchema = new mongoose.Schema<UserDocument>(
@@ -79,7 +106,7 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
             ref: "Users",
             required: true,
         },
-        postId: {
+        blogId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Posts",
             required: true,
@@ -112,6 +139,9 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
                 "Image must be a valid URL",
             ],
         },
+        views: { type: Number, default: 0 },
+        likes: { type: Number, default: 0 },
+        comments: { type: Number, default: 0 },
         content: { type: [contentSchema], maxLength: 5 },
         author: {
             type: mongoose.Schema.Types.ObjectId,
@@ -123,6 +153,22 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
     { timestamps: true }
 );
 
+const engagementSchema = new mongoose.Schema({
+    blogId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Blogs",
+        required: true,
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+        required: true,
+    },
+    likes: { type: Number, default: 0 },
+    views: { type: Number, default: 0 },
+    comments: { type: Number, default: 0 },
+});
+
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
 export const Replies: Model<ReplyDocument> =
@@ -133,3 +179,6 @@ export const Comments: Model<CommentDocument> =
     mongoose.model<CommentDocument>("Comments", commentSchema);
 export const Blogs: Model<BlogDocument> =
     mongoose.models.Blogs || mongoose.model<BlogDocument>("Blogs", blogSchema);
+export const Engagements: Model<EngagementDoc> =
+    mongoose.models.Engagement ||
+    mongoose.model<EngagementDoc>("Engagements", engagementSchema);

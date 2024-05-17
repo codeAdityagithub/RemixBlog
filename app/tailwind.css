@@ -22,7 +22,7 @@
 
     /* Handle */
     .ver_scroll::-webkit-scrollbar-thumb {
-        @apply bg-secondary rounded-lg transition-colors shadow-md;
+        @apply bg-primary/60 rounded-lg transition-colors shadow-md;
     }
 
     /* Handle on hover */

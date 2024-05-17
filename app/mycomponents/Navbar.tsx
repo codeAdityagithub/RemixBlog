@@ -43,6 +43,9 @@ const Navbar = (props: Props) => {
                     <NavigationMenuItem>
                         <NavLink to="/">Home</NavLink>
                     </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavLink to="/blogs">Blogs</NavLink>
+                    </NavigationMenuItem>
                     {user && (
                         <NavigationMenuItem>
                             <NavLink to="/dashboard">Dashboard</NavLink>

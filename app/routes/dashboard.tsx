@@ -1,32 +1,22 @@
 import { HamburgerMenuIcon, SlashIcon } from "@radix-ui/react-icons";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, Outlet, useLocation, useNavigate } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import { authenticator } from "~/auth.server";
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
-import { cn } from "~/lib/utils";
+import { Link, Outlet, useLocation } from "@remix-run/react";
+import { useState } from "react";
 import DashboardAside from "~/mycomponents/DashboardAside";
 
 type Props = {};
-
-export async function loader({ request }: LoaderFunctionArgs) {
-    const user = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/login",
-    });
-    return { user };
-}
 
 const Dashboard = (props: Props) => {
     const [isOpen, setIsOpen] = useState(false);
     const breadcrumbs = useLocation()
         .pathname.split("/")
         .splice(1)
-        .map((str) => str[0].toUpperCase() + str.slice(1));
+        .map((str) =>
+            str !== "" ? str[0]?.toUpperCase() + str?.slice(1) : ""
+        );
     // console.log(breadcrumbs);
 
     return (
-        <div className="w-full h-full flex relative">
+        <div className="w-full h-full flex relative bg-background text-foreground">
             <DashboardAside isOpen={isOpen} setIsOpen={setIsOpen} />
             <section className="flex-1 flex flex-col">
                 <div className="flex items-center justify-start bg-background/60 p-2">
@@ -57,7 +47,7 @@ const Dashboard = (props: Props) => {
                         );
                     })}
                 </div>
-                <div className="p-4 flex flex-1 items-center justify-center">
+                <div className="p-4 flex flex-1 items-start justify-center h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-auto ver_scroll">
                     <Outlet />
                 </div>
             </section>
