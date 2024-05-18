@@ -29,22 +29,18 @@ export const NewBlogSchema = z.object({
         .string()
         .min(10, { message: "Description must be atleast 10 characters." })
         .max(255, { message: "Description can be atmost 255 characters." }),
-    thumbnail: z
-        .string()
-        .regex(/\bhttps?:\/\/\S+\.(?:png|jpe?g|gif|svg)\b/g, {
-            message: "Thumbnail must be a valid URL.",
-        }),
+    thumbnail: z.string().url({
+        message: "Thumbnail must be a valid URL.",
+    }),
     content: z.array(
         z.object({
             heading: z
                 .string()
                 .min(3, { message: "Heading must be atleast 3 characters." }),
             image: z.optional(
-                z
-                    .string()
-                    .regex(/\bhttps?:\/\/\S+\.(?:png|jpe?g|gif|svg)\b/g, {
-                        message: "Image must be a valid URL.",
-                    })
+                z.string().url({
+                    message: "Image must be a valid URL.",
+                })
             ),
             content: z.string().min(10, {
                 message: "Subcontent must be atleast 10 characters.",

@@ -10,11 +10,11 @@ type Props = Content;
 
 const BlogContent = ({ content, heading, image }: Props) => {
     return (
-        <div>
+        <div className="flex flex-col gap-4">
             <TypographyH2>{heading}</TypographyH2>
             <img
                 alt="Blog Post Image"
-                className="w-full h-48 object-cover rounded-md"
+                className="w-full h-48 object-cover rounded-sm"
                 height={360}
                 src={image}
                 style={{
@@ -23,7 +23,9 @@ const BlogContent = ({ content, heading, image }: Props) => {
                 }}
                 width={640}
             />
-            <TypographyP>{content}</TypographyP>
+            <div className="px-4">
+                <TypographyP>{content}</TypographyP>
+            </div>
         </div>
     );
 };

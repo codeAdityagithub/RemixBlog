@@ -119,10 +119,6 @@ const contentSchema = new mongoose.Schema<Content>({
     heading: { type: String, required: true },
     image: {
         type: String,
-        match: [
-            /\bhttps?:\/\/\S+\.(?:png|jpe?g|gif|svg)\b/g,
-            "Image must be a valid URL",
-        ],
     },
     content: { type: String, required: true },
 });
@@ -134,10 +130,6 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
         thumbnail: {
             type: String,
             required: true,
-            match: [
-                /\bhttps?:\/\/\S+\.(?:png|jpe?g|gif|svg)\b/g,
-                "Image must be a valid URL",
-            ],
         },
         views: { type: Number, default: 0 },
         likes: { type: Number, default: 0 },

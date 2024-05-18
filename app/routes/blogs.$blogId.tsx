@@ -1,5 +1,6 @@
 import {
     AvatarIcon,
+    DotFilledIcon,
     EyeOpenIcon,
     HeartFilledIcon,
 } from "@radix-ui/react-icons";
@@ -22,9 +23,10 @@ import {
     Blogs,
     Engagements,
 } from "~/models/Schema.server";
-import { isBlogLiked, likeBlog } from "~/models/functions.server";
+import { isBlogLikedViewed, likeBlog } from "~/models/functions.server";
 import BlogContent from "~/mycomponents/BlogContent";
 import BlogEngagement from "~/mycomponents/BlogEngagement";
+import { checkUnauthViewed, readMin } from "~/utils/blogUtils.server";
 import { formatTime } from "~/utils/general";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -33,8 +35,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     await connect();
     const user = await authenticator.isAuthenticated(request);
     let liked = false;
+    let cookie = null;
     if (user) {
-        liked = (await isBlogLiked(blogId, user._id)) ?? false;
+        liked = (await isBlogLikedViewed(blogId, user._id)) ?? false;
+    } else {
+        cookie = await checkUnauthViewed(request, blogId);
     }
     const blog = (await Blogs.findById(blogId).populate("author", {
         username: 1,
@@ -46,7 +51,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
             statusText: "Requested blog not found",
         });
     // console.log(blog);
-    return { blog, liked };
+    const readTime = readMin(blog.content);
+    return cookie
+        ? json({ blog, liked, readTime }, { headers: { "Set-cookie": cookie } })
+        : { blog, liked, readTime };
 };
 export const action = async ({ request, params }: ActionFunctionArgs) => {
     const _action = (await request.formData()).get("_action");
@@ -63,7 +71,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 const BlogPage = () => {
-    const { blog, liked } = useLoaderData<typeof loader>();
+    const { blog, liked, readTime } = useLoaderData<typeof loader>();
     console.log(liked);
     return (
         <div className="w-full max-w-2xl p-4 bg-background text-foreground">
@@ -72,8 +80,20 @@ const BlogPage = () => {
                 <div className="flex flex-row h-16 items-center gap-4 p-4 rounded-lg">
                     <AvatarIcon className="h-10 w-10" />
                     <div className="flex flex-col">
-                        <TypographyP>{blog.author.username}</TypographyP>
-                        <small>{formatTime(blog.createdAt)}</small>
+                        <p className="flex items-center gap-1">
+                            {blog.author.username} <DotFilledIcon />{" "}
+                            <Button
+                                variant="link"
+                                size="icon"
+                                className="text-sm text-green-500 h-auto w-auto"
+                            >
+                                Follow
+                            </Button>
+                        </p>
+                        <small className="flex items-center gap-1 text-muted-foreground">
+                            {readTime} min read <DotFilledIcon />{" "}
+                            {formatTime(blog.createdAt)}
+                        </small>
                     </div>
                 </div>
                 <BlogEngagement
@@ -95,7 +115,7 @@ const BlogPage = () => {
                 />
             </header>
             <main>
-                <article>
+                <article className="flex flex-col gap-6">
                     {blog.content.map((content, ind) => (
                         <BlogContent key={`blog${ind}`} {...content} />
                     ))}

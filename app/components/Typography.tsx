@@ -16,7 +16,7 @@ export function TypographyH2({ children }: { children: ReactNode }) {
 }
 
 export function TypographyP({ children }: { children: ReactNode }) {
-    return <p className="leading-7">{children}</p>;
+    return <p className="leading-7 text-justify">{children}</p>;
 }
 export function TypographyLarge({ children }: { children: ReactNode }) {
     return <div className="text-lg font-semibold">{children}</div>;

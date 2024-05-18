@@ -96,7 +96,7 @@ export async function likeBlog(blogId: string, userId: string) {
         session.endSession();
     }
 }
-export async function isBlogLiked(
+export async function isBlogLikedViewed(
     blogId: string,
     userId: string
 ): Promise<boolean | undefined> {
@@ -131,6 +131,9 @@ export async function isBlogLiked(
     } finally {
         session.endSession();
     }
+}
+export async function incViews(blogId: string) {
+    await Blogs.updateOne({ _id: blogId }, { $inc: { views: 1 } });
 }
 
 // export async function fillBlogs(userId: string) {

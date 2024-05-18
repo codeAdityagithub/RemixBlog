@@ -33,10 +33,10 @@ const BlogCardSmall = ({
             />
             <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                    <CardTitle className="text-2xl font-bold">
+                    <CardTitle className="text-2xl font-bold line-clamp-2">
                         {title}
                     </CardTitle>
-                    <CardDescription className="text-gray-500 dark:text-gray-400">
+                    <CardDescription className="text-muted-foreground line-clamp-2">
                         {desc}
                     </CardDescription>
                 </div>
