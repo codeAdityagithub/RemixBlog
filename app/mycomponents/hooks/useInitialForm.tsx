@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BlogDocument } from "~/models/Schema.server";
 
 interface ReturnValue<T> {
@@ -15,22 +15,29 @@ function useInitialForm(initialData: BlogDocument): ReturnValue<BlogDocument> {
     useEffect(() => {
         setHasChanged(JSON.stringify(formData) !== JSON.stringify(initialData));
     }, [formData, initialData]);
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        let name = e.target.name;
-        const index = Number(name[name.length - 1]) - 1;
-        name = name.slice(0, -1);
-        const newContent = [...formData.content];
-        newContent[index] = { ...newContent[index], [name]: e.target.value };
-        if (isNaN(index))
-            setFormData({ ...formData, [e.target.name]: e.target.value });
-        else
-            setFormData({
-                ...formData,
-                content: newContent,
-            });
-    };
+    useEffect(() => {
+        setFormData(initialData); // Reset formData whenever initialData changes
+    }, [initialData]);
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            let name = e.target.name;
+            const index = Number(name[name.length - 1]) - 1;
+            name = name.slice(0, -1);
+            const newContent = [...formData.content];
+            newContent[index] = {
+                ...newContent[index],
+                [name]: e.target.value,
+            };
+            if (isNaN(index))
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+            else
+                setFormData({
+                    ...formData,
+                    content: newContent,
+                });
+        },
+        [initialData]
+    );
     return { formData, handleChange, setFormData, hasChanged };
 }
 

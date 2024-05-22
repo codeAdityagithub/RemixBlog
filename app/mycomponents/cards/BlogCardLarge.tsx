@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { BlogDocumentwUser } from "~/models/Schema.server";
 
@@ -31,11 +32,11 @@ const BlogCardLarge = ({
                     </p>
                 </div>
                 <Link
-                    className="flex-1 flex items-center justify-end hover:underline hover:underline-offset-2"
+                    className="flex-1 flex items-center justify-end"
                     to={`/blogs/${_id}`}
                     prefetch="intent"
                 >
-                    Read More
+                    <Button>Read More</Button>
                 </Link>
             </CardContent>
         </Card>

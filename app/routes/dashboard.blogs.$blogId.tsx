@@ -88,17 +88,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
 const DashboardBlogEdit = () => {
     const initialBlog = useLoaderData<typeof loader>()
         .blog as unknown as BlogDocument;
-    const [content, setContent] = useState(
-        Array.from({ length: initialBlog.content.length })
-    );
+    // const [content, setContent] = useState(
+    //     Array.from({ length: initialBlog.content.length })
+    // );
     const fetcher = useFetcher({ key: initialBlog.updatedAt.toString() });
     const { formData, handleChange, setFormData, hasChanged } =
         useInitialForm(initialBlog);
     const disabled = !hasChanged || fetcher.state === "submitting";
     const res = fetcher.data as any;
     useEffect(() => {
-        // console.log(fetcher.data);
-        setFormData(initialBlog);
         if (res?.error?.message)
             toast.error(res?.error?.message, {
                 style: destructiveToastStyle,
@@ -109,25 +107,25 @@ const DashboardBlogEdit = () => {
             });
         }
         // console.log(res);
-    }, [initialBlog, fetcher]);
+    }, [initialBlog, res]);
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // console.log("submitted");
+        // setFormData(fetcher.formData)
+        // console.log(fetcher.formData)
         fetcher.submit(e.currentTarget, {
             method: "POST",
         });
     };
 
     function addMore() {
-        if (content.length >= 5) return;
-        setContent((prev) => [...prev, 0]);
+        if (formData.content.length >= 5) return;
         setFormData((prev) => ({
             ...prev,
             content: [...prev.content, { heading: "", content: "", image: "" }],
         }));
     }
     function deleteContent(index: number) {
-        setContent((prev) => prev.filter((_, ind) => index !== ind));
         setFormData((prev) => ({
             ...prev,
             content: prev.content.filter((_, ind) => index !== ind),
@@ -188,7 +186,7 @@ const DashboardBlogEdit = () => {
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="content1">Content</Label>
                     <div className="p-2 pl-6 md:pl-10">
-                        {content.map((_, ind) => (
+                        {formData.content.map((c, ind) => (
                             <ContentItemwChange
                                 key={ind}
                                 index={ind}
@@ -198,11 +196,11 @@ const DashboardBlogEdit = () => {
                                         ? res.error.content[ind]
                                         : undefined
                                 }
-                                values={formData.content[ind]}
+                                values={c}
                                 handleChange={handleChange}
                             />
                         ))}
-                        {content.length < 5 ? (
+                        {formData.content.length < 5 ? (
                             <Button
                                 type="button"
                                 variant="secondary"

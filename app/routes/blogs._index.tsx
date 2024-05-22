@@ -58,7 +58,10 @@ const AllBlogs = () => {
                 className="col-span-5 lg:col-span-3 space-y-2"
                 opts={{ loop: true }}
             >
-                <TypographyH2>Popular Topics</TypographyH2>
+                <TypographyH2>
+                    <span className="text-4xl font-black mr-2">|</span>Popular
+                    Topics
+                </TypographyH2>
                 <CarouselContent>
                     {popularBlogs.map((blog) => (
                         <CarouselItem
@@ -80,8 +83,11 @@ const AllBlogs = () => {
 
             {/* Trending Topics Section */}
             <div className="col-span-5 lg:col-span-2 flex flex-col gap-2 lg:h-[600px] lg:pb-8">
-                <TypographyH2>Trending Topics</TypographyH2>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 h-full overflow-auto ver_scroll">
+                <TypographyH2>
+                    <span className="text-4xl font-black mx-2">|</span>Trending
+                    Topics
+                </TypographyH2>
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] px-4 gap-4 h-full overflow-auto ver_scroll">
                     {trendingBlogs.map((blog) => (
                         <BlogCardSmall
                             _id={blog._id}
@@ -101,6 +107,7 @@ const AllBlogs = () => {
             {/* Latest Blogs Section */}
             <div className="col-span-5 grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
                 <h2 className="col-span-full font-semibold text-3xl mb-2">
+                    <span className="text-4xl font-black mr-2">|</span>
                     Latest Blogs
                 </h2>
                 {latestBlogs.map((blog) => (

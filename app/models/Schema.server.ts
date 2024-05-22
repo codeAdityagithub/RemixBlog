@@ -38,6 +38,7 @@ export interface BlogDocument {
     title: string;
     desc: string;
     likes: number;
+    tags: string[];
     views: number;
     comments: number;
     thumbnail: string;
@@ -53,6 +54,7 @@ export interface BlogDocumentwUser {
     likes: number;
     comments: number;
     views: number;
+    tags: string[];
     thumbnail: string;
     content: Content[];
     author: Partial<
@@ -131,6 +133,7 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
             type: String,
             required: true,
         },
+        tags: [String],
         views: { type: Number, default: 0 },
         likes: { type: Number, default: 0 },
         comments: { type: Number, default: 0 },
