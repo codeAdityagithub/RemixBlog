@@ -1,5 +1,6 @@
 import {
     ArchiveIcon,
+    ChatBubbleIcon,
     EyeOpenIcon,
     HeartFilledIcon,
     HeartIcon,
@@ -15,17 +16,18 @@ import {
 import copy from "copy-to-clipboard";
 import { toast } from "sonner";
 import { successToastStyle } from "~/utils/general";
-import { useFetcher } from "@remix-run/react";
-import { MouseEvent, useEffect, useState } from "react";
+import { Link, useFetcher } from "@remix-run/react";
+import BlogCommentsSheet from "./BlogCommentsSheet";
 
 type Props = {
     likes: number;
     views: number;
     _id: string;
     liked: boolean;
+    comments: number;
 };
 
-const BlogEngagement = ({ likes, views, _id, liked }: Props) => {
+const BlogEngagement = ({ likes, views, _id, liked, comments }: Props) => {
     const fetcher = useFetcher();
     const copytoClipboard = () => {
         const copied = copy(`${window.location.href}`);
@@ -87,6 +89,26 @@ const BlogEngagement = ({ likes, views, _id, liked }: Props) => {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
+                {/* <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Link to="comments">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="flex gap-2 items-center"
+                                >
+                                    <ChatBubbleIcon />
+                                    {comments}
+                                </Button>
+                            </Link>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Like the blog</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider> */}
+                <BlogCommentsSheet comments={comments} />
             </div>
             <div className="flex gap-2">
                 <TooltipProvider>

@@ -86,7 +86,10 @@ const Navbar = (props: Props) => {
                             </DropdownMenu>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                            <Form action="/logout" method="post">
+                            <Form
+                                action={`/logout?redirectTo=${pathname}`}
+                                method="post"
+                            >
                                 <Button
                                     type="submit"
                                     size="sm"

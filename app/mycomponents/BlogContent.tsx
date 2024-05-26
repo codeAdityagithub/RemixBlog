@@ -10,7 +10,7 @@ type Props = Content;
 
 const BlogContent = ({ content, heading, image }: Props) => {
     return (
-        <div className="flex flex-col gap-4">
+        <div id={heading} className="flex flex-col gap-4 border-b pb-4">
             <TypographyH2>{heading}</TypographyH2>
             <img
                 alt="Blog Post Image"

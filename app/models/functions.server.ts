@@ -68,26 +68,18 @@ export async function likeBlog(blogId: string, userId: string) {
                 { blogId: blogId, userId: userId },
                 { likes: 0 }
             );
-            await session.commitTransaction();
-        } else {
+        } else if (has?.likes === 0) {
             await Blogs.updateOne({ _id: blogId }, { $inc: { likes: 1 } });
-            if (!has) {
-                await Engagements.create({
+
+            await Engagements.updateOne(
+                {
                     blogId: blogId,
                     userId: userId,
-                    likes: 1,
-                });
-            } else {
-                await Engagements.updateOne(
-                    {
-                        blogId: blogId,
-                        userId: userId,
-                    },
-                    { likes: 1 }
-                );
-            }
-            await session.commitTransaction();
+                },
+                { likes: 1 }
+            );
         }
+        await session.commitTransaction();
         // console.log("Likes count updated successfully in both documents!");
     } catch (error: any) {
         await session.abortTransaction();
@@ -112,10 +104,7 @@ export async function isBlogLikedViewed(
         );
         const liked = doc ? doc.likes === 1 : false;
         if (!doc) {
-            const updated = await Blogs.updateOne(
-                { _id: blogId },
-                { $inc: { views: 1 } }
-            );
+            await Blogs.updateOne({ _id: blogId }, { $inc: { views: 1 } });
             // console.log(updated);
             await Engagements.create({
                 blogId,

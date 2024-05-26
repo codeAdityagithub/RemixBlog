@@ -19,7 +19,7 @@ const BlogCardSmall = ({
     updatedAt,
 }: Omit<BlogDocumentwUser, "content" | "createdAt">) => {
     return (
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md h-min">
             <img
                 alt="Blog Post Image"
                 className="w-full h-48 object-cover rounded-t-lg"

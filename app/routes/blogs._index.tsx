@@ -84,10 +84,10 @@ const AllBlogs = () => {
             {/* Trending Topics Section */}
             <div className="col-span-5 lg:col-span-2 flex flex-col gap-2 lg:h-[600px] lg:pb-8">
                 <TypographyH2>
-                    <span className="text-4xl font-black mx-2">|</span>Trending
-                    Topics
+                    <span className="text-4xl font-black lg:mx-2">|</span>
+                    Trending Topics
                 </TypographyH2>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] px-4 gap-4 h-full overflow-auto ver_scroll">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] lg:px-4 gap-4 h-full overflow-auto ver_scroll">
                     {trendingBlogs.map((blog) => (
                         <BlogCardSmall
                             _id={blog._id}

@@ -20,8 +20,20 @@ export interface ReplyDocument {
 // Interface
 export interface CommentDocument {
     content: string;
-    userId: Types.ObjectId;
+    user: Types.ObjectId;
     blogId: Types.ObjectId;
+    likes: number;
+    likedBy: Types.ObjectId[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface CommentDocumentwUser {
+    _id: Types.ObjectId;
+    content: string;
+    user: { username: string };
+    blogId: Types.ObjectId;
+    likes: number;
+    likedBy: Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -103,7 +115,9 @@ const replySchema = new mongoose.Schema<ReplyDocument>(
 const commentSchema = new mongoose.Schema<CommentDocument>(
     {
         content: { type: String, required: true },
-        userId: {
+        likes: { type: Number, default: 0 },
+        likedBy: { type: [Types.ObjectId], default: [] },
+        user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Users",
             required: true,

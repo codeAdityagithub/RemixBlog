@@ -1,28 +1,12 @@
-import {
-    AvatarIcon,
-    DotFilledIcon,
-    EyeOpenIcon,
-    HeartFilledIcon,
-} from "@radix-ui/react-icons";
-import {
-    ActionFunctionArgs,
-    LoaderFunctionArgs,
-    json,
-    redirect,
-} from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
-import { TypographyH1, TypographyP } from "~/components/Typography";
+import { TypographyH1 } from "~/components/Typography";
 import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
 import { connect } from "~/db.server";
-import {
-    BlogDocument,
-    BlogDocumentwUser,
-    Blogs,
-    Engagements,
-} from "~/models/Schema.server";
+import { BlogDocumentwUser, Blogs } from "~/models/Schema.server";
 import { isBlogLikedViewed, likeBlog } from "~/models/functions.server";
 import BlogContent from "~/mycomponents/BlogContent";
 import BlogEngagement from "~/mycomponents/BlogEngagement";
@@ -72,7 +56,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 const BlogPage = () => {
     const { blog, liked, readTime } = useLoaderData<typeof loader>();
-    console.log(liked);
+    // console.log(liked);
+
     return (
         <div className="w-full max-w-2xl p-4 bg-background text-foreground">
             <header className="space-y-8 pb-10 mb-8 border-b border-border relative">
@@ -101,6 +86,7 @@ const BlogPage = () => {
                     likes={blog.likes}
                     views={blog.views}
                     liked={liked}
+                    comments={blog.comments}
                 />
                 <img
                     alt="Blog Post Image"
@@ -121,7 +107,7 @@ const BlogPage = () => {
                     ))}
                 </article>
             </main>
-            <footer></footer>
+            {/* <Outlet /> */}
         </div>
     );
 };
