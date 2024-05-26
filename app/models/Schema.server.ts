@@ -81,7 +81,6 @@ export interface EngagementDoc {
     userId: string;
     views: number;
     likes: number;
-    comments: number;
 }
 // User Schema
 const userSchema = new mongoose.Schema<UserDocument>(
@@ -175,7 +174,6 @@ const engagementSchema = new mongoose.Schema({
     },
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
-    comments: { type: Number, default: 0 },
 });
 
 export const Users: Model<UserDocument> =

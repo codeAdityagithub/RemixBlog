@@ -14,6 +14,8 @@ import {
 
 import type { BlogDoc } from "./BlogCommentsSheet";
 import { useFetcher } from "@remix-run/react";
+import { Separator } from "~/components/ui/separator";
+import ReplyToComment from "./ReplyToComment";
 type Props = {
     comments: BlogDoc[] | undefined;
 };
@@ -63,6 +65,7 @@ const CommentList = ({ comments: initialComments }: Props) => {
     }
     return (
         <div className="flex flex-col gap-2">
+            <Separator />
             <Select
                 onValueChange={(value) => {
                     setSorting(value);
@@ -77,7 +80,6 @@ const CommentList = ({ comments: initialComments }: Props) => {
                     <SelectItem value="mostRecent">Most Recent</SelectItem>
                 </SelectContent>
             </Select>
-
             {comments &&
                 (comments.length === 0 ? (
                     <p className="p-2 text-muted-foreground">
@@ -85,12 +87,21 @@ const CommentList = ({ comments: initialComments }: Props) => {
                     </p>
                 ) : (
                     comments.map((comment) => (
-                        <div className="space-y-2" key={comment._id.toString()}>
+                        <div
+                            className={`p-2 ${
+                                comment.user.username === user?.username
+                                    ? "border border-border rounded-md"
+                                    : ""
+                            }`}
+                            key={comment._id.toString()}
+                        >
                             <div className="flex flex-row items-center gap-4">
                                 <AvatarIcon className="h-8 w-8" />
                                 <div className="flex flex-col">
                                     <p className="text-sm">
                                         {comment.user.username}
+                                        {comment.user.username ===
+                                            user?.username && " (You)"}
                                     </p>
                                     <small className="text-muted-foreground">
                                         {formatTime(
@@ -100,8 +111,16 @@ const CommentList = ({ comments: initialComments }: Props) => {
                                 </div>
                             </div>
                             <p className="line-clamp-3">{comment.content}</p>
-                            <div className="flex justify-between">
-                                <fetcher.Form method="POST" action="comments">
+                            <div className="flex justify-between items-start relative">
+                                <fetcher.Form
+                                    className={`${
+                                        user?.username !==
+                                            comment.user.username &&
+                                        "absolute top-2 left-0"
+                                    }`}
+                                    method="POST"
+                                    action="comments"
+                                >
                                     <input
                                         type="hidden"
                                         name="_action"
@@ -129,13 +148,12 @@ const CommentList = ({ comments: initialComments }: Props) => {
                                         {comment.likes}
                                     </Button>
                                 </fetcher.Form>
-                                <Button
-                                    size="sm"
-                                    className="flex gap-2"
-                                    variant="link"
-                                >
-                                    Reply
-                                </Button>
+                                {comment.user.username ===
+                                user?.username ? null : (
+                                    <ReplyToComment
+                                        commentId={comment._id.toString()}
+                                    />
+                                )}
                             </div>
                         </div>
                     ))

@@ -37,13 +37,6 @@ export async function addCommentToBlog(
         await Comments.create({ blogId, content, user: userId });
         await Blogs.updateOne({ _id: blogId }, { $inc: { comments: 1 } });
         // console.log(updated);
-        await Engagements.updateOne(
-            {
-                blogId,
-                userId,
-            },
-            { $inc: { comments: 1 } }
-        );
     } catch (error: any) {
         await session.abortTransaction();
         console.error("Error updating likes count:", error?.message ?? error);

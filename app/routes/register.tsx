@@ -38,6 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
     const form = await request.formData();
+    const redirectTo = new URL(request.url).searchParams.get("redirectTo");
 
     try {
         const { username, email, password } = RegisterFormSchema.parse({
@@ -46,8 +47,16 @@ export async function action({ request }: ActionFunctionArgs) {
             password: form.get("password"),
         });
         const user = await register(username, email, password);
-        if (user) return redirect("/login");
-        return { error: null };
+        // console.log(user);
+        if (!user)
+            return json({ error: "User already exists" }, { status: 406 });
+        // if (user) return redirect("/login");
+        const res = await authenticator.authenticate("user-pass", request, {
+            // failureRedirect: "/login",
+            successRedirect: redirectTo ?? "/blogs",
+            context: { formData: form },
+        });
+        return res;
     } catch (error: any) {
         if (error instanceof ZodError) {
             return json(
@@ -55,6 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 { status: 400 }
             );
         }
+        if (error instanceof Response) return error;
         return json({ error: "Something went wrong" }, { status: 500 });
     }
 }
@@ -144,7 +154,7 @@ const Register = () => {
                     </Button>
                 </Form>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="text-red-600">
                 {error && typeof error === "string" ? error : null}
             </CardFooter>
         </Card>

@@ -104,7 +104,7 @@ const Navbar = (props: Props) => {
                     <>
                         <NavigationMenuItem>
                             <Link
-                                to="/login"
+                                to={`/login?redirectTo=${pathname}`}
                                 className={navigationMenuTriggerStyle()}
                             >
                                 Login
@@ -112,7 +112,7 @@ const Navbar = (props: Props) => {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <Link
-                                to="/register"
+                                to={`/register?redirectTo=${pathname}`}
                                 className={navigationMenuTriggerStyle()}
                             >
                                 Register
