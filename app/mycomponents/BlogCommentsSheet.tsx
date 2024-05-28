@@ -18,32 +18,34 @@ import {
 import { CommentDocument, CommentDocumentwUser } from "~/models/Schema.server";
 import CommentForm from "./CommentForm";
 import CommentList from "./CommentList";
+import CommentLoader from "./loaders/CommentLoader";
 type Props = {
     comments: number;
 };
-export type BlogDoc = Omit<CommentDocumentwUser, "likedBy"> & {
+export type CommentDoc = Omit<CommentDocumentwUser, "likedBy"> & {
     liked: boolean;
 };
 
 const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     const params = useParams();
     let fetcher = useFetcher();
-    let [comments, setComments] = useState<BlogDoc[]>();
+    let [comments, setComments] = useState<CommentDoc[]>();
     // console.log(fetcher.data);
     useEffect(() => {
         if (fetcher.data) {
             setComments(
                 // @ts-expect-error
-                fetcher.data.comments as unknown as BlogDoc
+                fetcher.data.comments as unknown as CommentDoc[]
             );
         }
-    }, [fetcher]);
+    }, [fetcher.data]);
     // const addComment = useCallback((data: CommentDocumentwUser) => {
     //     setComments((prev) => [...prev, data]);
     // }, []);
     return (
         <Sheet
             onOpenChange={(open) => {
+                // console.log("opened");
                 if (open && !fetcher.data) {
                     fetcher.load(`/blogs/${params.blogId}/comments`);
                 }
@@ -68,14 +70,22 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col gap-4 max-h-screen overflow-auto">
+            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col gap-4 max-h-screen overflow-auto ver_scroll">
                 <SheetHeader>
                     <SheetTitle className="text-xl">
                         Responses ({commentsNumber})
                     </SheetTitle>
                 </SheetHeader>
+                {/* form for comments */}
                 <CommentForm />
                 <CommentList comments={comments} />
+                {fetcher.state === "loading" && (
+                    <div className="flex flex-col gap-4">
+                        {Array.from({ length: 3 }).map((i, ind) => (
+                            <CommentLoader key={ind} />
+                        ))}
+                    </div>
+                )}
             </SheetContent>
         </Sheet>
     );

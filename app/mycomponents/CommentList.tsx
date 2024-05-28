@@ -12,42 +12,42 @@ import {
     SelectValue,
 } from "~/components/ui/select";
 
-import type { BlogDoc } from "./BlogCommentsSheet";
+import type { CommentDoc } from "./BlogCommentsSheet";
 import { useFetcher } from "@remix-run/react";
 import { Separator } from "~/components/ui/separator";
 import ReplyToComment from "./ReplyToComment";
+import CommentCard from "./cards/CommentCard";
 type Props = {
-    comments: BlogDoc[] | undefined;
+    comments: CommentDoc[] | undefined;
 };
 
 const CommentList = ({ comments: initialComments }: Props) => {
     const [comments, setComments] = useState(initialComments);
     const [sorting, setSorting] = useState("mostRelevant");
-    const user = useUser();
     useEffect(() => {
         handleSort(sorting);
         // setComments(initialComments?.sort((a, b) => b.likes - a.likes));
     }, [initialComments]);
-    const fetcher = useFetcher();
-    useEffect(() => {
-        if (fetcher.formData?.get("_action") === "likeComment") {
-            const newComments = comments?.map((comment) => {
-                if (
-                    comment._id.toString() ===
-                    fetcher.formData?.get("commentId")
-                ) {
-                    return {
-                        ...comment,
-                        likes: comment.likes + (comment.liked ? -1 : 1),
-                        liked: !comment.liked,
-                    };
-                } else {
-                    return comment;
-                }
-            });
-            setComments(newComments);
-        }
-    }, [fetcher.formData]);
+    // const fetcher = useFetcher({ key: "ccommentsListFetcher" });
+    // useEffect(() => {
+    //     if (fetcher.formData?.get("_action") === "likeComment") {
+    //         const newComments = comments?.map((comment) => {
+    //             if (
+    //                 comment._id.toString() ===
+    //                 fetcher.formData?.get("commentId")
+    //             ) {
+    //                 return {
+    //                     ...comment,
+    //                     likes: comment.likes + (comment.liked ? -1 : 1),
+    //                     liked: !comment.liked,
+    //                 };
+    //             } else {
+    //                 return comment;
+    //             }
+    //         });
+    //         setComments(newComments);
+    //     }
+    // }, [fetcher.formData]);
     function handleSort(value: string) {
         // console.log(value);
         setComments((prev) =>
@@ -87,75 +87,10 @@ const CommentList = ({ comments: initialComments }: Props) => {
                     </p>
                 ) : (
                     comments.map((comment) => (
-                        <div
-                            className={`p-2 ${
-                                comment.user.username === user?.username
-                                    ? "border border-border rounded-md"
-                                    : ""
-                            }`}
+                        <CommentCard
                             key={comment._id.toString()}
-                        >
-                            <div className="flex flex-row items-center gap-4">
-                                <AvatarIcon className="h-8 w-8" />
-                                <div className="flex flex-col">
-                                    <p className="text-sm">
-                                        {comment.user.username}
-                                        {comment.user.username ===
-                                            user?.username && " (You)"}
-                                    </p>
-                                    <small className="text-muted-foreground">
-                                        {formatTime(
-                                            comment.createdAt.toString()
-                                        )}
-                                    </small>
-                                </div>
-                            </div>
-                            <p className="line-clamp-3">{comment.content}</p>
-                            <div className="flex justify-between items-start relative">
-                                <fetcher.Form
-                                    className={`${
-                                        user?.username !==
-                                            comment.user.username &&
-                                        "absolute top-2 left-0"
-                                    }`}
-                                    method="POST"
-                                    action="comments"
-                                >
-                                    <input
-                                        type="hidden"
-                                        name="_action"
-                                        value="likeComment"
-                                    />
-                                    <input
-                                        type="hidden"
-                                        name="commentId"
-                                        value={comment._id.toString()}
-                                    />
-
-                                    <Button
-                                        type="submit"
-                                        size="sm"
-                                        className="flex gap-2"
-                                        variant="ghost"
-                                    >
-                                        <FaRegThumbsUp
-                                            className={
-                                                comment.liked
-                                                    ? "text-blue-600"
-                                                    : ""
-                                            }
-                                        />
-                                        {comment.likes}
-                                    </Button>
-                                </fetcher.Form>
-                                {comment.user.username ===
-                                user?.username ? null : (
-                                    <ReplyToComment
-                                        commentId={comment._id.toString()}
-                                    />
-                                )}
-                            </div>
-                        </div>
+                            comment={comment}
+                        />
                     ))
                 ))}
         </div>

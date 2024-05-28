@@ -23,6 +23,32 @@ export const likeComment = async (commentId: string, userId: string) => {
         await comment.save();
     }
 };
+export const deleteComment = async (commentId: string, userId: string) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    // console.log(blogId, userId);
+    try {
+        // Update logic for both documents within the transaction block
+        const deletedComment = await Comments.findOneAndDelete({
+            user: userId,
+            _id: commentId,
+        });
+        // if(deletedComment?.parentComment!==null)
+        if (deletedComment?.parentComment === null) {
+            await Blogs.updateOne(
+                { _id: deletedComment.blogId },
+                { $inc: { comments: -1 } }
+            );
+        }
+        // console.log(updated);
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error("Error udeleting", error?.message ?? error);
+        // return false;
+    } finally {
+        session.endSession();
+    }
+};
 
 export async function addCommentToBlog(
     blogId: string,
@@ -44,4 +70,12 @@ export async function addCommentToBlog(
     } finally {
         session.endSession();
     }
+}
+export async function replyCommentToBlog(
+    blogId: string,
+    userId: string,
+    content: string,
+    parentComment: string
+) {
+    await Comments.create({ blogId, content, user: userId, parentComment });
 }

@@ -1,11 +1,4 @@
-import {
-    Await,
-    defer,
-    json,
-    useLoaderData,
-    useNavigation,
-} from "@remix-run/react";
-import { connect } from "~/db.server";
+import { json, useLoaderData } from "@remix-run/react";
 import {
     Carousel,
     CarouselContent,
@@ -13,15 +6,12 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "~/components/ui/carousel";
+import { connect } from "~/db.server";
 
+import { TypographyH2 } from "~/components/Typography";
 import cache from "~/models/modelCache.server";
-import { Blogs } from "~/models/Schema.server";
-import AllBlogsLoader from "~/mycomponents/AllBlogsLoader";
 import BlogCardLarge from "~/mycomponents/cards/BlogCardLarge";
 import BlogCardSmall from "~/mycomponents/cards/BlogCardSmall";
-import BlogSkeletonlg from "~/mycomponents/cards/BlogSkeletonlg";
-import { TypographyH2 } from "~/components/Typography";
-import { useEffect, useRef, useState } from "react";
 
 export const loader = async ({}) => {
     await connect();

@@ -10,8 +10,6 @@ import { CommentDocumentwUser } from "~/models/Schema.server";
 // };
 
 const BlogComments = () => {
-    const blogId = useParams().blogId;
-    const formref = useRef<HTMLFormElement>(null);
     const [comment, setComment] = useState("");
     const fetcher = useFetcher();
     useEffect(() => {
@@ -20,12 +18,7 @@ const BlogComments = () => {
         // addComment();
     }, [fetcher]);
     return (
-        <fetcher.Form
-            ref={formref}
-            className="space-y-2"
-            action="comments"
-            method="POST"
-        >
+        <fetcher.Form className="space-y-2" action="comments" method="POST">
             <Textarea
                 id="comment"
                 value={comment}

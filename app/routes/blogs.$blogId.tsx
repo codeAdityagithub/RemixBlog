@@ -1,6 +1,11 @@
 import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import {
+    Outlet,
+    ShouldRevalidateFunction,
+    ShouldRevalidateFunctionArgs,
+    useLoaderData,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { TypographyH1 } from "~/components/Typography";
@@ -18,44 +23,65 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     invariant(blogId, "No blogId specified");
     await connect();
     const user = await authenticator.isAuthenticated(request);
-    let liked = false;
     let cookie = null;
-    if (user) {
-        liked = (await isBlogLikedViewed(blogId, user._id)) ?? false;
-    } else {
+    if (!user) {
         cookie = await checkUnauthViewed(request, blogId);
     }
-    const blog = (await Blogs.findById(blogId).populate("author", {
-        username: 1,
-        _id: 0,
-    })) as BlogDocumentwUser;
+    const blog = (await Blogs.findById(blogId, {
+        likes: 0,
+        comments: 0,
+        updatedAt: 0,
+        views: 0,
+    })
+        .populate("author", {
+            username: 1,
+            _id: 0,
+        })
+        .lean()) as Omit<
+        BlogDocumentwUser,
+        "likes" | "comments" | "updatedAt" | "views" | ""
+    >;
+
     if (!blog)
         throw json("Blog Not Found", {
             status: 404,
             statusText: "Requested blog not found",
         });
-    // console.log(blog);
+    console.log(blog);
     const readTime = readMin(blog.content);
     return cookie
-        ? json({ blog, liked, readTime }, { headers: { "Set-cookie": cookie } })
-        : { blog, liked, readTime };
+        ? json(
+              { blog, readTime },
+              {
+                  headers: {
+                      "Set-cookie": cookie,
+                      "Cache-Control": "max-age=14400, s-max-age=86400",
+                  },
+              }
+          )
+        : json(
+              { blog, readTime },
+              { headers: { "Cache-Control": "max-age=14400, s-max-age=86400" } }
+          );
 };
-export const action = async ({ request, params }: ActionFunctionArgs) => {
-    const _action = (await request.formData()).get("_action");
+// export const action = async ({ request, params }: ActionFunctionArgs) => {
+//     const _action = (await request.formData()).get("_action");
 
-    const blogId = params.blogId;
-    const { _id: userId } = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/login",
-    });
-    invariant(blogId);
-    if (_action === "like") {
-        await likeBlog(blogId, userId);
-    }
-    return { ok: true };
+//     const blogId = params.blogId;
+//     const { _id: userId } = await authenticator.isAuthenticated(request, {
+//         failureRedirect: "/login",
+//     });
+//     invariant(blogId);
+//     if (_action === "like") {
+//         await likeBlog(blogId, userId);
+//     }
+//     return { ok: true };
+// };
+export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
+    return false;
 };
-
 const BlogPage = () => {
-    const { blog, liked, readTime } = useLoaderData<typeof loader>();
+    const { blog, readTime } = useLoaderData<typeof loader>();
     // console.log(liked);
 
     return (
@@ -81,13 +107,7 @@ const BlogPage = () => {
                         </small>
                     </div>
                 </div>
-                <BlogEngagement
-                    _id={blog._id}
-                    likes={blog.likes}
-                    views={blog.views}
-                    liked={liked}
-                    comments={blog.comments}
-                />
+                <BlogEngagement />
                 <img
                     alt="Blog Post Image"
                     className="w-full aspect-video object-cover rounded"
@@ -107,7 +127,6 @@ const BlogPage = () => {
                     ))}
                 </article>
             </main>
-            {/* <Outlet /> */}
         </div>
     );
 };

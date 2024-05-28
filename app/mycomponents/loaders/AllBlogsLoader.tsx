@@ -1,6 +1,5 @@
-import React from "react";
-import BlogSkeletonlg from "./cards/BlogSkeletonlg";
-import BlogSkeletonsm from "./cards/BlogSkeletonsm";
+import BlogSkeletonlg from "../cards/BlogSkeletonlg";
+import BlogSkeletonsm from "../cards/BlogSkeletonsm";
 
 type Props = {};
 
