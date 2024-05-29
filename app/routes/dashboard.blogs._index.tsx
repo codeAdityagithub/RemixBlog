@@ -18,7 +18,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const blogs = (await Blogs.find(
         { author: user._id },
         { _id: 1, desc: 1, title: 1, updatedAt: 1 }
-    )) as CommentDoc;
+    )) as BlogDoc[];
     // console.log(typeof blogs[0].updatedAt);
     return { blogs };
 };
