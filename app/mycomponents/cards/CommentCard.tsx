@@ -17,12 +17,17 @@ import {
 
 type Props = {
     comment: CommentDoc;
+    updateReplies?: () => void;
 };
 
-const CommentCard = ({ comment }: Props) => {
-    const fetcher = useFetcher();
+const CommentCard = ({ comment, updateReplies }: Props) => {
+    const fetcher = useFetcher<any>();
     const user = useUser();
-
+    useEffect(() => {
+        if (fetcher.data?.message === "deleted") {
+            updateReplies && updateReplies();
+        }
+    }, [fetcher.data]);
     return (
         <div className="p-1 border border-border rounded-md">
             <div className="flex flex-row items-center gap-4">
@@ -36,18 +41,20 @@ const CommentCard = ({ comment }: Props) => {
                         {formatTime(comment.createdAt.toString())}
                     </small>
                 </div>
-                <DeleteButton
-                    commentId={comment._id.toString()}
-                    fetcher={fetcher}
-                />
+                {comment.user.username === user?.username && (
+                    <DeleteButton
+                        commentId={comment._id.toString()}
+                        fetcher={fetcher}
+                    />
+                )}
             </div>
             <p className="line-clamp-3">{comment.content}</p>
             <div className="flex justify-between items-start relative">
                 <LikeButton
                     commentId={comment._id.toString()}
                     liked={comment.liked}
-                    likes={comment.likes}
                     fetcher={fetcher}
+                    likes={comment.likes}
                 />
                 <ReplyToComment
                     isOwner={user?.username === comment.user.username}
@@ -116,6 +123,7 @@ function DeleteButton({
                 <DropdownMenuLabel>Comment Menu</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
+                    disabled={fetcher.state !== "idle"}
                     onClick={() =>
                         fetcher.submit(
                             { _action: "deleteComment", commentId },

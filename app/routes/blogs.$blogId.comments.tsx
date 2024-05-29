@@ -63,6 +63,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             const commentId = form.get("commentId");
             invariant(commentId);
             await deleteComment(commentId.toString(), userId);
+            return { message: "deleted" };
         } else {
             const comment = form.get("comment");
             invariant(comment);

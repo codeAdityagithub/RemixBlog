@@ -1,5 +1,10 @@
 import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+    ActionFunctionArgs,
+    HeadersFunction,
+    LoaderFunctionArgs,
+    json,
+} from "@remix-run/node";
 import {
     Outlet,
     ShouldRevalidateFunction,
@@ -79,6 +84,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 // };
 export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
     return false;
+};
+export let headers: HeadersFunction = () => {
+    return { "Cache-Control": "max-age=3600" };
 };
 const BlogPage = () => {
     const { blog, readTime } = useLoaderData<typeof loader>();

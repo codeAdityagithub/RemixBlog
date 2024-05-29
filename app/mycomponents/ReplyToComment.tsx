@@ -77,6 +77,8 @@ const ReplyToComment = ({ commentId, isOwner }: Props) => {
                             <Button
                                 type="submit"
                                 className="mt-1"
+                                name="_action"
+                                value="replyComment"
                                 size="sm"
                                 disabled={
                                     fetcher2.state === "submitting" ||
@@ -114,6 +116,7 @@ const ReplyToComment = ({ commentId, isOwner }: Props) => {
                                 <CommentCard
                                     key={comment._id.toString()}
                                     comment={comment}
+                                    updateReplies={fetchReplies}
                                 />
                             ))
                         )

@@ -44,12 +44,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     }
     return { ok: true };
 };
-// export const shouldRevalidate: ShouldRevalidateFunction = ({
-//     defaultShouldRevalidate,
-//     formAction,
-//     formData,
-// }) => {
-//     if (formAction?.split("/").pop() === "comments") return false;
-//     // console.log(formAction);
-//     return defaultShouldRevalidate;
-// };
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+    defaultShouldRevalidate,
+    formAction,
+    formData,
+}) => {
+    // if (formAction?.split("/").pop() === "comments") return false;
+    const action = formData?.get("_action");
+    if (action === "likeComment" || action === "replyComment") return false;
+    return defaultShouldRevalidate;
+};
