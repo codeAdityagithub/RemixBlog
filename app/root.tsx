@@ -4,29 +4,21 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    ShouldRevalidateFunctionArgs,
     useLoaderData,
     useRouteError,
 } from "@remix-run/react";
 
-import styles from "./tailwind.css?url";
 import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
-import Navbar from "./mycomponents/Navbar";
-import { Themes, themeCookie } from "./utils/themeCookie.server";
-import { Toaster } from "./components/ui/sonner";
-import RootError from "./mycomponents/RootError";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authenticator } from "./auth.server";
-
+import { Toaster } from "./components/ui/sonner";
+import Navbar from "./mycomponents/Navbar";
+import RootError from "./mycomponents/RootError";
+import styles from "./tailwind.css?url";
+// import { queryClient } from "./utils/queryClient.client";
+import { Themes, themeCookie } from "./utils/themeCookie.server";
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
-// export const shouldRevalidate = ({
-//     defaultShouldRevalidate,
-//     currentUrl,
-//     nextUrl,
-// }: ShouldRevalidateFunctionArgs) => {
-//     if (currentUrl.pathname === nextUrl.pathname) return false;
-//     return defaultShouldRevalidate;
-// };
 export async function loader({ request }: LoaderFunctionArgs) {
     const theme: Themes = await themeCookie.parse(
         request.headers.get("Cookie")
@@ -61,8 +53,18 @@ export function ErrorBoundary() {
         </html>
     );
 }
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            refetchIntervalInBackground: false,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+        },
+    },
+});
 export default function App() {
     const { theme } = useLoaderData<typeof loader>();
+    // console.log(queryClient);
     return (
         <html lang="en" className={theme}>
             <head>
@@ -75,12 +77,14 @@ export default function App() {
                 <Links />
             </head>
             <body>
-                <div className="w-full h-screen flex flex-col">
-                    <Navbar />
-                    <main className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground">
-                        <Outlet />
-                    </main>
-                </div>
+                <QueryClientProvider client={queryClient}>
+                    <div className="w-full h-screen flex flex-col">
+                        <Navbar />
+                        <main className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground">
+                            <Outlet />
+                        </main>
+                    </div>
+                </QueryClientProvider>
                 <Toaster expand />
                 <ScrollRestoration />
                 <Scripts />

@@ -27,6 +27,7 @@ import {
 import { useUser } from "~/utils/general";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
+import ProfileDialog from "./ProfileDialog";
 
 type Props = {};
 
@@ -48,7 +49,9 @@ const Navbar = (props: Props) => {
                     </NavigationMenuItem>
                     {user && (
                         <NavigationMenuItem>
-                            <NavLink to="/dashboard">Dashboard</NavLink>
+                            <NavLink to="/dashboard" prefetch="intent">
+                                Dashboard
+                            </NavLink>
                         </NavigationMenuItem>
                     )}
                 </div>
@@ -62,13 +65,14 @@ const Navbar = (props: Props) => {
                                     <Avatar>
                                         <AvatarImage
                                             alt={user.username}
+                                            src={user.picture}
                                         ></AvatarImage>
                                         <AvatarFallback>
                                             <AvatarIcon className="w-full h-full p-1"></AvatarIcon>
                                         </AvatarFallback>
                                     </Avatar>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent>
+                                <DropdownMenuContent className="space-y-1">
                                     <DropdownMenuLabel>
                                         {user.username}
                                         <div className="text-xs text-muted-foreground">
@@ -76,28 +80,28 @@ const Navbar = (props: Props) => {
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                                    <DropdownMenuItem>Billing</DropdownMenuItem>
-                                    <DropdownMenuItem>Team</DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        Subscription
+                                    <ProfileDialog />
+                                    {/* <DropdownMenuItem asChild>
+                                    </DropdownMenuItem> */}
+
+                                    <DropdownMenuItem asChild className="p-0">
+                                        <Form
+                                            action={`/logout?redirectTo=${pathname}`}
+                                            method="post"
+                                            className="w-full"
+                                        >
+                                            <Button
+                                                type="submit"
+                                                size="sm"
+                                                className="w-full justify-start"
+                                                variant="destructive"
+                                            >
+                                                Logout
+                                            </Button>
+                                        </Form>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <Form
-                                action={`/logout?redirectTo=${pathname}`}
-                                method="post"
-                            >
-                                <Button
-                                    type="submit"
-                                    size="sm"
-                                    variant="destructive"
-                                >
-                                    Logout
-                                </Button>
-                            </Form>
                         </NavigationMenuItem>
                     </>
                 ) : (

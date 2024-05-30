@@ -22,7 +22,7 @@ export function useMatchesData(id: string): Record<string, any> | undefined {
 }
 
 export function useUser():
-    | { _id: string; email: string; username: string }
+    | { _id: string; email: string; username: string; picture?: string }
     | undefined {
     const data = useMatchesData("root");
     if (!data || !data.user) {

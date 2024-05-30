@@ -85,6 +85,7 @@ const CreateNewBlog = (props: Props) => {
             content: prev.content.filter((_, ind) => index !== ind),
         }));
     }, []);
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {

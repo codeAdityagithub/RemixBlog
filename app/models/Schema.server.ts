@@ -79,8 +79,8 @@ export interface BlogDocumentwUser {
 }
 export interface EngagementDoc {
     _id: string;
-    blogId: string;
-    userId: string;
+    blogId: string | ObjectId;
+    userId: string | ObjectId;
     views: number;
     likes: number;
 }
@@ -164,7 +164,7 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
     { timestamps: true }
 );
 
-const engagementSchema = new mongoose.Schema({
+const engagementSchema = new mongoose.Schema<EngagementDoc>({
     blogId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Blogs",
@@ -190,5 +190,5 @@ export const Comments: Model<CommentDocument> =
 export const Blogs: Model<BlogDocument> =
     mongoose.models.Blogs || mongoose.model<BlogDocument>("Blogs", blogSchema);
 export const Engagements: Model<EngagementDoc> =
-    mongoose.models.Engagement ||
+    mongoose.models.Engagements ||
     mongoose.model<EngagementDoc>("Engagements", engagementSchema);

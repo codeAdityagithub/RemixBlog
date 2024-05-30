@@ -1,6 +1,8 @@
 import { EyeOpenIcon, HeartFilledIcon } from "@radix-ui/react-icons";
 import { LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { FaComments } from "react-icons/fa";
 import { authenticator } from "~/auth.server";
 import { connect } from "~/db.server";
@@ -8,10 +10,11 @@ import { getAnalytics } from "~/models/dashboard.server";
 import DashboardAnalyticCard from "~/mycomponents/cards/DashboardAnalyticCard";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
 import { getGreeting } from "~/utils/general";
+import { FaUsersViewfinder } from "react-icons/fa6";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/login?redirectTo=/dasbhoard",
+        failureRedirect: "/login?redirectTo=/dashboard",
     });
     await connect();
     const analytics = await getAnalytics(user._id);
@@ -19,8 +22,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 const Dashboard = () => {
-    const analytics = useLoaderData<typeof loader>().analytics;
+    const initial = useLoaderData<typeof loader>().analytics;
+    // const fetcher = useFetcher<any>();
+    const { data: analytics, isLoading } = useQuery({
+        initialData: initial,
+        queryKey: ["analytics"],
+        queryFn: async () => {
+            const data = await fetch("/dashboard/analytics").then((res) =>
+                res.json()
+            );
+            return data?.analytics;
+        },
+        refetchInterval: 10000,
+    });
+    // const analytics = fetcher.data?.analytics;
+    // useEffect(() => {
+    //     fetcher.load("analytics");
+    //     setInterval(() => {
+    //         if (fetcher.state == "idle") fetcher.load("");
+    //     }, 1000 * 60);
+    // }, []);
 
+    if (isLoading || !analytics) return <div>Loading...</div>;
     return (
         <div className="w-full grid grid-cols-6 place-content-start gap-4">
             <header className="col-span-6">
@@ -38,17 +61,17 @@ const Dashboard = () => {
                 <DashboardAnalyticCard
                     cardValue={analytics.totalViews}
                     cardTitle="Views"
-                    cardIcon={<EyeOpenIcon />}
+                    cardIcon={<FaUsersViewfinder className="w-8 h-8" />}
                 />
                 <DashboardAnalyticCard
                     cardValue={analytics.totalLikes}
                     cardTitle="Likes"
-                    cardIcon={<HeartFilledIcon />}
+                    cardIcon={<HeartFilledIcon className="w-8 h-8" />}
                 />
                 <DashboardAnalyticCard
                     cardValue={analytics.totalComments}
                     cardTitle="Comments"
-                    cardIcon={<FaComments />}
+                    cardIcon={<FaComments className="w-8 h-8" />}
                 />
             </div>
             {/* </div> */}

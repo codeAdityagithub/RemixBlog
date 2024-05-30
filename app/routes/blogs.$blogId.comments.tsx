@@ -1,21 +1,14 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { ShouldRevalidateFunction } from "@remix-run/react";
-import React from "react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { connect } from "~/db.server";
-import {
-    CommentDocument,
-    CommentDocumentwUser,
-    Comments,
-    Engagements,
-} from "~/models/Schema.server";
+import { Comments } from "~/models/Schema.server";
 import {
     addCommentToBlog,
     deleteComment,
     likeComment,
 } from "~/models/comments.server";
-import BlogCommentsSheet from "~/mycomponents/BlogCommentsSheet";
 
 type Props = {};
 

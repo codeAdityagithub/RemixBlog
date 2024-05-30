@@ -11,6 +11,7 @@ const authenticator = new Authenticator<{
     _id: string;
     username: string;
     email: string;
+    picture?: string;
 }>(sessionStorage, { throwOnError: true });
 
 // Tell the Authenticator to use the form strategy
