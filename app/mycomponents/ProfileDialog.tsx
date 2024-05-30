@@ -1,10 +1,4 @@
-import {
-    Form,
-    useActionData,
-    useFetcher,
-    useLocation,
-    useNavigation,
-} from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 // import { create } from "@remix-run/node";
@@ -19,7 +13,6 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useUser } from "~/utils/general";
 type Props = {};
 
 const ProfileDialog = (props: Props) => {

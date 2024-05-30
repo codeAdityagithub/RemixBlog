@@ -63,7 +63,7 @@ const CreateNewBlog = (props: Props) => {
 
     const fetcher = useFetcher();
     const res = fetcher.data as any;
-    console.log(res);
+    // console.log(res);
     const loading = fetcher.state === "submitting";
     useEffect(() => {
         if (res?.error?.message)
@@ -111,7 +111,7 @@ const CreateNewBlog = (props: Props) => {
             method="post"
             onSubmit={(e) => {
                 e.preventDefault();
-                console.log(formData);
+                // console.log(formData);
                 fetcher.submit(e.currentTarget, { method: "POST" });
             }}
             className="container max-w-3xl flex-1"

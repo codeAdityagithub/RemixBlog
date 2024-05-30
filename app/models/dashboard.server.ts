@@ -22,6 +22,14 @@ export async function getAnalytics(userId: string): Promise<{
             },
         },
     ]);
+    if (!stats || !stats[0]) {
+        return {
+            totalBlogs: 0,
+            totalViews: 0,
+            totalLikes: 0,
+            totalComments: 0,
+        };
+    }
     const { _id, ...restStats } = stats[0];
     return restStats;
 }

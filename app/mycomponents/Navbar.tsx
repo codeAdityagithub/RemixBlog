@@ -28,6 +28,7 @@ import { useUser } from "~/utils/general";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import ProfileDialog from "./ProfileDialog";
+import NavSheet from "./NavSheet";
 
 type Props = {};
 
@@ -35,8 +36,9 @@ const Navbar = (props: Props) => {
     const { pathname } = useLocation();
     const user = useUser();
     return (
-        <NavigationMenu className="min-w-full justify-between py-2 h-14 px-6 border-b border-border">
-            <NavigationMenuList className="gap-10">
+        <NavigationMenu className="sticky top-0 min-w-full justify-between py-2 h-14 px-4 md:px-6 border-b border-border">
+            {/* dekstop  */}
+            <NavigationMenuList className="gap-10 hidden md:flex">
                 <NavigationMenuItem className="">
                     <h1 className="font-bold text-lg">RemixBlog</h1>
                 </NavigationMenuItem>
@@ -56,6 +58,8 @@ const Navbar = (props: Props) => {
                     )}
                 </div>
             </NavigationMenuList>
+            {/* mobile  */}
+            <NavSheet />
             <NavigationMenuList className="gap-3">
                 {user ? (
                     <>

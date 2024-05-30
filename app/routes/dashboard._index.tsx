@@ -34,6 +34,7 @@ const Dashboard = () => {
             return data?.analytics;
         },
         refetchInterval: 10000,
+        enabled: initial.totalBlogs > 0,
     });
     // const analytics = fetcher.data?.analytics;
     // useEffect(() => {
@@ -45,7 +46,7 @@ const Dashboard = () => {
 
     if (isLoading || !analytics) return <div>Loading...</div>;
     return (
-        <div className="w-full grid grid-cols-6 place-content-start gap-4">
+        <div className="w-full grid grid-cols-6 place-content-start gap-4 p-2">
             <header className="col-span-6">
                 <h2 className="text-2xl font-bold text-muted-foreground">
                     Welcome Back! 👋

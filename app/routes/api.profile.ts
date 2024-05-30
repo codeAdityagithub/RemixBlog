@@ -1,12 +1,4 @@
-import {
-    ActionFunction,
-    ActionFunctionArgs,
-    unstable_composeUploadHandlers as composeUploadHandlers,
-    unstable_createMemoryUploadHandler as createMemoryUploadHandler,
-    json,
-    unstable_parseMultipartFormData as parseMultipartFormData,
-    redirect,
-} from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/node";
 import sharp from "sharp";
 import { authenticator } from "~/auth.server";
 import { commitSession, getSession } from "~/session.server";

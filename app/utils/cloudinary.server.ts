@@ -1,10 +1,5 @@
 import cloudinary from "cloudinary";
-import {
-    createReadableStreamFromReadable,
-    writeAsyncIterableToWritable,
-    writeReadableStreamToWritable,
-} from "@remix-run/node";
-import sharp from "sharp";
+
 cloudinary.v2.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.API_KEY,

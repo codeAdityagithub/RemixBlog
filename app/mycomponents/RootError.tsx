@@ -30,8 +30,17 @@ const RootError = ({ error }: Props) => {
                     </p>
                 </CardContent>
                 <CardFooter>
+                    <Button
+                        onClick={() => {
+                            window.location.reload();
+                        }}
+                        size="sm"
+                        variant="outline"
+                    >
+                        Refresh
+                    </Button>
                     <Link to="/">
-                        <Button size={"sm"}>Home Page</Button>
+                        <Button size="sm">Home Page</Button>
                     </Link>
                 </CardFooter>
             </Card>

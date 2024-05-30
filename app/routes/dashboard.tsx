@@ -19,7 +19,7 @@ const Dashboard = (props: Props) => {
         <div className="w-full h-full flex relative bg-background text-foreground">
             <DashboardAside isOpen={isOpen} setIsOpen={setIsOpen} />
             <section className="flex-1 flex flex-col">
-                <div className="flex items-center justify-start bg-background/60 p-2">
+                <div className="flex items-center justify-start bg-background/60 px-6 py-2">
                     <button
                         onClick={() => setIsOpen(true)}
                         className="lg:hidden pr-2 py-1"
