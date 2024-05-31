@@ -2,8 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
-    a.active {
+    a.active:not(.tablink) {
         @apply underline underline-offset-4;
+    }
+    .tablink.active {
+        @apply bg-secondary hover:bg-secondary border-t border-border border-r border-l rounded-br-none rounded-bl-none;
     }
     /* .ver_scroll {
         @apply transition-all;

@@ -15,7 +15,7 @@ type Props = {
 
 const Dashboarduser = ({ totalBlogs }: Props) => {
     const user = useUser()!;
-
+    // console.log(user);
     return (
         <Card className="h-full flex flex-col gap-2">
             <CardHeader className="flex flex-col relative items-center">

@@ -14,6 +14,7 @@ import {
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { TypographyH1 } from "~/components/Typography";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { connect } from "~/db.server";
 import { BlogDocumentwUser, Blogs } from "~/models/Schema.server";
@@ -41,6 +42,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         .populate("author", {
             username: 1,
             _id: 0,
+            picture: 1,
         })
         .lean()) as Omit<
         BlogDocumentwUser,
@@ -52,7 +54,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
             status: 404,
             statusText: "Requested blog not found",
         });
-    console.log(blog);
+    // console.log(blog);
     const readTime = readMin(blog.content);
     return cookie
         ? json(
@@ -97,7 +99,15 @@ const BlogPage = () => {
             <header className="space-y-8 pb-10 mb-8 border-b border-border relative">
                 <TypographyH1>{blog.title}</TypographyH1>
                 <div className="flex flex-row h-16 items-center gap-4 p-4 rounded-lg">
-                    <AvatarIcon className="h-10 w-10" />
+                    <Avatar>
+                        <AvatarImage
+                            alt="Author Avatar"
+                            src={blog.author.picture}
+                        />
+                        <AvatarFallback>
+                            <AvatarIcon className="w-full h-full" />
+                        </AvatarFallback>
+                    </Avatar>
                     <div className="flex flex-col">
                         <p className="flex items-center gap-1">
                             {blog.author.username} <DotFilledIcon />{" "}

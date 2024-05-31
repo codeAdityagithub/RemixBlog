@@ -7,6 +7,7 @@ export interface UserDocument {
     password: string;
     createdAt: Date;
     updatedAt: Date;
+    picture?: string;
 }
 
 export interface ReplyDocument {
@@ -90,6 +91,7 @@ const userSchema = new mongoose.Schema<UserDocument>(
         username: { type: String, required: true, unique: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
+        picture: { type: String },
     },
     { timestamps: true }
 );

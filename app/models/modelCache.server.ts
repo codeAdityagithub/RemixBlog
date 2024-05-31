@@ -1,9 +1,11 @@
 import { BlogDocument, Blogs } from "./Schema.server";
-
+export interface BlogDocumentwPic extends Omit<BlogDocument, "author"> {
+    author: { username: string; picture?: string };
+}
 type cacheType = {
-    popularBlogs: BlogDocument[];
-    trendingBlogs: BlogDocument[];
-    latestBlogs: BlogDocument[];
+    popularBlogs: BlogDocumentwPic[];
+    trendingBlogs: BlogDocumentwPic[];
+    latestBlogs: BlogDocumentwPic[];
 };
 const cache: cacheType = {
     popularBlogs: [],
@@ -12,30 +14,30 @@ const cache: cacheType = {
 };
 
 async function getPopularBlogs() {
-    return await Blogs.find(
+    return (await Blogs.find(
         {},
         {},
         { sort: { views: -1 }, limit: 10, lean: true }
-    ).populate("author", { username: 1 });
+    ).populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
 async function getTrendingBlogs() {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const oneMAgo = new Date();
+    oneMAgo.setDate(oneMAgo.getDate() - 30);
 
-    return await Blogs.find(
+    return (await Blogs.find(
         {
-            createdAt: { $gte: oneWeekAgo },
+            createdAt: { $gte: oneMAgo },
         },
         {},
         { sort: { views: -1, likes: -1, comments: -1 }, limit: 10, lean: true }
-    ).populate("author", { username: 1 });
+    ).populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
 async function getLatestBlogs() {
-    return await Blogs.find(
+    return (await Blogs.find(
         {},
         {},
         { sort: { createdAt: -1 }, limit: 10, lean: true }
-    ).populate("author", { username: 1 });
+    ).populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
 
 const updateCache = async () => {

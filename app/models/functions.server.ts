@@ -12,7 +12,12 @@ import mongoose, { ObjectId } from "mongoose";
 export async function verifyLogin(
     email: string,
     password: string
-): Promise<{ _id: string; username: string; email: string } | null> {
+): Promise<{
+    _id: string;
+    username: string;
+    email: string;
+    picture?: string;
+} | null> {
     await connect();
     const userWithPassword = await Users.findOne({ email: email });
     if (!userWithPassword || !userWithPassword.password) {
@@ -31,9 +36,12 @@ export async function verifyLogin(
         _id,
         email: emai,
         username,
+        picture,
     } = userWithPassword;
 
-    return { _id: _id.toString(), email: emai, username };
+    return picture
+        ? { _id: _id.toString(), email: emai, username, picture }
+        : { _id: _id.toString(), email: emai, username };
 }
 
 export async function register(

@@ -9,6 +9,8 @@ import { Link } from "@remix-run/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { BlogDocumentwUser } from "~/models/Schema.server";
 import { formatTime } from "~/utils/general";
+import { BlogDocumentwPic } from "~/models/modelCache.server";
+import { AvatarIcon } from "@radix-ui/react-icons";
 
 const BlogCardSmall = ({
     _id,
@@ -17,7 +19,7 @@ const BlogCardSmall = ({
     thumbnail,
     title,
     updatedAt,
-}: Omit<BlogDocumentwUser, "content" | "createdAt">) => {
+}: BlogDocumentwPic) => {
     return (
         <Card className="w-full max-w-md h-min">
             <img
@@ -45,9 +47,11 @@ const BlogCardSmall = ({
                         <Avatar>
                             <AvatarImage
                                 alt="Author Avatar"
-                                src="/placeholder-avatar.jpg"
+                                src={author.picture}
                             />
-                            <AvatarFallback>JD</AvatarFallback>
+                            <AvatarFallback>
+                                <AvatarIcon className="w-full h-full" />
+                            </AvatarFallback>
                         </Avatar>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
                             <p>{author.username}</p>

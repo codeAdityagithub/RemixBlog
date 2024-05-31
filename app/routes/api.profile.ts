@@ -1,6 +1,8 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import sharp from "sharp";
 import { authenticator } from "~/auth.server";
+import { connect } from "~/db.server";
+import { Users } from "~/models/Schema.server";
 import { commitSession, getSession } from "~/session.server";
 import { uploadImage } from "~/utils/cloudinary.server";
 
@@ -8,7 +10,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
-    const redirectTo = new URL(request.url).searchParams.get("redirectTo");
+    // const redirectTo = new URL(request.url).searchParams.get("redirectTo");
     const file = (await request.formData()).get("picture");
 
     if (
@@ -31,6 +33,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         .secure_url;
 
     if (!imgSource) {
+        return json({ error: "Something went wrong" }, { status: 500 });
+    }
+    try {
+        await connect();
+        let up = await Users.updateOne(
+            { _id: user._id },
+            { $set: { picture: imgSource } }
+        );
+        console.log(await Users.findOne({ _id: user._id }));
+    } catch (error) {
         return json({ error: "Something went wrong" }, { status: 500 });
     }
     let session = await getSession(request.headers.get("cookie"));

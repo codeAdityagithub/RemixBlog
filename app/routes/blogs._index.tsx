@@ -80,15 +80,14 @@ const AllBlogs = () => {
                 <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] lg:px-4 gap-4 h-full overflow-auto ver_scroll">
                     {trendingBlogs.map((blog) => (
                         <BlogCardSmall
+                            // @ts-expect-error
                             _id={blog._id}
                             key={blog._id.toString()}
-                            // @ts-expect-error
-
                             author={blog.author}
                             desc={blog.desc}
                             thumbnail={blog.thumbnail}
                             title={blog.title}
-                            updatedAt={blog.updatedAt}
+                            updatedAt={new Date(blog.updatedAt)}
                         />
                     ))}
                 </div>
@@ -102,15 +101,14 @@ const AllBlogs = () => {
                 </h2>
                 {latestBlogs.map((blog) => (
                     <BlogCardSmall
+                        // @ts-expect-error
                         _id={blog._id}
                         key={blog._id.toString()}
-                        // @ts-expect-error
-
                         author={blog.author}
                         desc={blog.desc}
                         thumbnail={blog.thumbnail}
                         title={blog.title}
-                        updatedAt={blog.updatedAt}
+                        updatedAt={new Date(blog.updatedAt)}
                     />
                 ))}
             </div>

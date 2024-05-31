@@ -14,7 +14,7 @@ const BlogComments = () => {
     const fetcher = useFetcher();
     useEffect(() => {
         setComment("");
-        console.log(fetcher.formData);
+        // console.log(fetcher.formData);
         // addComment();
     }, [fetcher]);
     return (
