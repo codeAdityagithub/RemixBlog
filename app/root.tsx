@@ -56,7 +56,6 @@ export function ErrorBoundary() {
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            refetchIntervalInBackground: false,
             refetchOnMount: false,
             refetchOnWindowFocus: false,
         },

@@ -1,16 +1,6 @@
 import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
-import {
-    ActionFunctionArgs,
-    HeadersFunction,
-    LoaderFunctionArgs,
-    json,
-} from "@remix-run/node";
-import {
-    Outlet,
-    ShouldRevalidateFunction,
-    ShouldRevalidateFunctionArgs,
-    useLoaderData,
-} from "@remix-run/react";
+import { HeadersFunction, LoaderFunctionArgs, json } from "@remix-run/node";
+import { ShouldRevalidateFunction, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { TypographyH1 } from "~/components/Typography";
@@ -18,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { connect } from "~/db.server";
 import { BlogDocumentwUser, Blogs } from "~/models/Schema.server";
-import { isBlogLikedViewed, likeBlog } from "~/models/functions.server";
 import BlogContent from "~/mycomponents/BlogContent";
 import BlogEngagement from "~/mycomponents/BlogEngagement";
 import { checkUnauthViewed, readMin } from "~/utils/blogUtils.server";

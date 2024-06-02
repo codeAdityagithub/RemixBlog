@@ -19,7 +19,6 @@ import { NewBlogSchema } from "~/lib/zod";
 import { BlogDocument, Blogs, Content } from "~/models/Schema.server";
 import { deleteBlog } from "~/models/functions.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
-import DeleteButtonwDialog from "~/mycomponents/DeleteButtonwDialog";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
 import {
     destructiveToastStyle,

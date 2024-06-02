@@ -54,6 +54,7 @@ const DashboardBlogCard = ({ _id, title, desc, updatedAt }: Props) => {
                 <DeleteButtonwDialog
                     disabled={fetcher.state === "submitting"}
                     action={deleteBlog}
+                    label="blog"
                 />
             </CardFooter>
         </Card>

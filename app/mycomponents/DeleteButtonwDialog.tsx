@@ -12,9 +12,10 @@ import {
 type Props = {
     disabled: boolean;
     action: () => void;
+    label: string;
 };
 
-const DeleteButtonwDialog = ({ disabled, action }: Props) => {
+const DeleteButtonwDialog = ({ disabled, action, label }: Props) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -27,7 +28,8 @@ const DeleteButtonwDialog = ({ disabled, action }: Props) => {
                     <DialogTitle>Are you absolutely sure?</DialogTitle>
                     <DialogDescription>
                         This action cannot be undone. This will permanently
-                        delete this blog and you will not be able to recover it.
+                        delete this {label} and you will not be able to recover
+                        it.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>

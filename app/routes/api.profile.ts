@@ -39,7 +39,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         await connect();
         let up = await Users.updateOne(
             { _id: user._id },
-            { $set: { picture: imgSource } }
+            { $set: { a: imgSource } }
         );
         console.log(await Users.findOne({ _id: user._id }));
     } catch (error) {

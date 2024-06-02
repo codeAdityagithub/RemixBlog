@@ -26,17 +26,19 @@ export interface CommentDocument {
     likes: number;
     likedBy: Types.ObjectId[];
     parentComment?: Types.ObjectId;
+    blogOwner: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
 export interface CommentDocumentwUser {
     _id: Types.ObjectId;
     content: string;
-    user: { username: string };
+    user: { username: string; picture?: string };
     blogId: Types.ObjectId;
     likes: number;
     likedBy: Types.ObjectId[];
     parentComment?: Types.ObjectId;
+    blogOwner?: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -84,6 +86,8 @@ export interface EngagementDoc {
     userId: string | ObjectId;
     views: number;
     likes: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 // User Schema
 const userSchema = new mongoose.Schema<UserDocument>(
@@ -131,6 +135,10 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
             ref: "Posts",
             required: true,
         },
+        blogOwner: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
+        },
     },
     { timestamps: true }
 );
@@ -166,20 +174,23 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
     { timestamps: true }
 );
 
-const engagementSchema = new mongoose.Schema<EngagementDoc>({
-    blogId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Blogs",
-        required: true,
+const engagementSchema = new mongoose.Schema<EngagementDoc>(
+    {
+        blogId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Blogs",
+            required: true,
+        },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
+            required: true,
+        },
+        likes: { type: Number, default: 0 },
+        views: { type: Number, default: 0 },
     },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
-        required: true,
-    },
-    likes: { type: Number, default: 0 },
-    views: { type: Number, default: 0 },
-});
+    { timestamps: true }
+);
 
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);

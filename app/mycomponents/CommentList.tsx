@@ -28,26 +28,7 @@ const CommentList = ({ comments: initialComments }: Props) => {
         handleSort(sorting);
         // setComments(initialComments?.sort((a, b) => b.likes - a.likes));
     }, [initialComments]);
-    // const fetcher = useFetcher({ key: "ccommentsListFetcher" });
-    // useEffect(() => {
-    //     if (fetcher.formData?.get("_action") === "likeComment") {
-    //         const newComments = comments?.map((comment) => {
-    //             if (
-    //                 comment._id.toString() ===
-    //                 fetcher.formData?.get("commentId")
-    //             ) {
-    //                 return {
-    //                     ...comment,
-    //                     likes: comment.likes + (comment.liked ? -1 : 1),
-    //                     liked: !comment.liked,
-    //                 };
-    //             } else {
-    //                 return comment;
-    //             }
-    //         });
-    //         setComments(newComments);
-    //     }
-    // }, [fetcher.formData]);
+
     function handleSort(value: string) {
         // console.log(value);
         setComments((prev) =>

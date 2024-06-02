@@ -49,6 +49,35 @@ export const deleteComment = async (commentId: string, userId: string) => {
         session.endSession();
     }
 };
+export const deleteCommentAdmin = async (commentId: string, userId: string) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    // console.log(blogId, userId);
+    try {
+        // Update logic for both documents within the transaction block
+        const deletedComment = await Comments.findOneAndDelete({
+            blogOwner: userId,
+            _id: commentId,
+        });
+        // if(deletedComment?.parentComment!==null)
+        if (deletedComment?.parentComment === null) {
+            await Blogs.updateOne(
+                { _id: deletedComment.blogId },
+                { $inc: { comments: -1 } }
+            );
+        }
+        // console.log(updated);
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error(
+            "Error deleting",
+            error?.message ?? "Couldn't be deleted!"
+        );
+        // return false;
+    } finally {
+        session.endSession();
+    }
+};
 
 export async function addCommentToBlog(
     blogId: string,
@@ -60,8 +89,16 @@ export async function addCommentToBlog(
     // console.log(blogId, userId);
     try {
         // Update logic for both documents within the transaction block
-        await Comments.create({ blogId, content, user: userId });
-        await Blogs.updateOne({ _id: blogId }, { $inc: { comments: 1 } });
+        const blog = await Blogs.findOneAndUpdate(
+            { _id: blogId },
+            { $inc: { comments: 1 } }
+        );
+        await Comments.create({
+            blogId,
+            content,
+            user: userId,
+            blogOwner: blog?.author,
+        });
         // console.log(updated);
     } catch (error: any) {
         await session.abortTransaction();

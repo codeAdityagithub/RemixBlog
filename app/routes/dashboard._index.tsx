@@ -11,6 +11,8 @@ import DashboardAnalyticCard from "~/mycomponents/cards/DashboardAnalyticCard";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
 import { getGreeting } from "~/utils/general";
 import { FaUsersViewfinder } from "react-icons/fa6";
+import DashboardComments from "~/mycomponents/DashboardComments";
+import BlogViewsChart from "~/mycomponents/BlogViewsChart";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
@@ -28,14 +30,15 @@ const Dashboard = () => {
         initialData: initial,
         queryKey: ["analytics"],
         queryFn: async () => {
-            const data = await fetch("/dashboard/analytics").then((res) =>
-                res.json()
-            );
+            const data = await fetch("/dashboard/analytics", {
+                credentials: "same-origin",
+            }).then((res) => res.json());
             return data?.analytics;
         },
         refetchInterval: 10000,
         enabled: initial.totalBlogs > 0,
     });
+
     // const analytics = fetcher.data?.analytics;
     // useEffect(() => {
     //     fetcher.load("analytics");
@@ -43,10 +46,10 @@ const Dashboard = () => {
     //         if (fetcher.state == "idle") fetcher.load("");
     //     }, 1000 * 60);
     // }, []);
-
+    // console.log(comments);
     if (isLoading || !analytics) return <div>Loading...</div>;
     return (
-        <div className="w-full grid grid-cols-6 place-content-start gap-4 p-2">
+        <div className="w-full grid grid-cols-6 place-content-start gap-8 p-2">
             <header className="col-span-6">
                 <h2 className="text-2xl font-bold text-muted-foreground">
                     Welcome Back! 👋
@@ -54,11 +57,10 @@ const Dashboard = () => {
                 <p className="text-muted-foreground">{getGreeting()}</p>
             </header>
             <h2 className="col-span-6 text-2xl font-bold">Overview</h2>
-            <div className="col-span-6  md:col-span-2">
+            <div className="col-span-6 md:col-span-2">
                 <Dashboarduser totalBlogs={analytics.totalBlogs} />
             </div>
-            {/* <div className="col-span-6 grid grid-cols-6 gap-4 md:grid-rows-2"> */}
-            <div className="col-span-6  md:col-span-4 grid place-content-start grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
+            <div className="col-span-6 md:col-span-4 grid place-content-start grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
                 <DashboardAnalyticCard
                     cardValue={analytics.totalViews}
                     cardTitle="Views"
@@ -75,7 +77,8 @@ const Dashboard = () => {
                     cardIcon={<FaComments className="w-8 h-8" />}
                 />
             </div>
-            {/* </div> */}
+            <DashboardComments />
+            <BlogViewsChart />
         </div>
     );
 };

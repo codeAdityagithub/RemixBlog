@@ -1,5 +1,5 @@
 import { ChatBubbleIcon } from "@radix-ui/react-icons";
-import { useFetcher, useParams } from "@remix-run/react";
+import { useFetcher, useParams, useSearchParams } from "@remix-run/react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -27,6 +27,9 @@ export type CommentDoc = Omit<CommentDocumentwUser, "likedBy"> & {
 };
 
 const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const commentHighlight = !!searchParams.get("comment");
+    const [open, setOpen] = useState(commentHighlight);
     const params = useParams();
     let fetcher = useFetcher();
     let [comments, setComments] = useState<CommentDoc[]>();
@@ -39,16 +42,30 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
             );
         }
     }, [fetcher.data]);
+    useEffect(() => {
+        if (commentHighlight) fetcher.load(`/blogs/${params.blogId}/comments`);
+    }, [commentHighlight]);
     // const addComment = useCallback((data: CommentDocumentwUser) => {
     //     setComments((prev) => [...prev, data]);
     // }, []);
     return (
         <Sheet
+            open={open}
             onOpenChange={(open) => {
                 // console.log("opened");
+                if (!open && commentHighlight) {
+                    setSearchParams(
+                        (prev) => {
+                            prev.delete("comment");
+                            return prev;
+                        },
+                        { preventScrollReset: true }
+                    );
+                }
                 if (open && !fetcher.data) {
                     fetcher.load(`/blogs/${params.blogId}/comments`);
                 }
+                setOpen(open);
             }}
         >
             <TooltipProvider>

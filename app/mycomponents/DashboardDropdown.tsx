@@ -1,5 +1,4 @@
 import { NavLink } from "@remix-run/react";
-import React from "react";
 import { Button } from "~/components/ui/button";
 
 type Props = {};

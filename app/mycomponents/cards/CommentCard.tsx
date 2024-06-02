@@ -1,6 +1,10 @@
 import { AvatarIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
-import { FetcherWithComponents, useFetcher } from "@remix-run/react";
-import React, { useEffect } from "react";
+import {
+    FetcherWithComponents,
+    useFetcher,
+    useSearchParams,
+} from "@remix-run/react";
+import React, { useEffect, useRef } from "react";
 import { CommentDoc } from "../BlogCommentsSheet";
 import { formatTime, useUser } from "~/utils/general";
 import { Button } from "~/components/ui/button";
@@ -14,6 +18,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { cn } from "~/lib/utils";
 
 type Props = {
     comment: CommentDoc;
@@ -23,13 +28,33 @@ type Props = {
 const CommentCard = ({ comment, updateReplies }: Props) => {
     const fetcher = useFetcher<any>();
     const user = useUser();
+    const divref = useRef<HTMLDivElement>(null);
+    const commentHighlight =
+        useSearchParams()[0].get("comment") === comment._id.toString();
     useEffect(() => {
         if (fetcher.data?.message === "deleted") {
             updateReplies && updateReplies();
         }
     }, [fetcher.data]);
+
+    useEffect(() => {
+        if (commentHighlight) {
+            divref.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "nearest",
+            });
+        }
+    }, [commentHighlight]);
+
     return (
-        <div className="p-1 border border-border rounded-md">
+        <div
+            ref={divref}
+            className={cn(
+                "p-1 border border-border rounded-md",
+                commentHighlight ? "bg-secondary" : ""
+            )}
+        >
             <div className="flex flex-row items-center gap-4">
                 <AvatarIcon className="h-8 w-8" />
                 <div className="flex flex-col">
@@ -122,17 +147,21 @@ function DeleteButton({
             <DropdownMenuContent>
                 <DropdownMenuLabel>Comment Menu</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                    disabled={fetcher.state !== "idle"}
-                    onClick={() =>
-                        fetcher.submit(
-                            { _action: "deleteComment", commentId },
-                            { method: "POST", action: "comments" }
-                        )
-                    }
-                    className="text-red-600"
-                >
-                    Delete Comment
+                <DropdownMenuItem asChild>
+                    <Button
+                        disabled={fetcher.state !== "idle"}
+                        onClick={() =>
+                            fetcher.submit(
+                                { _action: "deleteComment", commentId },
+                                { method: "POST", action: "comments" }
+                            )
+                        }
+                        size="sm"
+                        variant="destructive"
+                        className="hover:cursor-pointer"
+                    >
+                        Delete Comment
+                    </Button>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
