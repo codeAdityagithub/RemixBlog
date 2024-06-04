@@ -14,6 +14,7 @@ import { useFetcher, Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import DeleteButtonwDialog from "./DeleteButtonwDialog";
 import { useCallback, useEffect } from "react";
+import { Skeleton } from "~/components/ui/skeleton";
 
 type Props = {};
 type Card = Omit<
@@ -24,7 +25,7 @@ const DashboardComments = (props: Props) => {
     const user = useUser()!;
     const {
         data: comments,
-        isLoading: isLoadingComments,
+        isLoading,
         error,
         refetch,
     } = useQuery({
@@ -39,7 +40,7 @@ const DashboardComments = (props: Props) => {
 
             return data?.comments as Card[];
         },
-        refetchInterval: 1000 * 60,
+        refetchInterval: 1000 * 10,
         retry: 1,
         staleTime: 1000 * 60,
     });
@@ -56,6 +57,10 @@ const DashboardComments = (props: Props) => {
 
             <div className="flex flex-col gap-2 p-2 border rounded-md max-h-[400px] overflow-auto ver_scroll">
                 {error && error.message}
+                {isLoading &&
+                    [0, 1, 2].map((i) => (
+                        <Skeleton key={i} className="w-full h-32" />
+                    ))}
                 {!comments || (comments.length === 0 && "No comments to show.")}
                 {comments &&
                     comments.length > 0 &&
@@ -105,10 +110,10 @@ function DashboardCommentCard({
                     {comment.content}
                 </CardDescription>
             </CardHeader>
-            <span className="text-xs text-muted-foreground absolute right-6 top-2">
+            <span className="text-xs text-muted-foreground absolute right-6 top-1">
                 {formatTime(comment.createdAt.toString())}
             </span>
-            <CardFooter className="flex sm:pb-0 gap-2 items-center justify-end">
+            <CardFooter className="flex sm:pb-0 gap-4 items-center justify-end">
                 <Link
                     to={`/blogs/${comment.blogId.toString()}?comment=${comment._id.toString()}`}
                     className="line-clamp-2 leading-5"

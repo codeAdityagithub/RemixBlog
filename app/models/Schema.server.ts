@@ -138,6 +138,7 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
         blogOwner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Users",
+            index: true,
         },
     },
     { timestamps: true }

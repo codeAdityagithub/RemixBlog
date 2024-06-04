@@ -37,6 +37,7 @@ const DeleteButtonwDialog = ({ disabled, action, label }: Props) => {
                         disabled={disabled}
                         onClick={action}
                         type="button"
+                        size="sm"
                         variant="destructive"
                     >
                         {disabled ? "Deleting..." : "Delete"}

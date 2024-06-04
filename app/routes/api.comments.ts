@@ -14,10 +14,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             "likedBy" | "updatedAt" | "parentComment" | "blogOwner"
         >[] = await Comments.find(
             { blogOwner: user._id, parentComment: null },
-            { content: 1, likes: 1, user: 1, blogId: 1, createdAt: 1 }
-        )
-            .populate("user", { username: 1, picture: 1 })
-            .lean();
+            { content: 1, likes: 1, user: 1, blogId: 1, createdAt: 1 },
+            { $sort: { createdAt: 1 }, limit: 10 }
+        );
         return { comments };
     } catch (error) {
         return json({ error: "Somthing went wrong" }, { status: 500 });
