@@ -17,42 +17,12 @@ const Dashboard = (props: Props) => {
     // console.log(breadcrumbs);
 
     return (
-        <div className="w-full h-full flex relative bg-background text-foreground">
-            {/* <DashboardAside isOpen={isOpen} setIsOpen={setIsOpen} /> */}
-            <section className="flex-1 flex flex-col">
-                <DashboardDropdown />
-                {/* <div className="flex items-center justify-start bg-background/60 px-6 py-2"> */}
-                {/* <button
-                        onClick={() => setIsOpen(true)}
-                        className="lg:hidden pr-2 py-1"
-                    >
-                        <HamburgerMenuIcon />
-                    </button>
-                    {breadcrumbs.map((crumb, ind, arr) => {
-                        const link = arr
-                            .slice(0, ind + 1)
-                            .reduce(
-                                (prev, cur) =>
-                                    prev.toLowerCase() +
-                                    "/" +
-                                    cur.toLowerCase(),
-                                ""
-                            );
-                        // console.log(arr.length);
-                        return (
-                            <span key={crumb} className="flex items-center">
-                                <Link to={link}>{crumb}</Link>
-                                {ind !== arr.length - 1 ? (
-                                    <SlashIcon className="translate-y-[1px]" />
-                                ) : null}
-                            </span>
-                        );
-                    })} */}
-                {/* </div> */}
-                <div className="p-4 flex flex-1 items-start justify-center h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-auto ver_scroll">
-                    <Outlet />
-                </div>
-            </section>
+        <div className="w-full h-full flex flex-col relative bg-background text-foreground">
+            <DashboardDropdown />
+
+            <div className="p-4 pb-2 flex flex-col flex-1 items-center justify-start h-[calc(100vh-100px)] max-h-[calc(100vh-100px)] overflow-auto ver_scroll">
+                <Outlet />
+            </div>
         </div>
     );
 };

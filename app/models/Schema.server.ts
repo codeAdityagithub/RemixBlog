@@ -100,24 +100,6 @@ const userSchema = new mongoose.Schema<UserDocument>(
     { timestamps: true }
 );
 
-// Reply Schema
-const replySchema = new mongoose.Schema<ReplyDocument>(
-    {
-        content: { type: String, required: true },
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Users",
-            required: true,
-        },
-        commentId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Comments",
-            required: true,
-        },
-    },
-    { timestamps: true }
-);
-
 // Comment Schema
 const commentSchema = new mongoose.Schema<CommentDocument>(
     {
@@ -195,9 +177,7 @@ const engagementSchema = new mongoose.Schema<EngagementDoc>(
 
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
-export const Replies: Model<ReplyDocument> =
-    mongoose.models.Replies ||
-    mongoose.model<ReplyDocument>("Replies", replySchema);
+
 export const Comments: Model<CommentDocument> =
     mongoose.models.Comments ||
     mongoose.model<CommentDocument>("Comments", commentSchema);

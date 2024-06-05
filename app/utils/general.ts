@@ -31,33 +31,25 @@ export function useUser():
     return data.user;
 }
 
-export const parseNewBlog = (
-    form: FormData
-): {
+export const parseNewBlog = (form: {
     title: string;
     desc: string;
     thumbnail: string;
     content: Content[];
+    tags: string[];
+}): {
+    title: string;
+    desc: string;
+    thumbnail: string;
+    content: Content[];
+    tags: string[];
 } => {
-    const title = String(form.get("title"));
-    const desc = String(form.get("desc"));
-    const thumbnail = String(form.get("thumbnail"));
-    let cur = 1;
-    const contents: Content[] = [];
-    while (cur <= 5) {
-        let heading = form.get(`heading${cur}`),
-            content = form.get(`content${cur}`),
-            image = form.get(`image${cur}`);
-        cur += 1;
-        if (!heading || !content) continue;
-        const obj: Content = {
-            heading: String(heading),
-            content: String(content),
-        };
-        if (image) obj.image = String(image);
-        contents.push(obj);
-    }
-    return { title, desc, thumbnail, content: contents };
+    const contents = form.content.map((content) =>
+        content.image?.trim() === ""
+            ? { heading: content.heading, content: content.content }
+            : content
+    );
+    return { ...form, content: contents };
 };
 
 export function createArray(n: number) {

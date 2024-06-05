@@ -33,10 +33,7 @@ const DashboardBlogCard = ({ _id, title, desc, updatedAt }: Props) => {
         <Card className="flex w-full justify-between flex-col max-w-lg sm:flex-row relative">
             <CardHeader className="">
                 <CardTitle>
-                    <Link
-                        to={`/blogs/${_id}`}
-                        className="line-clamp-2 leading-5"
-                    >
+                    <Link to={`/blogs/${_id}`} className="line-clamp-2">
                         {title}
                     </Link>
                 </CardTitle>

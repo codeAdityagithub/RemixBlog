@@ -52,7 +52,7 @@ const updateCache = async () => {
 };
 
 // Update the cache every hour (3600000 milliseconds)
-setInterval(updateCache, 3600000);
+setInterval(updateCache, 5 * 60 * 1000);
 
 // Initial cache population
 updateCache();

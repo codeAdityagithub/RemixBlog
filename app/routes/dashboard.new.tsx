@@ -13,6 +13,8 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import { Badge } from "~/components/ui/badge";
+
 import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
 import { BlogDocument, Blogs, Content } from "~/models/Schema.server";
@@ -23,6 +25,7 @@ import {
     parseNewBlog,
     parseZodBlogError,
 } from "~/utils/general";
+import { Cross1Icon } from "@radix-ui/react-icons";
 
 type Props = {};
 
@@ -31,8 +34,8 @@ export async function action({ request }: ActionFunctionArgs) {
         failureRedirect: "/login",
     });
     // console.log(user);
-    const blog = await request.formData();
-    const parsed = parseNewBlog(blog);
+    const body = await request.formData();
+    const parsed = parseNewBlog(JSON.parse(body.entries().next().value[0]));
     // console.log(blog.get("content"));
     try {
         const newBlog = NewBlogSchema.parse(parsed);
@@ -56,6 +59,7 @@ const InitialBlog = {
     desc: "",
     thumbnail: "",
     content: [InitialContent],
+    tags: [] as string[],
 };
 const CreateNewBlog = (props: Props) => {
     // const [content, setContent] = useState([0]);
@@ -105,6 +109,19 @@ const CreateNewBlog = (props: Props) => {
                 content: newContent,
             });
     };
+    const addTag = (val: string) => {
+        if (formData.tags.length > 5) return;
+        setFormData((prev) => ({
+            ...prev,
+            tags: [...prev.tags, val],
+        }));
+    };
+    const removeTag = (ind: number) => {
+        setFormData((prev) => ({
+            ...prev,
+            tags: prev.tags.filter((_, i) => i !== ind),
+        }));
+    };
 
     return (
         <Form
@@ -112,7 +129,9 @@ const CreateNewBlog = (props: Props) => {
             onSubmit={(e) => {
                 e.preventDefault();
                 // console.log(formData);
-                fetcher.submit(e.currentTarget, { method: "POST" });
+                fetcher.submit(JSON.stringify(formData), {
+                    method: "POST",
+                });
             }}
             className="container max-w-3xl flex-1"
         >
@@ -165,6 +184,54 @@ const CreateNewBlog = (props: Props) => {
                         onChange={handleChange}
                         placeholder="Link to your blog thumbnail"
                     />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="tags">
+                        Tags{" "}
+                        <span className="text-red-500">{res?.error?.tags}</span>
+                    </Label>
+                    <div className="flex gap-2 glex-wrap">
+                        {formData.tags.map((tag, ind) => (
+                            <Badge
+                                title="delete tag"
+                                onClick={() => removeTag(ind)}
+                                className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                            >
+                                {tag}
+                            </Badge>
+                        ))}
+                    </div>
+                    {formData.tags.length >= 5 ? null : (
+                        <Input
+                            id="tags"
+                            name="tags"
+                            type="text"
+                            onKeyDown={(e) => {
+                                if (
+                                    formData.tags.length >= 5 ||
+                                    e.currentTarget.value.trim() === ""
+                                )
+                                    return;
+
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    addTag(e.currentTarget.value.trim());
+                                    e.currentTarget.value = "";
+                                }
+                            }}
+                            onChange={(e) => {
+                                if (formData.tags.length >= 5) return;
+                                const val = e.target.value,
+                                    char = val[val.length - 1];
+                                if (val.trim() === "") return;
+                                if (char === " " || char === ",") {
+                                    addTag(val.slice(0, val.length - 1));
+                                    e.target.value = "";
+                                }
+                            }}
+                            placeholder="Tags for your blogs"
+                        />
+                    )}
                 </div>
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="content1">Content</Label>

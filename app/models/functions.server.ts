@@ -2,6 +2,7 @@ import { connect } from "~/db.server";
 import {
     BlogDocument,
     Blogs,
+    Comments,
     Engagements,
     UserDocument,
     Users,
@@ -61,7 +62,28 @@ export async function register(
 }
 
 export async function deleteBlog(blogId: string, userId: string) {
-    await Blogs.deleteOne({ _id: blogId, author: userId });
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    // console.log(blogId, userId);
+    try {
+        const deletedBlog = await Blogs.findOneAndDelete({
+            _id: blogId,
+            author: userId,
+        });
+        if (!deletedBlog) throw new Error("Blog not deleted");
+
+        await Engagements.deleteMany({ blogId: deletedBlog._id });
+        await Comments.deleteMany({ blogId: deletedBlog._id });
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error(
+            "Error deleting",
+            error?.message ?? "Couldn't be deleted!"
+        );
+        // return false;
+    } finally {
+        session.endSession();
+    }
 }
 export async function likeBlog(blogId: string, userId: string) {
     const session = await mongoose.startSession();

@@ -34,12 +34,15 @@ export const deleteComment = async (commentId: string, userId: string) => {
             _id: commentId,
         });
         // if(deletedComment?.parentComment!==null)
-        if (deletedComment?.parentComment === null) {
+        if (!deletedComment) throw new Error("error deleting");
+        if (deletedComment.parentComment === null) {
             await Blogs.updateOne(
                 { _id: deletedComment.blogId },
                 { $inc: { comments: -1 } }
             );
         }
+        await Comments.deleteMany({ parentComment: deletedComment._id });
+
         // console.log(updated);
     } catch (error: any) {
         await session.abortTransaction();
@@ -60,12 +63,15 @@ export const deleteCommentAdmin = async (commentId: string, userId: string) => {
             _id: commentId,
         });
         // if(deletedComment?.parentComment!==null)
-        if (deletedComment?.parentComment === null) {
+        if (!deletedComment) throw new Error("error deleting");
+        if (deletedComment.parentComment === null) {
             await Blogs.updateOne(
                 { _id: deletedComment.blogId },
                 { $inc: { comments: -1 } }
             );
         }
+        await Comments.deleteMany({ parentComment: deletedComment._id });
+
         // console.log(updated);
     } catch (error: any) {
         await session.abortTransaction();

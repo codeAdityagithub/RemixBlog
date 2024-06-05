@@ -20,7 +20,7 @@ export const loader = async ({}) => {
     const trendingBlogs = cache.trendingBlogs;
     return json(
         { latestBlogs, popularBlogs, trendingBlogs },
-        { headers: { "Cache-control": "max-age=3600" } }
+        { headers: { "Cache-control": "max-age=300" } }
     );
 };
 

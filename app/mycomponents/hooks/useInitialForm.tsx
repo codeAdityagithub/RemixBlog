@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { BlogDocument } from "~/models/Schema.server";
+import { InitialBlog } from "~/routes/dashboard.blogs.$blogId";
 
 interface ReturnValue<T> {
     formData: T;
@@ -9,7 +10,7 @@ interface ReturnValue<T> {
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     hasChanged: boolean;
 }
-function useInitialForm(initialData: BlogDocument): ReturnValue<BlogDocument> {
+function useInitialForm(initialData: InitialBlog): ReturnValue<InitialBlog> {
     const [formData, setFormData] = useState(initialData);
     const [hasChanged, setHasChanged] = useState(false);
     useEffect(() => {

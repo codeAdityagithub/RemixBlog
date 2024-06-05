@@ -36,6 +36,7 @@
     "copy-to-clipboard": "^3.3.3",
     "embla-carousel-react": "^8.1.1",
     "isbot": "^4.1.0",
+    "lru-cache": "^10.2.2",
     "mongoose": "^8.3.3",
     "next-themes": "^0.3.0",
     "react": "^18.2.0",

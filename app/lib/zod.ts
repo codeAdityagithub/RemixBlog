@@ -32,6 +32,14 @@ export const NewBlogSchema = z.object({
     thumbnail: z.string().url({
         message: "Thumbnail must be a valid URL.",
     }),
+    tags: z
+        .array(
+            z
+                .string()
+                .min(3, { message: "Tags must be atleast 3 chars" })
+                .max(30, { message: "A tag can be of atmost 30 chars long" })
+        )
+        .max(5, { message: "A blog can have atmost five tags" }),
     content: z.array(
         z.object({
             heading: z
