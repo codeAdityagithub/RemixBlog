@@ -54,7 +54,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             totalBlogs: result[0].totalBlogs as number,
         };
     } else {
-        console.log("cache hit");
+        // console.log("cache hit");
         const blogs = (await Blogs.find(
             { author: user._id },
             {

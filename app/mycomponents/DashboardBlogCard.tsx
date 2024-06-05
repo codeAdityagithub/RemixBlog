@@ -1,16 +1,12 @@
 import { Link, useFetcher } from "@remix-run/react";
-import { ObjectId } from "mongoose";
-import React from "react";
 import { Button } from "~/components/ui/button";
 import {
     Card,
-    CardContent,
     CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from "~/components/ui/card";
-import { BlogDocument } from "~/models/Schema.server";
 import { formatTime } from "~/utils/general";
 import DeleteButtonwDialog from "./DeleteButtonwDialog";
 
@@ -33,7 +29,10 @@ const DashboardBlogCard = ({ _id, title, desc, updatedAt }: Props) => {
         <Card className="flex w-full justify-between flex-col max-w-lg sm:flex-row relative">
             <CardHeader className="">
                 <CardTitle>
-                    <Link to={`/blogs/${_id}`} className="line-clamp-2">
+                    <Link
+                        to={`/blogs/${_id}`}
+                        className="leading-5 line-clamp-2"
+                    >
                         {title}
                     </Link>
                 </CardTitle>

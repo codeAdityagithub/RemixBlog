@@ -114,3 +114,43 @@ export function getGreeting() {
         return "Good Evening";
     }
 }
+
+export function getPaginationRange(
+    totalPages: number,
+    activePage: number,
+    visiblePages = 5
+) {
+    let startPage, endPage;
+    const halfVisible = Math.floor(visiblePages / 2);
+
+    // Calculate the start and end pages
+    if (activePage <= halfVisible) {
+        // Near the start
+        startPage = 1;
+        endPage = Math.min(totalPages, visiblePages);
+    } else if (activePage + halfVisible >= totalPages) {
+        // Near the end
+        startPage = Math.max(1, totalPages - visiblePages + 1);
+        endPage = totalPages;
+    } else {
+        // Somewhere in the middle
+        startPage = activePage - halfVisible;
+        endPage = activePage + halfVisible;
+    }
+
+    // Ensure the range includes two previous and two next pages if available
+    // if (activePage - startPage < 2) {
+    //     endPage = Math.min(
+    //         endPage + (2 - (activePage - startPage)),
+    //         totalPages
+    //     );
+    // }
+    // if (endPage - activePage < 2) {
+    //     startPage = Math.max(1, startPage - (2 - (endPage - activePage)));
+    // }
+
+    return Array.from(
+        { length: endPage - startPage + 1 },
+        (_, i) => startPage + i
+    );
+}

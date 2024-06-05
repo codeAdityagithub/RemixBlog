@@ -24,7 +24,8 @@ export const RegisterFormSchema = z.object({
 export const NewBlogSchema = z.object({
     title: z
         .string()
-        .min(3, { message: "Title must be atleast 3 characters." }),
+        .min(3, { message: "Title must be atleast 3 characters." })
+        .max(200, { message: "Title cannot be more than 200 chars." }),
     desc: z
         .string()
         .min(10, { message: "Description must be atleast 10 characters." })
