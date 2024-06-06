@@ -1,4 +1,4 @@
-import { Link, useFetcher } from "@remix-run/react";
+import { Link, useFetcher, useSearchParams } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import {
     Card,
@@ -19,6 +19,7 @@ type Props = {
 
 const DashboardBlogCard = ({ _id, title, desc, updatedAt }: Props) => {
     const fetcher = useFetcher();
+    const page = useSearchParams()[0].get("page") ?? "1";
     const deleteBlog = () => {
         fetcher.submit(null, {
             method: "DELETE",

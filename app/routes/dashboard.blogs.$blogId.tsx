@@ -4,7 +4,12 @@ import {
     json,
     redirect,
 } from "@remix-run/node";
-import { useLoaderData, useFetcher, useActionData } from "@remix-run/react";
+import {
+    useLoaderData,
+    useFetcher,
+    useActionData,
+    ClientActionFunctionArgs,
+} from "@remix-run/react";
 import { useState, useEffect, FormEvent } from "react";
 import { toast } from "sonner";
 import invariant from "tiny-invariant";
@@ -21,12 +26,14 @@ import { Blogs } from "~/models/Schema.server";
 import { deleteBlog } from "~/models/functions.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
+import serverCache from "~/utils/cache.server";
 import {
     destructiveToastStyle,
     parseNewBlog,
     parseZodBlogError,
     successToastStyle,
 } from "~/utils/general";
+import { cachedClientAction } from "~/utils/localStorageCache.client";
 export type InitialBlog = {
     title: string;
     desc: string;
@@ -65,8 +72,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const { blogId } = params;
     invariant(blogId);
     if (request.method === "DELETE") {
+        // const page = (await request.formData()).get("page");
+        // console.log(page);
+        // return redirect(`/dashboard/blogs?page=${page}`);
         await deleteBlog(blogId, user._id);
-        return redirect("/dashboard/blogs");
+        console.log("deleted");
+        serverCache.delete(`ttl${user._id}`);
+        return { deleted: true };
     }
     const body = await request.formData();
     const parsed = parseNewBlog(JSON.parse(body.entries().next().value[0]));
@@ -93,6 +105,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
             { status: 500 }
         );
     }
+}
+export async function clientAction({
+    request,
+    serverAction,
+}: ClientActionFunctionArgs) {
+    if (request.method === "DELETE") {
+        return cachedClientAction({
+            cacheKeys: [`dashboardBlogs`],
+            serverAction,
+        });
+    }
+    return await serverAction();
 }
 
 const DashboardBlogEdit = () => {

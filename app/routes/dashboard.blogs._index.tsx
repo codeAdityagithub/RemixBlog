@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import {
+    ClientLoaderFunctionArgs,
+    Link,
+    useFetcher,
+    useLoaderData,
+} from "@remix-run/react";
 import { Types } from "mongoose";
 import { authenticator } from "~/auth.server";
 import { TypographyH1, TypographyP } from "~/components/Typography";
@@ -9,6 +14,10 @@ import { BlogDocument, Blogs } from "~/models/Schema.server";
 import DashboardBlogCard from "~/mycomponents/DashboardBlogCard";
 import DashboardPagination from "~/mycomponents/DashboardPagination";
 import serverCache from "~/utils/cache.server";
+import {
+    cacheClientLocal,
+    cacheDashboardBlogs,
+} from "~/utils/localStorageCache.client";
 
 type BlogDoc = Pick<BlogDocument, "_id" | "desc" | "title" | "updatedAt">;
 
@@ -17,66 +26,36 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         failureRedirect: "/login",
     });
     await connect();
-    const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
-    const pageSize = 10;
-    const skip = (page - 1) * pageSize;
-    if (!serverCache.has(`ttl${user._id}`)) {
-        // console.log("cache miss");
-        const result = await Blogs.aggregate([
-            { $match: { author: new Types.ObjectId(user._id) } },
-            {
-                $facet: {
-                    totalBlogs: [{ $count: "count" }],
-                    blogs: [
-                        { $sort: { updatedAt: -1 } },
-                        { $skip: skip },
-                        { $limit: pageSize },
-                        {
-                            $project: {
-                                _id: 1,
-                                desc: 1,
-                                title: 1,
-                                updatedAt: 1,
-                            },
-                        },
-                    ],
-                },
-            },
-            {
-                $addFields: {
-                    totalBlogs: { $arrayElemAt: ["$totalBlogs.count", 0] },
-                },
-            },
-        ]);
-        serverCache.set(`ttl${user._id}`, result[0].totalBlogs);
-        return {
-            blogs: result[0].blogs as BlogDoc[],
-            totalBlogs: result[0].totalBlogs as number,
-        };
-    } else {
-        // console.log("cache hit");
-        const blogs = (await Blogs.find(
-            { author: user._id },
-            {
-                _id: 1,
-                desc: 1,
-                title: 1,
-                updatedAt: 1,
-            },
-            { lean: true, skip, limit: pageSize }
-        ).sort({ updatedAt: -1 })) as BlogDoc[];
-        return {
-            blogs,
-            totalBlogs: serverCache.get(`ttl${user._id}`) as number,
-        };
-    }
+    const blogs = (await Blogs.find(
+        { author: user._id },
+        {
+            _id: 1,
+            desc: 1,
+            title: 1,
+            updatedAt: 1,
+        }
+    )
+        .sort({ updatedAt: -1 })
+        .lean()) as BlogDoc[];
+    return { blogs };
 };
 
+export const clientLoader = ({
+    request,
+    serverLoader,
+}: ClientLoaderFunctionArgs) =>
+    cacheDashboardBlogs({
+        request,
+        serverLoader,
+    });
+clientLoader.hydrate = true;
 const DashboardBlogs = () => {
-    const { blogs, totalBlogs } = useLoaderData<typeof loader>();
-    // console.log(totalBlogs);
+    const { blogs, totalBlogs } = useLoaderData<{
+        blogs: BlogDoc[];
+        totalBlogs: number;
+    }>();
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col items-center">
             <div className="w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px] overflow-auto ver_scroll flex-1 flex flex-col items-center gap-4">
                 {blogs.map((blog, ind) => (
                     <DashboardBlogCard

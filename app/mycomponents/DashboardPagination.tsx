@@ -1,4 +1,6 @@
-import { FetcherWithComponents, useSearchParams } from "@remix-run/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import { FetcherWithComponents, Link, useSearchParams } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
 import {
     Pagination,
     PaginationContent,
@@ -19,11 +21,14 @@ const DashboardPagination = ({ totalBlogs }: Props) => {
 
     const paginationRange = getPaginationRange(totalPages, activePage);
     return (
-        <Pagination>
+        <Pagination className="mt-1">
             <PaginationContent>
                 {activePage === 1 ? null : (
                     <PaginationItem>
-                        <PaginationPrevious to={`?page=${activePage - 1}`} />
+                        <PaginationLink to={`?page=${activePage - 1}`}>
+                            <ChevronLeftIcon />
+                            <span className="hidden sm:block">Previous</span>
+                        </PaginationLink>
                     </PaginationItem>
                 )}
                 <div className="flex max-w-[250px] gap-1 overflow-x-clip">
@@ -43,7 +48,10 @@ const DashboardPagination = ({ totalBlogs }: Props) => {
                 </PaginationItem> */}
                 {activePage === totalPages ? null : (
                     <PaginationItem>
-                        <PaginationNext to={`?page=${activePage + 1}`} />
+                        <PaginationLink to={`?page=${activePage + 1}`}>
+                            <ChevronRightIcon />
+                            <span className="hidden sm:block">Next</span>
+                        </PaginationLink>
                     </PaginationItem>
                 )}
             </PaginationContent>

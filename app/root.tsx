@@ -4,6 +4,7 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
+    ShouldRevalidateFunction,
     useLoaderData,
     useRouteError,
 } from "@remix-run/react";
