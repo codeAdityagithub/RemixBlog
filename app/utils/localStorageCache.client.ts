@@ -52,9 +52,12 @@ export async function cacheDashboardBlogs({
     }
     console.log("cache miss");
     const data = await serverLoader();
-    if (data) addToCache(cacheKey, data);
+    console.log(data);
+    if (data && data.blogs?.length > 0) {
+        addToCache(cacheKey, data);
+        window.dispatchEvent(new Event("localStorageChange"));
+    }
     // console.log(data);
-    window.dispatchEvent(new Event("localStorageChange"));
 
     return {
         blogs: data.blogs.splice(skip, pageSize),

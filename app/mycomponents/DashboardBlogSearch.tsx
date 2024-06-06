@@ -22,7 +22,7 @@ const DashboardBlogSearch = (props: Props) => {
     const [results, setResults] = useState<BlogDoc[]>([]);
     useEffect(() => {
         function set() {
-            setBlogs(getFromCache("dashboardBlogs").blogs);
+            setBlogs(getFromCache("dashboardBlogs")?.blogs ?? []);
             console.log("event fired");
         }
         set();

@@ -54,7 +54,7 @@ export function ErrorBoundary() {
         </html>
     );
 }
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             refetchOnMount: false,

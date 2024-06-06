@@ -9,7 +9,7 @@ import { connect } from "~/db.server";
 import { getAnalytics } from "~/models/dashboard.server";
 import DashboardAnalyticCard from "~/mycomponents/cards/DashboardAnalyticCard";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
-import { getGreeting } from "~/utils/general";
+import { getGreeting, useUser } from "~/utils/general";
 import { FaUsersViewfinder } from "react-icons/fa6";
 import DashboardComments from "~/mycomponents/DashboardComments";
 import BlogViewsChart from "~/mycomponents/BlogViewsChart";
@@ -26,9 +26,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 const Dashboard = () => {
     const initial = useLoaderData<typeof loader>().analytics;
     // const fetcher = useFetcher<any>();
+    const user = useUser();
     const { data: analytics, isLoading } = useQuery({
         initialData: initial,
-        queryKey: ["analytics"],
+        queryKey: ["analytics", user?._id],
         queryFn: async () => {
             const data = await fetch("/dashboard/analytics", {
                 credentials: "same-origin",

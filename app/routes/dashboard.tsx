@@ -8,12 +8,12 @@ type Props = {};
 
 const Dashboard = (props: Props) => {
     // const [isOpen, setIsOpen] = useState(false);
-    const breadcrumbs = useLocation()
-        .pathname.split("/")
-        .splice(1)
-        .map((str) =>
-            str !== "" ? str[0]?.toUpperCase() + str?.slice(1) : ""
-        );
+    // const breadcrumbs = useLocation()
+    //     .pathname.split("/")
+    //     .splice(1)
+    //     .map((str) =>
+    //         str !== "" ? str[0]?.toUpperCase() + str?.slice(1) : ""
+    //     );
     // console.log(breadcrumbs);
 
     return (
