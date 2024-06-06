@@ -2,10 +2,8 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import {
     ClientLoaderFunctionArgs,
     Link,
-    useFetcher,
     useLoaderData,
 } from "@remix-run/react";
-import { Types } from "mongoose";
 import { authenticator } from "~/auth.server";
 import { TypographyH1, TypographyP } from "~/components/Typography";
 import { Button } from "~/components/ui/button";
@@ -13,11 +11,7 @@ import { connect } from "~/db.server";
 import { BlogDocument, Blogs } from "~/models/Schema.server";
 import DashboardBlogCard from "~/mycomponents/DashboardBlogCard";
 import DashboardPagination from "~/mycomponents/DashboardPagination";
-import serverCache from "~/utils/cache.server";
-import {
-    cacheClientLocal,
-    cacheDashboardBlogs,
-} from "~/utils/localStorageCache.client";
+import { cacheDashboardBlogs } from "~/utils/localStorageCache.client";
 
 type BlogDoc = Pick<BlogDocument, "_id" | "desc" | "title" | "updatedAt">;
 

@@ -25,8 +25,12 @@ const DashboardPagination = ({ totalBlogs }: Props) => {
             <PaginationContent>
                 {activePage === 1 ? null : (
                     <PaginationItem>
-                        <PaginationLink to={`?page=${activePage - 1}`}>
-                            <ChevronLeftIcon />
+                        <PaginationLink
+                            aria-label="Go to previous page"
+                            size="sm"
+                            to={`?page=${activePage - 1}`}
+                        >
+                            <ChevronLeftIcon className="h-4 w-4" />
                             <span className="hidden sm:block">Previous</span>
                         </PaginationLink>
                     </PaginationItem>
@@ -48,9 +52,13 @@ const DashboardPagination = ({ totalBlogs }: Props) => {
                 </PaginationItem> */}
                 {activePage === totalPages ? null : (
                     <PaginationItem>
-                        <PaginationLink to={`?page=${activePage + 1}`}>
-                            <ChevronRightIcon />
+                        <PaginationLink
+                            aria-label="Go to previous page"
+                            size="sm"
+                            to={`?page=${activePage + 1}`}
+                        >
                             <span className="hidden sm:block">Next</span>
+                            <ChevronRightIcon className="h-4 w-4" />
                         </PaginationLink>
                     </PaginationItem>
                 )}

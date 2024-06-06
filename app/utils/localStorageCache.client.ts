@@ -54,6 +54,8 @@ export async function cacheDashboardBlogs({
     const data = await serverLoader();
     if (data) addToCache(cacheKey, data);
     // console.log(data);
+    window.dispatchEvent(new Event("localStorageChange"));
+
     return {
         blogs: data.blogs.splice(skip, pageSize),
         totalBlogs: data.blogs.length,
@@ -70,7 +72,6 @@ export async function cachedClientAction({
     cacheKeys.forEach((key) => {
         removeFromCache(key);
     });
-
     const serverData = await serverAction();
     return serverData;
 }

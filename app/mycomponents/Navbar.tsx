@@ -70,6 +70,8 @@ const Navbar = (props: Props) => {
                                         <AvatarImage
                                             alt={user.username}
                                             src={user.picture}
+                                            width={40}
+                                            height={40}
                                         ></AvatarImage>
                                         <AvatarFallback>
                                             <AvatarIcon className="w-full h-full p-1"></AvatarIcon>
