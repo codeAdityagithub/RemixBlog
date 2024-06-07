@@ -16,7 +16,7 @@ const cache: cacheType = {
 async function getPopularBlogs() {
     return (await Blogs.find(
         {},
-        {},
+        { comments: 0, likes: 0, content: 0 },
         { sort: { views: -1 }, limit: 10, lean: true }
     ).populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
@@ -28,14 +28,15 @@ async function getTrendingBlogs() {
         {
             createdAt: { $gte: oneMAgo },
         },
-        {},
+        { content: 0 },
         { sort: { views: -1, likes: -1, comments: -1 }, limit: 10, lean: true }
     ).populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
 async function getLatestBlogs() {
     return (await Blogs.find(
         {},
-        {},
+        { comments: 0, likes: 0, content: 0, views: 0 },
+
         { sort: { createdAt: -1 }, limit: 10, lean: true }
     ).populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }

@@ -34,8 +34,8 @@ export async function action({ request }: ActionFunctionArgs) {
         failureRedirect: "/login",
     });
     // console.log(user);
-    const body = await request.formData();
-    const parsed = parseNewBlog(JSON.parse(body.entries().next().value[0]));
+    const body = await request.json();
+    const parsed = parseNewBlog(body);
     // console.log(blog.get("content"));
     try {
         const newBlog = NewBlogSchema.parse(parsed);
@@ -129,8 +129,9 @@ const CreateNewBlog = (props: Props) => {
             onSubmit={(e) => {
                 e.preventDefault();
                 // console.log(formData);
-                fetcher.submit(JSON.stringify(formData), {
+                fetcher.submit(formData, {
                     method: "POST",
+                    encType: "application/json",
                 });
             }}
             className="container max-w-3xl flex-1"

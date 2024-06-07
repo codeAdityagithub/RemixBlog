@@ -11,6 +11,7 @@ import { BlogDocumentwUser } from "~/models/Schema.server";
 import { formatTime } from "~/utils/general";
 import { BlogDocumentwPic } from "~/models/modelCache.server";
 import { AvatarIcon } from "@radix-ui/react-icons";
+import { Badge } from "~/components/ui/badge";
 
 const BlogCardSmall = ({
     _id,
@@ -19,7 +20,9 @@ const BlogCardSmall = ({
     thumbnail,
     title,
     updatedAt,
+    tags,
 }: BlogDocumentwPic) => {
+    // console.log(tags);
     return (
         <Card className="w-full max-w-md h-min">
             <img
@@ -53,7 +56,7 @@ const BlogCardSmall = ({
                                 <AvatarIcon className="w-full h-full" />
                             </AvatarFallback>
                         </Avatar>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-muted-foreground">
                             <p>{author.username}</p>
                             <p>{formatTime(updatedAt.toString())}</p>
                         </div>
@@ -64,6 +67,22 @@ const BlogCardSmall = ({
                     >
                         Read more
                     </Link>
+                </div>
+                <div className="flex gap-2 items-start justify-normal flex-wrap line-clamp-1">
+                    {tags?.map((tag, i) => {
+                        let isElip = tag.length > 8;
+                        return (
+                            <Badge
+                                aria-label={"Blog tag" + tag}
+                                variant="outline"
+                                title={tag}
+                                key={i + tag}
+                            >
+                                #{tag.substring(0, Math.min(8, tag.length))}
+                                {isElip && "..."}
+                            </Badge>
+                        );
+                    })}
                 </div>
             </CardContent>
         </Card>

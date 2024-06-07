@@ -80,8 +80,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
         serverCache.delete(`ttl${user._id}`);
         return { deleted: true };
     }
-    const body = await request.formData();
-    const parsed = parseNewBlog(JSON.parse(body.entries().next().value[0]));
+    const body = await request.json();
+    const parsed = parseNewBlog(body);
     try {
         // console.log(parsed);
         const updatedBlog = NewBlogSchema.parse(parsed);
@@ -145,8 +145,9 @@ const DashboardBlogEdit = () => {
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        fetcher.submit(JSON.stringify(formData), {
+        fetcher.submit(formData, {
             method: "POST",
+            encType: "application/json",
         });
     };
 

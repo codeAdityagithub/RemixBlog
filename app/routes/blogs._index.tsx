@@ -63,6 +63,7 @@ const AllBlogs = () => {
                                 desc={blog.desc}
                                 thumbnail={blog.thumbnail}
                                 title={blog.title}
+                                tags={blog.tags}
                             />
                         </CarouselItem>
                     ))}
@@ -87,6 +88,7 @@ const AllBlogs = () => {
                             desc={blog.desc}
                             thumbnail={blog.thumbnail}
                             title={blog.title}
+                            tags={blog.tags}
                             updatedAt={new Date(blog.updatedAt)}
                         />
                     ))}
@@ -107,6 +109,7 @@ const AllBlogs = () => {
                         author={blog.author}
                         desc={blog.desc}
                         thumbnail={blog.thumbnail}
+                        tags={blog.tags}
                         title={blog.title}
                         updatedAt={new Date(blog.updatedAt)}
                     />
