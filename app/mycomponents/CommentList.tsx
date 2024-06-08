@@ -19,9 +19,10 @@ import ReplyToComment from "./ReplyToComment";
 import CommentCard from "./cards/CommentCard";
 type Props = {
     comments: CommentDoc[] | undefined;
+    revalidate: () => void;
 };
 
-const CommentList = ({ comments: initialComments }: Props) => {
+const CommentList = ({ comments: initialComments, revalidate }: Props) => {
     const [comments, setComments] = useState(initialComments);
     const [sorting, setSorting] = useState("mostRelevant");
     useEffect(() => {
@@ -71,6 +72,7 @@ const CommentList = ({ comments: initialComments }: Props) => {
                         <CommentCard
                             key={comment._id.toString()}
                             comment={comment}
+                            updateReplies={revalidate}
                         />
                     ))
                 ))}

@@ -1,6 +1,6 @@
-import { ChatBubbleIcon } from "@radix-ui/react-icons";
+import { ChatBubbleIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { useFetcher, useParams, useSearchParams } from "@remix-run/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
     Sheet,
@@ -15,7 +15,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { CommentDocument, CommentDocumentwUser } from "~/models/Schema.server";
+import { CommentDocumentwUser } from "~/models/Schema.server";
 import CommentForm from "./CommentForm";
 import CommentList from "./CommentList";
 import CommentLoader from "./loaders/CommentLoader";
@@ -31,23 +31,36 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     const commentHighlight = !!searchParams.get("comment");
     const [open, setOpen] = useState(commentHighlight);
     const params = useParams();
-    let fetcher = useFetcher();
-    let [comments, setComments] = useState<CommentDoc[]>();
+    let fetcher = useFetcher<any>();
+    const [comments, setComments] = useState<CommentDoc[]>([]);
+    const page = useRef<number | null>(1);
     // console.log(fetcher.data);
     useEffect(() => {
         if (fetcher.data) {
-            setComments(
-                // @ts-expect-error
-                fetcher.data.comments as unknown as CommentDoc[]
-            );
+            console.log(fetcher.data.append);
+            if (!fetcher.data.append) {
+                setComments(fetcher.data.comments as CommentDoc[]);
+            } else {
+                setComments((prev) => [
+                    ...prev,
+                    ...(fetcher.data.comments as CommentDoc[]),
+                ]);
+            }
         }
     }, [fetcher.data]);
+
+    function revalidate() {
+        fetcher.load(
+            `/blogs/${params.blogId}/comments?page=${page.current}&all=true`
+        );
+    }
+
     useEffect(() => {
-        if (commentHighlight) fetcher.load(`/blogs/${params.blogId}/comments`);
+        if (commentHighlight) fetchComments();
     }, [commentHighlight]);
-    // const addComment = useCallback((data: CommentDocumentwUser) => {
-    //     setComments((prev) => [...prev, data]);
-    // }, []);
+    const fetchComments = () => {
+        fetcher.load(`/blogs/${params.blogId}/comments?page=${page.current}`);
+    };
     return (
         <Sheet
             open={open}
@@ -63,7 +76,7 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     );
                 }
                 if (open && !fetcher.data) {
-                    fetcher.load(`/blogs/${params.blogId}/comments`);
+                    fetchComments();
                 }
                 setOpen(open);
             }}
@@ -94,15 +107,30 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     </SheetTitle>
                 </SheetHeader>
                 {/* form for comments */}
-                <CommentForm />
-                <CommentList comments={comments} />
-                {fetcher.state === "loading" && (
+                <CommentForm revalidate={revalidate} />
+                <CommentList comments={comments} revalidate={revalidate} />
+                {fetcher.state === "loading" && comments.length === 0 && (
                     <div className="flex flex-col gap-4">
                         {Array.from({ length: 3 }).map((i, ind) => (
                             <CommentLoader key={ind} />
                         ))}
                     </div>
                 )}
+                <Button
+                    variant="secondary"
+                    onClick={() => {
+                        if (page.current) {
+                            page.current += 1;
+                            fetchComments();
+                        }
+                    }}
+                    disabled={
+                        fetcher.state !== "idle" ||
+                        fetcher.data?.comments.length === 0
+                    }
+                >
+                    <ChevronDownIcon />
+                </Button>
             </SheetContent>
         </Sheet>
     );

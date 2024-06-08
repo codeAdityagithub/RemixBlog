@@ -20,24 +20,18 @@ type Props = {
 
 const ReplyToComment = ({ commentId, isOwner }: Props) => {
     // const fetcher1 = useFetcher<any>({ key: `load-replies${commentId}` });
-    const fetcher2 = useFetcher<any>({ key: `post-reply${commentId}` });
+    const fetcher = useFetcher<any>();
     const [replies, setReplies] = useState<CommentDoc[] | null>(null);
     const [comment, setComment] = useState("");
     const blogId = useParams().blogId;
 
-    // useEffect(() => {
-    //     if (fetcher1.data && fetcher1.data.replies) {
-    //         setReplies(fetcher1.data.replies as CommentDoc[]);
-    //         // console.log(fetcher1.data.replies);
-    //     }
-    // }, [fetcher1.data]);
     useEffect(() => {
-        if (fetcher2.data?.ok) {
+        if (fetcher.data?.ok) {
             console.log("fetching replies");
             setComment("");
             fetchReplies();
         }
-    }, [fetcher2.data]);
+    }, [fetcher.data]);
 
     async function fetchReplies() {
         // if (fetcher1.state === "idle") fetcher1.load(`comments/${commentId}`);
@@ -54,12 +48,12 @@ const ReplyToComment = ({ commentId, isOwner }: Props) => {
                         Reply
                     </AccordionTrigger>
                     <AccordionContent className="w-full p-2 mt-2">
-                        <fetcher2.Form
+                        <fetcher.Form
                             method="POST"
                             action={`comments/${commentId}`}
                             // onSubmit={(e) => {
                             //     e.preventDefault();
-                            //     fetcher2.submit(e.currentTarget, {
+                            //     fetcher.submit(e.currentTarget, {
                             //         action: `comments/${commentId}`,
                             //         method: "POST",
                             //         navigate: false,
@@ -81,13 +75,13 @@ const ReplyToComment = ({ commentId, isOwner }: Props) => {
                                 value="replyComment"
                                 size="sm"
                                 disabled={
-                                    fetcher2.state === "submitting" ||
+                                    fetcher.state === "submitting" ||
                                     comment.length === 0
                                 }
                             >
                                 reply
                             </Button>
-                        </fetcher2.Form>
+                        </fetcher.Form>
                     </AccordionContent>
                 </AccordionItem>
             ) : null}

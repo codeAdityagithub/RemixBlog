@@ -18,7 +18,16 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     invariant(blogId);
     const user = await authenticator.isAuthenticated(request);
     await connect();
-    const comments = await Comments.find({ blogId, parentComment: null })
+    const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
+    const all = new URL(request.url).searchParams.get("all");
+    const pageSize = all === "true" ? page * 10 : 10;
+    console.log(pageSize);
+    const skip = all === "true" ? 0 : (page - 1) * pageSize;
+    const comments = await Comments.find(
+        { blogId, parentComment: null },
+        {},
+        { skip, limit: pageSize, sort: { likes: 1 } }
+    )
         .populate("user", {
             username: 1,
         })
@@ -37,7 +46,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     });
 
     console.log("comments fetched with liked status");
-    return { comments: commentsWithLiked };
+    return { comments: commentsWithLiked, append: all !== "true" };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -52,6 +61,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             const commentId = form.get("commentId");
             invariant(commentId);
             await likeComment(commentId.toString(), userId);
+            return { message: "liked" };
         } else if (form.get("_action") === "deleteComment") {
             const commentId = form.get("commentId");
             invariant(commentId);
@@ -61,18 +71,17 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             const comment = form.get("comment");
             invariant(comment);
             await addCommentToBlog(blogId, userId, comment.toString());
+            return { message: "added" };
         }
-        return { ok: true };
     } catch (error) {
         return { error: "Something went Wrong" };
     }
 };
 
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-    defaultShouldRevalidate,
-    formAction,
-}) => {
-    if (formAction?.split("/").pop() !== "comments") return false;
+export const shouldRevalidate: ShouldRevalidateFunction = () => {
+    return false;
+    // if (formAction?.split("/").pop() !== "comments") return false;
+    // // else if (actionResult?.message === "deleted") return false;
 
-    return defaultShouldRevalidate;
+    // return defaultShouldRevalidate;
 };

@@ -32,7 +32,10 @@ const CommentCard = ({ comment, updateReplies }: Props) => {
     const commentHighlight =
         useSearchParams()[0].get("comment") === comment._id.toString();
     useEffect(() => {
-        if (fetcher.data?.message === "deleted") {
+        if (
+            fetcher.data?.message === "deleted" ||
+            fetcher.data?.message === "liked"
+        ) {
             updateReplies && updateReplies();
         }
     }, [fetcher.data]);
