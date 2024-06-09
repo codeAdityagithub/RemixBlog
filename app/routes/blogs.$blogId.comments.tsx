@@ -20,14 +20,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
     const all = new URL(request.url).searchParams.get("all");
     const pageSize = all === "true" ? page * 10 : 10;
-    console.log(pageSize);
     const skip = all === "true" ? 0 : (page - 1) * pageSize;
     await connect();
-    const comments = await Comments.find(
-        { blogId, parentComment: null },
-        {},
-        { skip, limit: pageSize, sort: { likes: 1 } }
-    )
+    const comments = await Comments.find({ blogId, parentComment: null }, {})
+        .sort({ likes: -1 })
+        .skip(skip)
+        .limit(pageSize)
         .populate("user", {
             username: 1,
         })

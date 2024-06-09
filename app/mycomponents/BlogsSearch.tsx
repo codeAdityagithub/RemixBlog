@@ -26,10 +26,12 @@ const BlogsSearch = (props: Props) => {
     const tag = searchParams.get("searchTag");
     const [query, setQuery] = useState("");
     const input = useRef<HTMLInputElement>(null);
+    const [hidden, setHidden] = useState(true);
     useEffect(() => {
         if (tag) {
             input.current?.focus();
             setQuery(tag);
+            setHidden(false);
         }
     }, [tag]);
 
@@ -52,6 +54,12 @@ const BlogsSearch = (props: Props) => {
 
     return (
         <div className="mx-auto relative sm:w-[300px]">
+            <div
+                onClick={() => {
+                    setHidden(true);
+                }}
+                className={cn(hidden && "hidden", "fixed inset-0")}
+            ></div>
             <span className="absolute top-1/2 -translate-y-1/2 left-0 py-3 px-2">
                 <FaSearch />
             </span>
@@ -60,18 +68,29 @@ const BlogsSearch = (props: Props) => {
                 className="pl-8"
                 ref={input}
                 value={query}
-                onBlur={(e) => {
+                onFocus={(e) => {
+                    if (e.target.value.length >= 2) setHidden(false);
+                }}
+                onBlur={() => {
                     setSearchParams((prev) => {
                         prev.delete("searchTag");
                         return prev;
                     });
-                    setQuery("");
                 }}
                 onChange={(e) => {
                     setQuery(e.target.value);
+                    if (e.target.value.trim().length >= 2 && hidden)
+                        setHidden(false);
+                    else if (e.target.value.trim().length < 2 && !hidden)
+                        setHidden(true);
                 }}
             />
-            <div className="absolute top-full left-0 w-full max-h-96 overflow-auto bg-background rounded-md ver_scroll space-y-2 p-2 empty:p-0">
+            <div
+                className={cn(
+                    hidden && "hidden",
+                    "absolute top-full left-0 w-full max-h-96 overflow-auto bg-background rounded-md ver_scroll space-y-2 p-2 empty:p-0"
+                )}
+            >
                 {isError && (
                     <p className="text-center text-xl">Something went wrong!</p>
                 )}
@@ -85,7 +104,10 @@ const BlogsSearch = (props: Props) => {
                             <Link
                                 to={`/blogs/${blog._id}`}
                                 prefetch="intent"
-                                onClick={() => setQuery("")}
+                                onClick={() => {
+                                    setQuery("");
+                                    setHidden(true);
+                                }}
                             >
                                 <Button variant="link">Read</Button>
                             </Link>

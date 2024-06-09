@@ -40,22 +40,22 @@ const Dashboarduser = ({ totalBlogs }: Props) => {
             </CardHeader>
             <CardContent className="flex gap-2 md:flex-col *:w-full *:justify-start *:md:gap-8 items-center flex-1">
                 <div className="text-xl font-bold flex-1 flex flex-col items-center sm:flex-row sm:gap-2 ">
-                    {totalBlogs}{" "}
-                    <span className="text-muted-foreground text-sm">
+                    <p className="flex-1">{totalBlogs} </p>
+                    <div className="text-muted-foreground text-sm flex-[4]">
                         Total Blogs
-                    </span>
+                    </div>
                 </div>
                 <div className="text-xl font-bold flex-1 flex flex-col items-center sm:flex-row sm:gap-2 ">
-                    104{" "}
-                    <span className="text-muted-foreground text-sm">
+                    <p className="flex-1">104 </p>
+                    <div className="text-muted-foreground text-sm flex-[4]">
                         Followers
-                    </span>
+                    </div>
                 </div>
                 <div className="text-xl font-bold flex-1 flex flex-col items-center sm:flex-row sm:gap-2 ">
-                    23{" "}
-                    <span className="text-muted-foreground text-sm">
+                    <p className="flex-1">23 </p>
+                    <div className="text-muted-foreground text-sm flex-[4]">
                         Following
-                    </span>
+                    </div>
                 </div>
             </CardContent>
         </Card>

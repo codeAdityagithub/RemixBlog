@@ -20,6 +20,7 @@ export interface ReplyDocument {
 
 // Interface
 export interface CommentDocument {
+    _id: Types.ObjectId;
     content: string;
     user: Types.ObjectId;
     blogId: Types.ObjectId;
@@ -136,13 +137,13 @@ const contentSchema = new mongoose.Schema<Content>({
 
 const blogSchema = new mongoose.Schema<BlogDocument>(
     {
-        title: { type: String, required: true, maxLength: 150 },
+        title: { type: String, required: true, maxLength: 150, index: true },
         desc: { type: String, required: true, maxLength: 250 },
         thumbnail: {
             type: String,
             required: true,
         },
-        tags: [String],
+        tags: { type: [String], index: true },
         views: { type: Number, default: 0 },
         likes: { type: Number, default: 0 },
         comments: { type: Number, default: 0 },

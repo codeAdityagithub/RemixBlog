@@ -86,7 +86,7 @@ const AllBlogs = () => {
                             thumbnail={blog.thumbnail}
                             title={blog.title}
                             tags={blog.tags}
-                            updatedAt={new Date(blog.updatedAt)}
+                            createdAt={new Date(blog.createdAt)}
                         />
                     ))}
                 </div>
@@ -108,7 +108,7 @@ const AllBlogs = () => {
                         thumbnail={blog.thumbnail}
                         tags={blog.tags}
                         title={blog.title}
-                        updatedAt={new Date(blog.updatedAt)}
+                        createdAt={new Date(blog.createdAt)}
                     />
                 ))}
             </div>

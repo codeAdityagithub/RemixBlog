@@ -23,7 +23,7 @@ const DashboardBlogSearch = (props: Props) => {
     useEffect(() => {
         function set() {
             setBlogs(getFromCache("dashboardBlogs")?.blogs ?? []);
-            console.log("event fired");
+            // console.log("event fired");
         }
         set();
         window.addEventListener("localStorageChange", set);
@@ -47,7 +47,9 @@ const DashboardBlogSearch = (props: Props) => {
             </DialogTrigger>
             <DialogContent className="max-h-[90svh] flex flex-col ">
                 <DialogHeader>
-                    <DialogTitle>Search your blogs {blogs.length}</DialogTitle>
+                    <DialogTitle>
+                        Search your blogs ({blogs.length})
+                    </DialogTitle>
                 </DialogHeader>
                 <Input
                     value={query}

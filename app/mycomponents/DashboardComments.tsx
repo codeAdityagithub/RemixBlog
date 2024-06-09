@@ -1,8 +1,8 @@
-import { AvatarIcon, ChevronDownIcon } from "@radix-ui/react-icons";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { CommentDocumentwUser } from "~/models/Schema.server";
-import { loader } from "~/routes/api.comments";
-import { formatTime, useUser } from "~/utils/general";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { Link, useFetcher } from "@remix-run/react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
+import { Button } from "~/components/ui/button";
 import {
     Card,
     CardDescription,
@@ -10,11 +10,10 @@ import {
     CardHeader,
     CardTitle,
 } from "~/components/ui/card";
-import { useFetcher, Link } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import DeleteButtonwDialog from "./DeleteButtonwDialog";
-import { useCallback, useEffect } from "react";
 import { Skeleton } from "~/components/ui/skeleton";
+import { CommentDocument, CommentDocumentwUser } from "~/models/Schema.server";
+import { formatTime, useUser } from "~/utils/general";
+import DeleteButtonwDialog from "./DeleteButtonwDialog";
 
 type Props = {};
 type Card = Omit<

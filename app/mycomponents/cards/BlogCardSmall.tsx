@@ -19,7 +19,7 @@ const BlogCardSmall = ({
     desc,
     thumbnail,
     title,
-    updatedAt,
+    createdAt,
     tags,
 }: BlogDocumentwPic) => {
     // console.log(tags);
@@ -65,7 +65,7 @@ const BlogCardSmall = ({
                         </Avatar>
                         <div className="text-sm text-muted-foreground">
                             <p>{author.username}</p>
-                            <p>{formatTime(updatedAt.toString())}</p>
+                            <p>{formatTime(createdAt.toString())}</p>
                         </div>
                     </div>
                     <Link

@@ -20,7 +20,7 @@
 
     /* Track */
     .ver_scroll::-webkit-scrollbar-track {
-        @apply bg-background;
+        @apply bg-primary/20;
     }
 
     /* Handle */
