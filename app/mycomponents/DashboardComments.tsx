@@ -1,5 +1,5 @@
-import { AvatarIcon } from "@radix-ui/react-icons";
-import { useQuery } from "@tanstack/react-query";
+import { AvatarIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { CommentDocumentwUser } from "~/models/Schema.server";
 import { loader } from "~/routes/api.comments";
 import { formatTime, useUser } from "~/utils/general";
@@ -23,15 +23,40 @@ type Card = Omit<
 >;
 const DashboardComments = (props: Props) => {
     const user = useUser()!;
+    // const {
+    //     data: comments,
+    //     isLoading,
+    //     error,
+    //     refetch,
+    // } = useQuery({
+    //     queryKey: ["dashboardComments"],
+    //     queryFn: async () => {
+    //         const res = await fetch("/api/comments", {
+    //             credentials: "same-origin",
+    //         });
+    //         const data = await res.json();
+    //         // console.log(data);
+    //         if (!res.ok) throw new Error("Something went wrong");
+
+    //         return data?.comments as Card[];
+    //     },
+    //     refetchInterval: 1000 * 10,
+    //     retry: 1,
+    //     staleTime: 1000 * 60,
+    // });
     const {
         data: comments,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         isLoading,
         error,
         refetch,
-    } = useQuery({
+    } = useInfiniteQuery({
         queryKey: ["dashboardComments"],
-        queryFn: async () => {
-            const res = await fetch("/api/comments", {
+        initialPageParam: 1,
+        queryFn: async ({ pageParam }) => {
+            const res = await fetch(`/api/comments?page=${pageParam}`, {
                 credentials: "same-origin",
             });
             const data = await res.json();
@@ -40,9 +65,10 @@ const DashboardComments = (props: Props) => {
 
             return data?.comments as Card[];
         },
-        refetchInterval: 1000 * 10,
-        retry: 1,
-        staleTime: 1000 * 60,
+        getNextPageParam: (lastPage, _, lastPageParam) =>
+            lastPage?.length === 0 ? null : lastPageParam + 1,
+        staleTime: 1000 * 60 * 2,
+        refetchInterval: 1000 * 60,
     });
     const refetchComments = useCallback(() => {
         refetch();
@@ -61,17 +87,30 @@ const DashboardComments = (props: Props) => {
                     [0, 1, 2].map((i) => (
                         <Skeleton key={i} className="w-full h-32" />
                     ))}
-                {!comments || (comments.length === 0 && "No comments to show.")}
+                {!comments ||
+                    (comments.pages[0]?.length === 0 && "No comments to show.")}
                 {comments &&
-                    comments.length > 0 &&
-                    comments.map((comment) => (
-                        <DashboardCommentCard
-                            key={comment._id.toString()}
-                            comment={comment}
-                            user={user}
-                            refetch={refetchComments}
-                        />
-                    ))}
+                    comments.pages.length > 0 &&
+                    comments.pages
+                        .flat()
+                        .map((comment) => (
+                            <DashboardCommentCard
+                                key={comment._id.toString()}
+                                comment={comment}
+                                user={user}
+                                refetch={refetchComments}
+                            />
+                        ))}
+                {comments && comments.pages[0].length > 0 && (
+                    <Button
+                        onClick={() => fetchNextPage({ cancelRefetch: false })}
+                        disabled={isFetchingNextPage || !hasNextPage}
+                        className="w-full"
+                        variant="ghost"
+                    >
+                        <ChevronDownIcon />
+                    </Button>
+                )}
             </div>
         </div>
     );

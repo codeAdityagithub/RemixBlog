@@ -46,6 +46,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     invariant(commentId);
     invariant(blogId);
     try {
+        await connect();
         const comment = form.get("comment");
         invariant(comment);
         await replyCommentToBlog(blogId, userId, comment.toString(), commentId);

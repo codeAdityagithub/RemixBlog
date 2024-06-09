@@ -4,6 +4,7 @@ import { authenticator } from "~/auth.server";
 import { Blogs, Engagements } from "~/models/Schema.server";
 import z from "zod";
 import { headers } from "./blogs.$blogId";
+import { connect } from "~/db.server";
 
 const Schema = z
     .object({
@@ -35,6 +36,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     if (error)
         return json({ error: "Invalid Selection", views: [] }, { status: 400 });
     const { filter, duration } = data;
+    await connect();
     const blogIds = await Blogs.find({ author: user._id }, { _id: 1 }).lean();
     const blogIdArray = blogIds.map((blog) => blog._id);
 

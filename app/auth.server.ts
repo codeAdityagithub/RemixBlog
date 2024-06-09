@@ -4,6 +4,7 @@ import { sessionStorage } from "~/session.server";
 import { FormStrategy } from "remix-auth-form";
 import { LoginFormSchema } from "./lib/zod";
 import { verifyLogin } from "./models/functions.server";
+import { connect } from "./db.server";
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
@@ -22,6 +23,7 @@ authenticator.use(
             email: form.get("email"),
             password: form.get("password"),
         });
+        await connect();
         const user = await verifyLogin(email, password);
         if (!user) throw new Error("Please verify your credentials");
         // console.log(user);

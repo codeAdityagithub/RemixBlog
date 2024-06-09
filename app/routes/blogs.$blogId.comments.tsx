@@ -17,12 +17,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { blogId } = params;
     invariant(blogId);
     const user = await authenticator.isAuthenticated(request);
-    await connect();
     const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
     const all = new URL(request.url).searchParams.get("all");
     const pageSize = all === "true" ? page * 10 : 10;
     console.log(pageSize);
     const skip = all === "true" ? 0 : (page - 1) * pageSize;
+    await connect();
     const comments = await Comments.find(
         { blogId, parentComment: null },
         {},
@@ -45,7 +45,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         };
     });
 
-    console.log("comments fetched with liked status");
+    // console.log("comments fetched with liked status");
     return { comments: commentsWithLiked, append: all !== "true" };
 };
 
@@ -57,6 +57,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
     invariant(blogId);
     try {
+        await connect();
         if (form.get("_action") === "likeComment") {
             const commentId = form.get("commentId");
             invariant(commentId);

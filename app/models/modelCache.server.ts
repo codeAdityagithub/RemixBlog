@@ -1,3 +1,4 @@
+import { connect } from "~/db.server";
 import { BlogDocument, Blogs } from "./Schema.server";
 export interface BlogDocumentwPic extends Omit<BlogDocument, "author"> {
     author: { username: string; picture?: string };
@@ -43,6 +44,7 @@ async function getLatestBlogs() {
 
 const updateCache = async () => {
     try {
+        await connect();
         cache.popularBlogs = await getPopularBlogs();
         cache.trendingBlogs = await getTrendingBlogs();
         cache.latestBlogs = await getLatestBlogs();

@@ -39,6 +39,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         failureRedirect: "/login",
     });
     invariant(blogId);
+    await connect();
     if (_action === "like") {
         await likeBlog(blogId, userId);
     }

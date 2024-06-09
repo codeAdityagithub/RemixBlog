@@ -1,4 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
+import { connect } from "~/db.server";
 import { Blogs } from "~/models/Schema.server";
 import serverCache from "~/utils/cache.server";
 
@@ -13,6 +14,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const regex = new RegExp(query, "i");
     const page = parseInt(searchParams.get("page") ?? "1");
     const skip = (page - 1) * 10;
+    await connect();
+
     const results = await Blogs.find(
         {
             $or: [

@@ -19,7 +19,6 @@ export async function verifyLogin(
     email: string;
     picture?: string;
 } | null> {
-    await connect();
     const userWithPassword = await Users.findOne({ email: email });
     if (!userWithPassword || !userWithPassword.password) {
         return null;

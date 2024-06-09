@@ -10,6 +10,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
+    await connect();
     const updatedAt = (
         await Users.findById(user._id, {
             updatedAt: 1,
@@ -50,12 +51,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         return json({ error: "Something went wrong" }, { status: 500 });
     }
     try {
-        await connect();
         let up = await Users.updateOne(
             { _id: user._id },
             { $set: { a: imgSource } }
         );
-        console.log(await Users.findOne({ _id: user._id }));
+        // console.log(await Users.findOne({ _id: user._id }));
     } catch (error) {
         return json({ error: "Something went wrong" }, { status: 500 });
     }

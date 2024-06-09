@@ -68,6 +68,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
+    await connect();
     const { blogId } = params;
     invariant(blogId);
     if (request.method === "DELETE") {
@@ -84,7 +85,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         // console.log(parsed);
         const updatedBlog = NewBlogSchema.parse(parsed);
         // console.log(updatedBlog);
-        await connect();
         await Blogs.updateOne(
             {
                 author: user._id,
