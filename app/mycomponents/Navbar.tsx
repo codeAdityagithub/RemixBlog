@@ -29,6 +29,7 @@ import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import ProfileDialog from "./ProfileDialog";
 import NavSheet from "./NavSheet";
+import BlogsSearch from "./BlogsSearch";
 
 type Props = {};
 
@@ -60,6 +61,7 @@ const Navbar = (props: Props) => {
             </NavigationMenuList>
             {/* mobile  */}
             <NavSheet />
+            <BlogsSearch />
             <NavigationMenuList className="gap-3">
                 {user ? (
                     <>
@@ -130,7 +132,7 @@ const Navbar = (props: Props) => {
                         </NavigationMenuItem>
                     </>
                 )}
-                <NavigationMenuItem>
+                <NavigationMenuItem className="hidden sm:flex">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button className="" variant="ghost" size="icon">

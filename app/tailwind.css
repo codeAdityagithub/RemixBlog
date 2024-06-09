@@ -3,7 +3,7 @@
 @tailwind utilities;
 @layer components {
     a.active:not(.tablink) {
-        @apply underline underline-offset-4;
+        @apply underline underline-offset-4 text-primary;
     }
     .tablink.active {
         @apply bg-secondary hover:bg-secondary border-t border-border border-r border-l sm:rounded-br-none sm:rounded-bl-none;
@@ -25,12 +25,12 @@
 
     /* Handle */
     .ver_scroll::-webkit-scrollbar-thumb {
-        @apply bg-primary/60 rounded-lg transition-colors shadow-md;
+        @apply bg-primary/80 rounded-lg transition-colors shadow-md;
     }
 
     /* Handle on hover */
     .ver_scroll::-webkit-scrollbar-thumb:hover {
-        @apply bg-secondary/80;
+        @apply bg-primary/60;
     }
 }
 

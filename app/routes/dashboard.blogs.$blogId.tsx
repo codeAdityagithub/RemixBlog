@@ -26,7 +26,6 @@ import { Blogs } from "~/models/Schema.server";
 import { deleteBlog } from "~/models/functions.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
-import serverCache from "~/utils/cache.server";
 import {
     destructiveToastStyle,
     parseNewBlog,
@@ -77,7 +76,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         // return redirect(`/dashboard/blogs?page=${page}`);
         await deleteBlog(blogId, user._id);
         console.log("deleted");
-        serverCache.delete(`ttl${user._id}`);
         return { deleted: true };
     }
     const body = await request.json();

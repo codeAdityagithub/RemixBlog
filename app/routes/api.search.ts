@@ -1,0 +1,35 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Blogs } from "~/models/Schema.server";
+import serverCache from "~/utils/cache.server";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    const search = new URL(request.url).search;
+    if (serverCache.has(search)) {
+        return { results: serverCache.get(search) };
+    }
+    console.log("cache miss");
+
+    const searchParams = new URL(request.url).searchParams;
+    const query = searchParams.get("query") ?? "";
+    const regex = new RegExp(query, "i");
+    const page = parseInt(searchParams.get("page") ?? "1");
+    const skip = (page - 1) * 10;
+    const results = await Blogs.find(
+        {
+            $or: [
+                { title: { $regex: regex } },
+                {
+                    tags: {
+                        $elemMatch: {
+                            $regex: new RegExp(query, "i"),
+                        },
+                    },
+                },
+            ],
+        },
+        { _id: 1, title: 1 },
+        { skip, limit: 10, lean: true }
+    );
+    if (results.length === 10) serverCache.set(search, results);
+    return { results };
+};
