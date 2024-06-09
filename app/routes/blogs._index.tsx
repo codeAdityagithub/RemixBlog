@@ -12,6 +12,17 @@ import { TypographyH2 } from "~/components/Typography";
 import cache from "~/models/modelCache.server";
 import BlogCardLarge from "~/mycomponents/cards/BlogCardLarge";
 import BlogCardSmall from "~/mycomponents/cards/BlogCardSmall";
+import { MetaFunction } from "@remix-run/node";
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "RemixBlog | Blogs" },
+        {
+            name: "description",
+            content: "Explore the most popular, trending and latest blogs.",
+        },
+    ];
+};
 
 export const loader = async ({}) => {
     await connect();
@@ -23,20 +34,6 @@ export const loader = async ({}) => {
         { headers: { "Cache-control": "max-age=300" } }
     );
 };
-
-// function useCarouselHeight() {
-//     const ref = useRef<HTMLDivElement>(null);
-//     const [carouselHeight, setCarouselHeight] = useState(0);
-
-//     useEffect(() => {
-//         if (ref.current) {
-//             const height = ref.current.offsetHeight;
-//             setCarouselHeight(height);
-//         }
-//     }, []);
-
-//     return [ref, carouselHeight] as const;
-// }
 
 const AllBlogs = () => {
     const { latestBlogs, popularBlogs, trendingBlogs } =

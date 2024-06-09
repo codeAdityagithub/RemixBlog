@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { connect } from "~/db.server";
 
 export const meta: MetaFunction = () => {
     return [
@@ -9,7 +8,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async ({}: LoaderFunctionArgs) => {
-    await connect();
+    // await connect();
     return {};
 };
 

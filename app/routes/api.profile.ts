@@ -10,6 +10,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
+    const updatedAt = (
+        await Users.findById(user._id, {
+            updatedAt: 1,
+            _id: 0,
+        }).lean()
+    )?.updatedAt!;
+    const isRateLimit =
+        Math.floor((new Date().getTime() - updatedAt.getTime()) / (1000 * 60)) <
+        60;
+    if (isRateLimit)
+        return json(
+            { error: "Profile can be updated once an hour" },
+            { status: 429 }
+        );
     // const redirectTo = new URL(request.url).searchParams.get("redirectTo");
     const file = (await request.formData()).get("picture");
 

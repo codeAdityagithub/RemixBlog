@@ -7,7 +7,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     if (serverCache.has(search)) {
         return { results: serverCache.get(search) };
     }
-    console.log("cache miss");
 
     const searchParams = new URL(request.url).searchParams;
     const query = searchParams.get("query") ?? "";

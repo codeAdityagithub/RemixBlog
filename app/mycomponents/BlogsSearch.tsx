@@ -1,11 +1,12 @@
 import { ChevronDownIcon } from "@radix-ui/react-icons";
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams } from "@remix-run/react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { ObjectId } from "mongoose";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { cn } from "~/lib/utils";
 
 type Props = {};
 const findBlogs = async (
@@ -21,7 +22,17 @@ const findBlogs = async (
     return data.results as { _id: ObjectId; title: string }[];
 };
 const BlogsSearch = (props: Props) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const tag = searchParams.get("searchTag");
     const [query, setQuery] = useState("");
+    const input = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        if (tag) {
+            input.current?.focus();
+            setQuery(tag);
+        }
+    }, [tag]);
+
     const {
         data: results,
         fetchNextPage,
@@ -47,7 +58,15 @@ const BlogsSearch = (props: Props) => {
             <Input
                 placeholder="Search"
                 className="pl-8"
+                ref={input}
                 value={query}
+                onBlur={(e) => {
+                    setSearchParams((prev) => {
+                        prev.delete("searchTag");
+                        return prev;
+                    });
+                    setQuery("");
+                }}
                 onChange={(e) => {
                     setQuery(e.target.value);
                 }}

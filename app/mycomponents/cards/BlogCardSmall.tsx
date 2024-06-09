@@ -5,7 +5,7 @@ import {
     Card,
 } from "~/components/ui/card";
 import { AvatarImage, AvatarFallback, Avatar } from "~/components/ui/avatar";
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams } from "@remix-run/react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { BlogDocumentwUser } from "~/models/Schema.server";
 import { formatTime } from "~/utils/general";
@@ -23,6 +23,13 @@ const BlogCardSmall = ({
     tags,
 }: BlogDocumentwPic) => {
     // console.log(tags);
+    const setParams = useSearchParams()[1];
+    const searchTag = (tag: string) => {
+        setParams((prev) => {
+            prev.set("searchTag", tag);
+            return prev;
+        });
+    };
     return (
         <Card className="w-full max-w-md h-min">
             <img
@@ -75,8 +82,10 @@ const BlogCardSmall = ({
                             <Badge
                                 aria-label={"Blog tag" + tag}
                                 variant="outline"
-                                title={tag}
+                                title={"search " + tag}
                                 key={i + tag}
+                                onClick={() => searchTag(tag)}
+                                className="cursor-pointer"
                             >
                                 #{tag.substring(0, Math.min(8, tag.length))}
                                 {isElip && "..."}

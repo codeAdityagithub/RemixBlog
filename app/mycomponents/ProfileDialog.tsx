@@ -66,7 +66,7 @@ const ProfileDialog = (props: Props) => {
                             type="file"
                             name="picture"
                             accept="image/*"
-                            className="min-w-40"
+                            className="min-w-40 file:text-muted-foreground"
                             disabled={fetcher.state !== "idle"}
                             required
                             ref={inputRef}

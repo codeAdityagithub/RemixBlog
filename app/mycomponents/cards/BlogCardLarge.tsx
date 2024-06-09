@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link, useSearchParams } from "@remix-run/react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -14,6 +14,13 @@ const BlogCardLarge = ({
     BlogDocumentwUser,
     "_id" | "desc" | "thumbnail" | "title" | "tags"
 >) => {
+    const setParams = useSearchParams()[1];
+    const searchTag = (tag: string) => {
+        setParams((prev) => {
+            prev.set("searchTag", tag);
+            return prev;
+        });
+    };
     return (
         <Card>
             <img
@@ -50,8 +57,10 @@ const BlogCardLarge = ({
                             <Badge
                                 aria-label={"Blog tag" + tag}
                                 variant="outline"
-                                title={tag}
+                                title={"search " + tag}
                                 key={i + tag}
+                                className="cursor-pointer"
+                                onClick={() => searchTag(tag)}
                             >
                                 #{tag.substring(0, Math.min(8, tag.length))}
                                 {isElip && "..."}
