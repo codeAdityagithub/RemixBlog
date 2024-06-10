@@ -19,7 +19,7 @@ const RootError = ({ error }: Props) => {
         <div className="grid place-items-center h-screen">
             <Card>
                 <CardHeader>
-                    <CardTitle>OOPS! 😓</CardTitle>
+                    <CardTitle>OOPS! </CardTitle>
                     <CardDescription>Something went wrong</CardDescription>
                 </CardHeader>
                 <CardContent>

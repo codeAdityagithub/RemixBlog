@@ -78,7 +78,7 @@ export default function App() {
             </head>
             <body>
                 <QueryClientProvider client={queryClient}>
-                    <div className="w-full h-screen flex flex-col">
+                    <div className="w-full h-[100svh] flex flex-col">
                         <Navbar />
                         <main className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground">
                             <Outlet />

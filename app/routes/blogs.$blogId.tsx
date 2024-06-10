@@ -1,6 +1,11 @@
 import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
 import { HeadersFunction, LoaderFunctionArgs, json } from "@remix-run/node";
-import { ShouldRevalidateFunction, useLoaderData } from "@remix-run/react";
+import {
+    Link,
+    ShouldRevalidateFunction,
+    useLoaderData,
+} from "@remix-run/react";
+import { Types } from "mongoose";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { TypographyH1 } from "~/components/Typography";
@@ -16,6 +21,11 @@ import { formatTime } from "~/utils/general";
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { blogId } = params;
     invariant(blogId, "No blogId specified");
+    if (!Types.ObjectId.isValid(blogId))
+        throw json("Invalid BlogId", {
+            status: 400,
+            statusText: "Invalid BlogId",
+        });
     await connect();
     const user = await authenticator.isAuthenticated(request);
     let cookie = null;
@@ -60,19 +70,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
               { headers: { "Cache-Control": "max-age=14400, s-max-age=86400" } }
           );
 };
-// export const action = async ({ request, params }: ActionFunctionArgs) => {
-//     const _action = (await request.formData()).get("_action");
 
-//     const blogId = params.blogId;
-//     const { _id: userId } = await authenticator.isAuthenticated(request, {
-//         failureRedirect: "/login",
-//     });
-//     invariant(blogId);
-//     if (_action === "like") {
-//         await likeBlog(blogId, userId);
-//     }
-//     return { ok: true };
-// };
 export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
     return false;
 };
@@ -99,7 +97,10 @@ const BlogPage = () => {
                     </Avatar>
                     <div className="flex flex-col">
                         <p className="flex items-center gap-1">
-                            {blog.author.username} <DotFilledIcon />{" "}
+                            <Link to={`/profiles/${blog.author.username}`}>
+                                {blog.author.username}
+                            </Link>{" "}
+                            <DotFilledIcon />{" "}
                             <Button
                                 variant="link"
                                 size="icon"

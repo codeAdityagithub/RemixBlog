@@ -75,9 +75,7 @@ export interface BlogDocumentwUser {
     tags: string[];
     thumbnail: string;
     content: Content[];
-    author: Partial<
-        Omit<Partial<UserDocument>, "password" | "createdAt" | "updatedAt">
-    >;
+    author: { _id?: string; username?: string; picture?: string };
     createdAt: Date | string;
     updatedAt: Date | string;
 }
