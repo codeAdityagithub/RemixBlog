@@ -44,32 +44,41 @@ const BlogCardSmall = ({
                 width={640}
             />
             <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
+                <Link
+                    prefetch="intent"
+                    className="space-y-2"
+                    to={`/blogs/${_id}`}
+                >
                     <CardTitle className="text-2xl font-bold line-clamp-2">
                         {title}
                     </CardTitle>
                     <CardDescription className="text-muted-foreground line-clamp-2">
                         {desc}
                     </CardDescription>
-                </div>
+                </Link>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                        <Avatar>
-                            <AvatarImage
-                                alt="Author Avatar"
-                                src={author.picture}
-                            />
-                            <AvatarFallback>
-                                <AvatarIcon className="w-full h-full" />
-                            </AvatarFallback>
-                        </Avatar>
+                        <Link
+                            prefetch="intent"
+                            to={`/profiles/${author.username}`}
+                        >
+                            <Avatar>
+                                <AvatarImage
+                                    alt="Author Avatar"
+                                    src={author.picture}
+                                />
+                                <AvatarFallback>
+                                    <AvatarIcon className="w-full h-full" />
+                                </AvatarFallback>
+                            </Avatar>
+                        </Link>
                         <div className="text-sm text-muted-foreground">
                             <p>{author.username}</p>
                             <p>{formatTime(createdAt.toString())}</p>
                         </div>
                     </div>
                     <Link
-                        className="text-primary hover:underline hover:underline-offset-2"
+                        className="px-3 py-2 text-primary hover:underline hover:underline-offset-2"
                         to={`/blogs/${_id}`}
                     >
                         Read more

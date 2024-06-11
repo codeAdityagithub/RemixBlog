@@ -1,6 +1,17 @@
-import { AvatarIcon, ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
+import {
+    AvatarIcon,
+    ChatBubbleIcon,
+    ChevronDownIcon,
+    HeartIcon,
+} from "@radix-ui/react-icons";
 import { ActionFunctionArgs, json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import {
+    Link,
+    ShouldRevalidateFunction,
+    useFetcher,
+    useLoaderData,
+} from "@remix-run/react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Types } from "mongoose";
 import { format } from "sharp";
 import invariant from "tiny-invariant";
@@ -8,18 +19,19 @@ import { TypographyH2, TypographyLarge } from "~/components/Typography";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { connect } from "~/db.server";
-import { Blogs, UserDocument, Users } from "~/models/Schema.server";
+import {
+    BlogDocument,
+    Blogs,
+    UserDocument,
+    Users,
+} from "~/models/Schema.server";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
 import { formatTime } from "~/utils/general";
 
 export const loader = async ({ request, params }: ActionFunctionArgs) => {
     const username = params.username;
     invariant(username);
-    // if (!Types.ObjectId.isValid(userId))
-    //     throw json("Invalid UserId", {
-    //         status: 400,
-    //         statusText: "Invalid UserId",
-    //     });
+
     await connect();
     const user = await Users.findOne(
         { username },
@@ -37,12 +49,46 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
         .sort({ createdAt: -1 })
         .limit(10)
         .lean();
-    return { user, blogs };
+    return json(
+        { user, blogs },
+        { headers: { "Cache-Control": "max-age=300" } }
+    );
+};
+export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
+    return false;
 };
 
 const UserProfile = () => {
-    const { blogs, user } = useLoaderData<typeof loader>();
-    // console.log(user, blogs);
+    const { blogs: initialBlogs, user } = useLoaderData<typeof loader>();
+    const {
+        data: blogs,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        error,
+    } = useInfiniteQuery({
+        queryKey: ["profileBlogs", user.username],
+        initialPageParam: 2,
+        initialData: { pages: [initialBlogs], pageParams: [1] },
+        queryFn: async ({ pageParam }) => {
+            const res = await fetch(`/api/profileBlogs`, {
+                method: "POST",
+                body: JSON.stringify({ userId: user._id, page: pageParam }),
+                credentials: "same-origin",
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error("Something went wrong");
+
+            return data?.blogs;
+        },
+        getNextPageParam: (lastPage, _, lastPageParam) => {
+            // console.log(lastPageParam);
+            return !lastPage || lastPage.length === 0
+                ? null
+                : lastPageParam + 1;
+        },
+        staleTime: 1000 * 60 * 1,
+    });
     return (
         <div className="w-full max-w-2xl p-8 h-full bg-background max-h-[calc(100svh-56px)] overflow-auto ver_scroll">
             <div className="flex gap-4 flex-col sm:flex-row items-center border-b border-border p-4 pb-8">
@@ -69,7 +115,7 @@ const UserProfile = () => {
                         Joined {formatTime(user.createdAt)}
                     </small>
                     <p className="text-muted-foreground text-sm min-w-fit self-center text-center sm:text-left">
-                        100 followers
+                        100 followers | 30 following
                     </p>
                     <Button
                         variant="default"
@@ -79,9 +125,12 @@ const UserProfile = () => {
                     </Button>
                 </div>
             </div>
-            <div className="p-2 space-y-2">
-                {blogs.map((blog) => (
-                    <div className="p-2 grid grid-cols-4 grid-rows-3 gap-2 place-items-start">
+            <div className="pt-4 px-2 space-y-2">
+                {blogs.pages.flat().map((blog) => (
+                    <div
+                        key={blog._id.toString()}
+                        className="p-2 grid grid-cols-4 grid-rows-3 gap-2 place-items-start"
+                    >
                         <Link
                             to={`/blogs/${blog._id}`}
                             className="col-span-2 sm:col-span-3 w-full row-span-2"
@@ -98,10 +147,6 @@ const UserProfile = () => {
                             className="row-span-3 col-span-2 sm:col-span-1 w-full max-w-[200px] aspect-video object-cover rounded"
                             height={180}
                             src={blog.thumbnail}
-                            style={{
-                                aspectRatio: "640/360",
-                                objectFit: "cover",
-                            }}
                             width={320}
                         />
                         <div className="col-span-2 sm:col-span-3 w-full flex items-center gap-4">
@@ -123,6 +168,15 @@ const UserProfile = () => {
                         </div>
                     </div>
                 ))}
+                <Button
+                    onClick={() => fetchNextPage({ cancelRefetch: false })}
+                    // disabled={isFetchingNextPage || !hasNextPage}
+                    className="w-full"
+                    size="sm"
+                    variant="ghost"
+                >
+                    <ChevronDownIcon />
+                </Button>
             </div>
         </div>
     );

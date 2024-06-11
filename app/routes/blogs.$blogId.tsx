@@ -15,6 +15,7 @@ import { connect } from "~/db.server";
 import { BlogDocumentwUser, Blogs } from "~/models/Schema.server";
 import BlogContent from "~/mycomponents/BlogContent";
 import BlogEngagement from "~/mycomponents/BlogEngagement";
+import FollowButton from "~/mycomponents/FollowButton";
 import { checkUnauthViewed, readMin } from "~/utils/blogUtils.server";
 import { formatTime } from "~/utils/general";
 
@@ -40,7 +41,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     })
         .populate("author", {
             username: 1,
-            _id: 0,
+            _id: 1,
             picture: 1,
         })
         .lean()) as Omit<
@@ -100,14 +101,8 @@ const BlogPage = () => {
                             <Link to={`/profiles/${blog.author.username}`}>
                                 {blog.author.username}
                             </Link>{" "}
-                            <DotFilledIcon />{" "}
-                            <Button
-                                variant="link"
-                                size="icon"
-                                className="text-sm text-green-500 h-auto w-auto"
-                            >
-                                Follow
-                            </Button>
+                            <DotFilledIcon />
+                            <FollowButton userId={blog.author._id!} />
                         </p>
                         <small className="flex items-center gap-1 text-muted-foreground">
                             {readTime} min read <DotFilledIcon />{" "}

@@ -91,7 +91,7 @@ export interface EngagementDoc {
 // User Schema
 const userSchema = new mongoose.Schema<UserDocument>(
     {
-        username: { type: String, required: true, unique: true },
+        username: { type: String, required: true, unique: true, index: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         picture: { type: String },
@@ -173,9 +173,17 @@ const engagementSchema = new mongoose.Schema<EngagementDoc>(
     },
     { timestamps: true }
 );
-
+const followSchema = new mongoose.Schema(
+    {
+        follower: { type: Types.ObjectId, ref: "Users", index: true },
+        following: { type: Types.ObjectId, ref: "Users", index: true },
+    },
+    { timestamps: true }
+);
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
+export const Follow =
+    mongoose.models.Follow || mongoose.model("Follow", followSchema);
 
 export const Comments: Model<CommentDocument> =
     mongoose.models.Comments ||
