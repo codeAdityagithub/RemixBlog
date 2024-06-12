@@ -72,7 +72,9 @@ const DashboardBlogs = () => {
                     </div>
                 ) : null}
             </div>
-            <DashboardPagination totalBlogs={totalBlogs} />
+            {blogs.length !== 0 ? (
+                <DashboardPagination totalBlogs={totalBlogs} />
+            ) : null}
         </div>
     );
 };

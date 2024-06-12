@@ -50,6 +50,16 @@ const DashboardDropdown = (props: Props) => {
                         Your Blogs
                     </NavLink>
                 </Button>
+                <Button
+                    size="sm"
+                    asChild
+                    variant="ghost"
+                    className="hover:bg-secondary/60"
+                >
+                    <NavLink to="/dashboard/following" className="tablink">
+                        Following
+                    </NavLink>
+                </Button>
                 {isDashboard ? <DashboardBlogSearch /> : null}
             </div>
             <div className="sm:hidden flex flex-row items-center justify-end gap-4 px-4 sm:px-8 h-10 border-b">
@@ -68,7 +78,7 @@ const DashboardDropdown = (props: Props) => {
                                 size="sm"
                                 asChild
                                 variant="ghost"
-                                className="hover:bg-secondary/60"
+                                className="hover:bg-secondary/60 justify-start"
                             >
                                 <NavLink
                                     to="/dashboard"
@@ -84,7 +94,7 @@ const DashboardDropdown = (props: Props) => {
                                 size="sm"
                                 asChild
                                 variant="ghost"
-                                className="hover:bg-secondary/60"
+                                className="hover:bg-secondary/60 justify-start"
                             >
                                 <NavLink
                                     to="/dashboard/new"
@@ -99,13 +109,28 @@ const DashboardDropdown = (props: Props) => {
                                 size="sm"
                                 asChild
                                 variant="ghost"
-                                className="hover:bg-secondary/60"
+                                className="hover:bg-secondary/60 justify-start"
                             >
                                 <NavLink
                                     to="/dashboard/blogs"
                                     className="tablink"
                                 >
                                     Your Blogs
+                                </NavLink>
+                            </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Button
+                                size="sm"
+                                asChild
+                                variant="ghost"
+                                className="hover:bg-secondary/60 justify-start"
+                            >
+                                <NavLink
+                                    to="/dashboard/following"
+                                    className="tablink"
+                                >
+                                    Following
                                 </NavLink>
                             </Button>
                         </DropdownMenuItem>

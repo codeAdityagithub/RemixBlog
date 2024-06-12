@@ -88,9 +88,16 @@ const Navbar = (props: Props) => {
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
+
                                     <ProfileDialog />
-                                    {/* <DropdownMenuItem asChild>
-                                    </DropdownMenuItem> */}
+                                    <DropdownMenuItem asChild>
+                                        <Link
+                                            className="w-full text-xs font-normal pl-3 cursor-pointer"
+                                            to={"/profiles/" + user.username}
+                                        >
+                                            View profile
+                                        </Link>
+                                    </DropdownMenuItem>
 
                                     <DropdownMenuItem asChild className="p-0">
                                         <Form

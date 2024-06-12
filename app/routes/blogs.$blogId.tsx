@@ -17,7 +17,7 @@ import BlogContent from "~/mycomponents/BlogContent";
 import BlogEngagement from "~/mycomponents/BlogEngagement";
 import FollowButton from "~/mycomponents/FollowButton";
 import { checkUnauthViewed, readMin } from "~/utils/blogUtils.server";
-import { formatTime } from "~/utils/general";
+import { formatTime, useUser } from "~/utils/general";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { blogId } = params;
@@ -81,7 +81,8 @@ export let headers: HeadersFunction = () => {
 const BlogPage = () => {
     const { blog, readTime } = useLoaderData<typeof loader>();
     // console.log(liked);
-
+    const user = useUser();
+    // console.log(blog.author.picture);
     return (
         <div className="w-full max-w-2xl p-4 bg-background text-foreground">
             <header className="space-y-8 pb-10 mb-8 border-b border-border relative">
@@ -101,8 +102,12 @@ const BlogPage = () => {
                             <Link to={`/profiles/${blog.author.username}`}>
                                 {blog.author.username}
                             </Link>{" "}
-                            <DotFilledIcon />
-                            <FollowButton userId={blog.author._id!} />
+                            {user?._id === blog.author._id ? null : (
+                                <>
+                                    <DotFilledIcon />
+                                    <FollowButton userId={blog.author._id!} />
+                                </>
+                            )}
                         </p>
                         <small className="flex items-center gap-1 text-muted-foreground">
                             {readTime} min read <DotFilledIcon />{" "}

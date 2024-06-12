@@ -52,6 +52,12 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 }) => {
     // if (formAction?.split("/").pop() === "comments") return false;
     const action = formData?.get("_action");
-    if (action === "likeComment" || action === "replyComment") return false;
+    if (
+        action === "likeComment" ||
+        action === "replyComment" ||
+        formAction === "/api/profile" ||
+        formAction === "/api/follow"
+    )
+        return false;
     return defaultShouldRevalidate;
 };

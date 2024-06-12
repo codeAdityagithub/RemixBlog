@@ -1,11 +1,13 @@
 import {
     ArchiveIcon,
-    ChatBubbleIcon,
     EyeOpenIcon,
     HeartFilledIcon,
     HeartIcon,
     Share1Icon,
 } from "@radix-ui/react-icons";
+import { useFetcher } from "@remix-run/react";
+import copy from "copy-to-clipboard";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
     Tooltip,
@@ -13,13 +15,9 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "~/components/ui/tooltip";
-import copy from "copy-to-clipboard";
-import { toast } from "sonner";
-import { successToastStyle } from "~/utils/general";
-import { Link, useFetcher } from "@remix-run/react";
-import BlogCommentsSheet from "./BlogCommentsSheet";
-import { useEffect, useState } from "react";
+import { useToast } from "~/components/ui/use-toast";
 import { loader } from "~/routes/blogs.$blogId.engagements";
+import BlogCommentsSheet from "./BlogCommentsSheet";
 import EngagementLoader from "./loaders/EngagementLoader";
 
 // type Props = {
@@ -33,13 +31,12 @@ import EngagementLoader from "./loaders/EngagementLoader";
 const BlogEngagement = () => {
     const engLoader = useFetcher<typeof loader>();
     const fetcher = useFetcher();
+    const { toast } = useToast();
     const [engagements, setEngagements] = useState<typeof engLoader.data>();
     const copytoClipboard = () => {
         const copied = copy(`${window.location.href}`);
         if (copied) {
-            toast.success("URL copied successfully", {
-                style: successToastStyle,
-            });
+            toast({ description: "URL copied successfully" });
         }
     };
     useEffect(() => {

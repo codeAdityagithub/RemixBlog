@@ -22,6 +22,7 @@ import { authenticator } from "~/auth.server";
 import { register } from "~/models/functions.server";
 import { RegisterFormSchema } from "~/lib/zod";
 import { ZodError } from "zod";
+import { useToast } from "~/components/ui/use-toast";
 
 export const meta: MetaFunction = () => {
     return [
@@ -71,6 +72,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const Register = () => {
     const data = useActionData<typeof action>();
+    const { toast } = useToast();
     const error = data?.error;
     const { emailError, passwordError, usernameError } =
         error && typeof error !== "string"
@@ -80,20 +82,21 @@ const Register = () => {
                   usernameError: error.username,
               }
             : { emailError: "", passwordError: "", usernameError: "" };
-    // useEffect(() => {
-    //     if (error && error.error) {
-    //         if (typeof error.error === "string") toast.error(error.error);
-    //         else if (error.error.fieldErrors) {
-    //             const { email, password } = error.error.fieldErrors;
-    //             if (email || password)
-    //                 toast.error(
-    //                     `${email ? email[0] + "<br>" : ""}${
-    //                         password && password[0]
-    //                     }`
-    //                 );
-    //         }
-    //     }
-    // }, [error]);
+    useEffect(() => {
+        if (error && error.error) {
+            if (typeof error.error === "string")
+                toast({ description: error.error });
+            else if (error.error.fieldErrors) {
+                const { email, password } = error.error.fieldErrors;
+                if (email || password)
+                    toast({
+                        description: `${email ? email[0] + "<br>" : ""}${
+                            password && password[0]
+                        }`,
+                    });
+            }
+        }
+    }, [error]);
     return (
         <Card className="w-[350px]">
             <CardHeader>

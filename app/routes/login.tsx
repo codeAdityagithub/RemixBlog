@@ -1,34 +1,27 @@
 import {
-    Form,
-    useActionData,
-    useLoaderData,
-    useSearchParams,
-} from "@remix-run/react";
-import React, { useEffect } from "react";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import {
     ActionFunctionArgs,
     LoaderFunctionArgs,
     MetaFunction,
     json,
-    redirect,
 } from "@remix-run/node";
-import { authenticator } from "~/auth.server";
+import { Form, useActionData } from "@remix-run/react";
+import { useEffect } from "react";
 import { AuthorizationError } from "remix-auth";
 import { ZodError } from "zod";
+import { authenticator } from "~/auth.server";
+import { Button } from "~/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 // import { ZodError } from "zod";
 // import { commitSession, getSession } from "~/session.server";
-import { toast } from "sonner";
+import { useToast } from "~/components/ui/use-toast";
 
 export const meta: MetaFunction = () => {
     return [
@@ -78,17 +71,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
 const Login = () => {
     const error = useActionData<typeof action>();
+    const { toast } = useToast();
     useEffect(() => {
         if (error && error.error) {
-            if (typeof error.error === "string") toast.error(error.error);
+            if (typeof error.error === "string")
+                toast({ description: error.error });
             else if (error.error.fieldErrors) {
                 const { email, password } = error.error.fieldErrors;
                 if (email || password)
-                    toast.error(
-                        `${email ? email[0] + "<br>" : ""}${
+                    toast({
+                        description: `${email ? email[0] + "<br>" : ""}${
                             password && password[0]
-                        }`
-                    );
+                        }`,
+                    });
             }
         }
     }, [error]);

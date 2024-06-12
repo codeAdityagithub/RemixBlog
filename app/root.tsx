@@ -12,7 +12,7 @@ import {
 import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { authenticator } from "./auth.server";
-import { Toaster } from "./components/ui/sonner";
+import { Toaster } from "./components/ui/toaster";
 import Navbar from "./mycomponents/Navbar";
 import RootError from "./mycomponents/RootError";
 import styles from "./tailwind.css?url";
@@ -37,6 +37,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
     return { theme, user };
 }
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+    defaultShouldRevalidate,
+    formAction,
+    nextUrl,
+}) => {
+    if (!formAction) return defaultShouldRevalidate;
+    if (
+        !formAction?.startsWith("/logout") &&
+        !formAction?.startsWith("/api/profile") &&
+        !formAction?.startsWith("/login")
+    )
+        return false;
+    return defaultShouldRevalidate;
+};
 
 export function ErrorBoundary() {
     const error = useRouteError();
@@ -79,13 +94,13 @@ export default function App() {
             <body>
                 <QueryClientProvider client={queryClient}>
                     <div className="w-full h-[100svh] flex flex-col">
+                        <Toaster />
                         <Navbar />
                         <main className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground">
                             <Outlet />
                         </main>
                     </div>
                 </QueryClientProvider>
-                <Toaster expand />
                 <ScrollRestoration />
                 <Scripts />
             </body>

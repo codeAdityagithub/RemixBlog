@@ -1,17 +1,10 @@
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import {
-    ActionFunctionArgs,
-    LoaderFunctionArgs,
-    json,
-    redirect,
-} from "@remix-run/node";
-import {
-    useLoaderData,
-    useFetcher,
-    useActionData,
     ClientActionFunctionArgs,
+    useFetcher,
+    useLoaderData,
 } from "@remix-run/react";
-import { useState, useEffect, FormEvent } from "react";
-import { toast } from "sonner";
+import { FormEvent, useEffect } from "react";
 import invariant from "tiny-invariant";
 import { ZodError } from "zod";
 import { authenticator } from "~/auth.server";
@@ -20,18 +13,14 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import { useToast } from "~/components/ui/use-toast";
 import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
 import { Blogs } from "~/models/Schema.server";
 import { deleteBlog } from "~/models/functions.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
-import {
-    destructiveToastStyle,
-    parseNewBlog,
-    parseZodBlogError,
-    successToastStyle,
-} from "~/utils/general";
+import { parseNewBlog, parseZodBlogError } from "~/utils/general";
 import { cachedClientAction } from "~/utils/localStorageCache.client";
 export type InitialBlog = {
     title: string;
@@ -124,19 +113,16 @@ const DashboardBlogEdit = () => {
     //     Array.from({ length: initialBlog.content.length })
     // );
     const fetcher = useFetcher();
+    const { toast } = useToast();
     const { formData, handleChange, setFormData, hasChanged } =
         useInitialForm(initialBlog);
     const disabled = !hasChanged || fetcher.state === "submitting";
     const res = fetcher.data as any;
     useEffect(() => {
         if (res?.error?.message)
-            toast.error(res?.error?.message, {
-                style: destructiveToastStyle,
-            });
+            toast({ description: res?.error?.message, variant: "destructive" });
         else if (res?.error === null) {
-            toast.success("Blog Updated Successfully", {
-                style: successToastStyle,
-            });
+            toast({ description: "Blog Updated Successfully" });
         }
         // console.log(res);
     }, [initialBlog, res]);

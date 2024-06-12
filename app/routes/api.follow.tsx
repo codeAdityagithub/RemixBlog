@@ -18,17 +18,19 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-    const { _id } = await authenticator.isAuthenticated(request, {
-        failureRedirect: `/login?redirectTo=/blogs/${params.blogId ?? ""}`,
-    });
     const { userId, blogId, isFollowing } = await request.json();
+    const { _id } = await authenticator.isAuthenticated(request, {
+        failureRedirect: `/login?redirectTo=/blogs/${blogId ?? ""}`,
+    });
+    // console.log(isFollowing);
     invariant(blogId);
     invariant(userId);
+    // invariant(isFollowing ?? "");
     if (isFollowing !== false && typeof isFollowing === "string") {
         const time = parseInt(isFollowing.split("T").pop() ?? "");
         const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
         if (fiveMinutesAgo < time)
-            return json("Too many requests", { status: 429 });
+            return json("Unfollow after 5 mins", { status: 429 });
     }
     await connect();
     if (request.method === "POST") {
@@ -43,6 +45,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     formAction,
 }) => {
     // if (formAction?.split("/").pop() === "comments") return false;
-    if (formAction !== "/api/follow") return false;
+    if (!formAction?.startsWith("/api/follow")) return false;
     return defaultShouldRevalidate;
 };

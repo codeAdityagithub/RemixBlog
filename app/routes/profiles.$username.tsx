@@ -19,14 +19,16 @@ import { TypographyH2, TypographyLarge } from "~/components/Typography";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { connect } from "~/db.server";
+import { cn } from "~/lib/utils";
 import {
     BlogDocument,
     Blogs,
     UserDocument,
     Users,
 } from "~/models/Schema.server";
+import { getFollowStats } from "~/models/follow.server";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
-import { formatTime } from "~/utils/general";
+import { formatTime, useUser } from "~/utils/general";
 
 export const loader = async ({ request, params }: ActionFunctionArgs) => {
     const username = params.username;
@@ -42,6 +44,7 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
             status: 404,
             statusText: "Requested profile not found",
         });
+    const { followersCount, followingCount } = await getFollowStats(user._id);
     const blogs = await Blogs.find(
         { author: user?._id },
         { title: 1, desc: 1, likes: 1, comments: 1, createdAt: 1, thumbnail: 1 }
@@ -50,8 +53,8 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
         .limit(10)
         .lean();
     return json(
-        { user, blogs },
-        { headers: { "Cache-Control": "max-age=300" } }
+        { user, blogs, followersCount, followingCount },
+        { headers: { "Cache-Control": "public, max-age=3600, s-maxage=3600" } }
     );
 };
 export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
@@ -59,7 +62,13 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
 };
 
 const UserProfile = () => {
-    const { blogs: initialBlogs, user } = useLoaderData<typeof loader>();
+    const curuser = useUser();
+    const {
+        blogs: initialBlogs,
+        user,
+        followersCount,
+        followingCount,
+    } = useLoaderData<typeof loader>();
     const {
         data: blogs,
         fetchNextPage,
@@ -115,17 +124,26 @@ const UserProfile = () => {
                         Joined {formatTime(user.createdAt)}
                     </small>
                     <p className="text-muted-foreground text-sm min-w-fit self-center text-center sm:text-left">
-                        100 followers | 30 following
+                        {followersCount} followers | {followingCount} following
                     </p>
+
                     <Button
                         variant="default"
-                        className="bg-green-600 text-white hover:bg-green-700 w-full max-w-xs place-self-center"
+                        className={cn(
+                            curuser?._id === user._id ? "hidden" : "",
+                            "bg-green-600 text-white hover:bg-green-700 w-full max-w-xs place-self-center"
+                        )}
                     >
                         Follow
                     </Button>
                 </div>
             </div>
             <div className="pt-4 px-2 space-y-2">
+                {blogs.pages[0]?.length === 0 && (
+                    <div className="text-center">
+                        {user.username} hasn't uploaded any blogs.
+                    </div>
+                )}
                 {blogs.pages.flat().map((blog) => (
                     <div
                         key={blog._id.toString()}
@@ -171,7 +189,10 @@ const UserProfile = () => {
                 <Button
                     onClick={() => fetchNextPage({ cancelRefetch: false })}
                     // disabled={isFetchingNextPage || !hasNextPage}
-                    className="w-full"
+                    className={cn(
+                        blogs.pages[0]?.length === 0 && "hidden",
+                        "w-full"
+                    )}
                     size="sm"
                     variant="ghost"
                 >

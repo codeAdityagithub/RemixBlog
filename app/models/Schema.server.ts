@@ -180,6 +180,7 @@ const followSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+followSchema.index({ follower: 1, following: 1 }, { unique: true });
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
 export const Follow =

@@ -1,27 +1,24 @@
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "~/components/ui/select";
-import { Link, useFetcher, useSearchParams } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useInView } from "react-intersection-observer";
 import {
-    ResponsiveContainer,
-    LineChart,
-    Line,
     Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
     Tooltip,
     XAxis,
     YAxis,
 } from "recharts";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
-import { loader } from "~/routes/api.viewchart";
-import { formatTime } from "~/utils/general";
-import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useToast } from "~/components/ui/use-toast";
 
 type Props = {};
 const BlogViewsChart = (props: Props) => {
@@ -29,6 +26,7 @@ const BlogViewsChart = (props: Props) => {
         filter: "0",
         duration: "1",
     });
+    const { toast } = useToast();
     const [ref, isInView] = useInView();
     const { data, isLoading, isError } = useQuery({
         queryKey: ["chart", graphState],
@@ -50,7 +48,7 @@ const BlogViewsChart = (props: Props) => {
             (name === "filter" && graphState.duration <= value) ||
             (name === "duration" && graphState.filter >= value)
         ) {
-            toast.error("Invalid Selection");
+            toast({ description: "Invalid Selection", variant: "destructive" });
             return;
         }
         setGraphState((prev) => ({ ...prev, [name]: value }));

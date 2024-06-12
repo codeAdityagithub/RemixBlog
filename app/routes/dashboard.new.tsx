@@ -1,31 +1,20 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import {
-    Form,
-    useActionData,
-    useFetcher,
-    useNavigation,
-} from "@remix-run/react";
+import { Form, useFetcher } from "@remix-run/react";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { ZodError } from "zod";
 import { authenticator } from "~/auth.server";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { Badge } from "~/components/ui/badge";
 
+import { useToast } from "~/components/ui/use-toast";
 import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
-import { BlogDocument, Blogs, Content } from "~/models/Schema.server";
-import ContentItem from "~/mycomponents/ContentItem";
+import { Blogs } from "~/models/Schema.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
-import {
-    destructiveToastStyle,
-    parseNewBlog,
-    parseZodBlogError,
-} from "~/utils/general";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { parseNewBlog, parseZodBlogError } from "~/utils/general";
 
 type Props = {};
 
@@ -66,14 +55,13 @@ const CreateNewBlog = (props: Props) => {
     const [formData, setFormData] = useState(InitialBlog);
 
     const fetcher = useFetcher();
+    const { toast } = useToast();
     const res = fetcher.data as any;
     // console.log(res);
     const loading = fetcher.state === "submitting";
     useEffect(() => {
         if (res?.error?.message)
-            toast.error(res?.error?.message, {
-                style: destructiveToastStyle,
-            });
+            toast({ description: res?.error?.message, variant: "destructive" });
     }, [res]);
 
     function addMore() {
