@@ -27,6 +27,7 @@ import {
     Users,
 } from "~/models/Schema.server";
 import { getFollowStats } from "~/models/follow.server";
+import FollowButton from "~/mycomponents/FollowButton";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
 import { formatTime, useUser } from "~/utils/general";
 
@@ -127,15 +128,7 @@ const UserProfile = () => {
                         {followersCount} followers | {followingCount} following
                     </p>
 
-                    <Button
-                        variant="default"
-                        className={cn(
-                            curuser?._id === user._id ? "hidden" : "",
-                            "bg-green-600 text-white hover:bg-green-700 w-full max-w-xs place-self-center"
-                        )}
-                    >
-                        Follow
-                    </Button>
+                    <FollowButton variant="default" userId={user._id} />
                 </div>
             </div>
             <div className="pt-4 px-2 space-y-2">

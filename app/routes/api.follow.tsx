@@ -18,12 +18,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-    const { userId, blogId, isFollowing } = await request.json();
+    const { userId, redirect, isFollowing } = await request.json();
     const { _id } = await authenticator.isAuthenticated(request, {
-        failureRedirect: `/login?redirectTo=/blogs/${blogId ?? ""}`,
+        failureRedirect: `/login?redirectTo=${redirect ?? "/"}`,
     });
     // console.log(isFollowing);
-    invariant(blogId);
     invariant(userId);
     // invariant(isFollowing ?? "");
     if (isFollowing !== false && typeof isFollowing === "string") {

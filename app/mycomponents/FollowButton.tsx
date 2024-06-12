@@ -1,4 +1,4 @@
-import { useFetcher, useParams } from "@remix-run/react";
+import { useFetcher, useLocation, useParams } from "@remix-run/react";
 import { useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
@@ -8,11 +8,12 @@ import { useUser } from "~/utils/general";
 
 type Props = {
     userId: string;
+    variant?: "default" | "sm" | "link";
 };
-const FollowButton = ({ userId }: Props) => {
+const FollowButton = ({ userId, variant = "link" }: Props) => {
     const user = useUser();
     const { toast } = useToast();
-    const { blogId } = useParams();
+    const location = useLocation();
     const loader = useFetcher<typeof followLoader>();
     const fetcher = useFetcher<any>();
     useEffect(() => {
@@ -30,12 +31,11 @@ const FollowButton = ({ userId }: Props) => {
     const isFollowing = loader.data?.isFollowing ?? false;
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        if (!blogId) return;
         fetcher.submit(
             {
                 userId,
                 isFollowing,
-                blogId,
+                redirect: location.pathname,
             },
             {
                 encType: "application/json",
@@ -54,9 +54,18 @@ const FollowButton = ({ userId }: Props) => {
             <Button
                 type="submit"
                 disabled={loader.state !== "idle" || fetcher.state !== "idle"}
-                variant="link"
+                // @ts-expect-error
+                variant={variant}
                 className={cn(
-                    !loader.data?.isFollowing
+                    variant === "default"
+                        ? cn(
+                              user?._id === userId ? "hidden" : "",
+                              loader.data?.isFollowing
+                                  ? "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                                  : "bg-green-600 text-white hover:bg-green-700",
+                              "w-full max-w-xs place-self-center"
+                          )
+                        : !loader.data?.isFollowing
                         ? "text-green-500 hover:text-green-600"
                         : "text-accent-foreground"
                 )}

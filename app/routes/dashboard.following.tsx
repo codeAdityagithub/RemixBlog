@@ -1,6 +1,7 @@
 import { AvatarIcon } from "@radix-ui/react-icons";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
+    Link,
     ShouldRevalidateFunction,
     useFetcher,
     useLoaderData,
@@ -76,12 +77,14 @@ const Following = () => {
                         className="flex items-center gap-4 p-4 rounded-md border-b"
                     >
                         <Avatar className="h-14 w-14 outline outline-1 outline-border">
-                            <AvatarImage
-                                width={96}
-                                height={96}
-                                alt={user.username}
-                                src={user.picture}
-                            ></AvatarImage>
+                            <Link to={"/profiles/" + user.username}>
+                                <AvatarImage
+                                    width={96}
+                                    height={96}
+                                    alt={user.username}
+                                    src={user.picture}
+                                ></AvatarImage>
+                            </Link>
                             <AvatarFallback>
                                 <AvatarIcon
                                     className="w-full h-full"
@@ -90,10 +93,12 @@ const Following = () => {
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col gap-3 ">
-                            <p>{user.username}</p>
-                            <small className="text-sm text-muted-foreground">
-                                Followed {formatTime(createdAt)}
-                            </small>
+                            <Link to={"/profiles/" + user.username}>
+                                <p>{user.username}</p>
+                                <small className="text-sm text-muted-foreground">
+                                    Followed {formatTime(createdAt)}
+                                </small>
+                            </Link>
                         </div>
                         <Button
                             disabled={fetcher.state !== "idle"}
@@ -101,7 +106,7 @@ const Following = () => {
                                 fetcher.submit(
                                     {
                                         userId: user._id.toString(),
-                                        blogId: "/dashboard/following",
+                                        redirect: "/dashboard/following",
                                         isFollowing: `trueT${new Date(
                                             createdAt
                                         ).getTime()}`,
