@@ -47,9 +47,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return { followers };
 };
 
-// export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
-//     return false;
-// };
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+    defaultShouldRevalidate,
+    formAction,
+    actionResult,
+}) => {
+    if (!formAction?.startsWith("/api/follow") || actionResult !== "unfollowed")
+        return false;
+    return defaultShouldRevalidate;
+};
 
 const Following = () => {
     let { followers } = useLoaderData<typeof loader>();

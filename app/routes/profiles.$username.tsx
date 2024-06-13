@@ -127,7 +127,7 @@ const UserProfile = () => {
                     <p className="text-muted-foreground text-sm min-w-fit self-center text-center sm:text-left">
                         {followersCount} followers | {followingCount} following
                     </p>
-
+                    d
                     <FollowButton variant="default" userId={user._id} />
                 </div>
             </div>

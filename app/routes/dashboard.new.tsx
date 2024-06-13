@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { Form, useFetcher } from "@remix-run/react";
-import { useCallback, useEffect, useState } from "react";
+import { ClientActionFunctionArgs, Form, useFetcher } from "@remix-run/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ZodError } from "zod";
 import { authenticator } from "~/auth.server";
 import { Badge } from "~/components/ui/badge";
@@ -14,11 +14,12 @@ import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
 import { Blogs } from "~/models/Schema.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
-import { parseNewBlog, parseZodBlogError } from "~/utils/general";
+import { isEqual, parseNewBlog, parseZodBlogError } from "~/utils/general";
 
 type Props = {};
 
 export async function action({ request }: ActionFunctionArgs) {
+    // return redirect("/dashboard/new");
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
@@ -42,6 +43,13 @@ export async function action({ request }: ActionFunctionArgs) {
         );
     }
 }
+export async function clientAction({
+    request,
+    serverAction,
+}: ClientActionFunctionArgs) {
+    localStorage.removeItem("formData");
+    return await serverAction();
+}
 const InitialContent = { content: "", heading: "", image: "" };
 const InitialBlog = {
     title: "",
@@ -53,17 +61,66 @@ const InitialBlog = {
 const CreateNewBlog = (props: Props) => {
     // const [content, setContent] = useState([0]);
     const [formData, setFormData] = useState(InitialBlog);
-
+    // console.log(formData);
     const fetcher = useFetcher();
     const { toast } = useToast();
     const res = fetcher.data as any;
     // console.log(res);
     const loading = fetcher.state === "submitting";
+    const formDataRef = useRef(InitialBlog);
+    const isSubmittedRef = useRef(false);
+    // Update the ref whenever formData changes
     useEffect(() => {
+        formDataRef.current = formData;
+    }, [formData]);
+
+    useEffect(() => {
+        // Save form data to localStorage on component unmount
+        const handleBeforeUnload = (event: any) => {
+            // console.log(isSubmitted);
+            if (!isSubmittedRef.current && formDataRef.current !== InitialBlog)
+                localStorage.setItem(
+                    "formData",
+                    JSON.stringify(formDataRef.current)
+                );
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        try {
+            const localData = JSON.parse(
+                localStorage.getItem("formData") ?? "1"
+            );
+            console.log(typeof localData, typeof InitialBlog);
+            if (
+                typeof localData === "object" &&
+                isEqual(localData, InitialBlog)
+            ) {
+                // console.log("first");
+                toast({
+                    description: "Previous progress restored successfully!",
+                    className: "bg-green-600 text-primary",
+                    duration: 1000,
+                });
+                setFormData(localData);
+            }
+        } catch (error) {
+            console.log("Invalid formData in local storage");
+        }
+        return () => {
+            // console.log(fetcher);
+            if (!isSubmittedRef.current && formDataRef.current !== InitialBlog)
+                localStorage.setItem(
+                    "formData",
+                    JSON.stringify(formDataRef.current)
+                );
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, []);
+    useEffect(() => {
+        if (res?.error) isSubmittedRef.current = false;
         if (res?.error?.message)
             toast({ description: res?.error?.message, variant: "destructive" });
     }, [res]);
-
     function addMore() {
         if (formData.content.length >= 5) return;
         setFormData((prev) => ({
@@ -117,6 +174,7 @@ const CreateNewBlog = (props: Props) => {
             onSubmit={(e) => {
                 e.preventDefault();
                 // console.log(formData);
+                isSubmittedRef.current = true;
                 fetcher.submit(formData, {
                     method: "POST",
                     encType: "application/json",

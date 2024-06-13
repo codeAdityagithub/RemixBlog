@@ -103,7 +103,27 @@ export function formatTime(input: string): string {
         return `${month}-${day}-${year}`;
     }
 }
+export function isEqual(obj1: Object, obj2: Object) {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
 
+    if (keys1.length !== keys2.length) {
+        return false;
+    }
+
+    return keys1.every((key) => keys2.includes(key));
+}
+
+// export function isEqualValues(obj1: Object, obj2: Object) {
+//     const values1 = Object.values(obj1);
+//     const values2 = Object.values(obj2);
+
+//     if (values1.length !== values2.length) {
+//         return false;
+//     }
+
+//     return values1.every((key) => values2.includes(key));
+// }
 export function getGreeting() {
     let hour = new Date().getHours();
     if (hour < 12) {
