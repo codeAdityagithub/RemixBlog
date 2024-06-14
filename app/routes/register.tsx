@@ -1,4 +1,4 @@
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import React, { useEffect } from "react";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -66,12 +66,14 @@ export async function action({ request }: ActionFunctionArgs) {
             );
         }
         if (error instanceof Response) return error;
+        console.log(error);
         return json({ error: "Something went wrong" }, { status: 500 });
     }
 }
 
 const Register = () => {
     const data = useActionData<typeof action>();
+    const navigation = useNavigation();
     const { toast } = useToast();
     const error = data?.error;
     const { emailError, passwordError, usernameError } =
@@ -152,8 +154,12 @@ const Register = () => {
                             />
                         </div>
                     </div>
-                    <Button type="submit" className="mt-4">
-                        Login
+                    <Button
+                        disabled={navigation.state !== "idle"}
+                        type="submit"
+                        className="mt-4"
+                    >
+                        Register
                     </Button>
                 </Form>
             </CardContent>

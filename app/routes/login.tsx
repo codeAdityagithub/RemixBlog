@@ -4,7 +4,7 @@ import {
     MetaFunction,
     json,
 } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect } from "react";
 import { AuthorizationError } from "remix-auth";
 import { ZodError } from "zod";
@@ -64,13 +64,14 @@ export async function action({ request }: ActionFunctionArgs) {
             }
             return json({ error: error.message }, { status: 400 });
         }
-
+        console.log(error);
         return { error: "Something went wrong!" };
     }
 }
 
 const Login = () => {
     const error = useActionData<typeof action>();
+    const navigation = useNavigation();
     const { toast } = useToast();
     useEffect(() => {
         if (error && error.error) {
@@ -117,7 +118,11 @@ const Login = () => {
                             />
                         </div>
                     </div>
-                    <Button type="submit" className="mt-4">
+                    <Button
+                        disabled={navigation.state !== "idle"}
+                        type="submit"
+                        className="mt-4"
+                    >
                         Login
                     </Button>
                 </Form>
