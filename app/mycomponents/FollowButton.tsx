@@ -8,9 +8,10 @@ import { useUser } from "~/utils/general";
 
 type Props = {
     userId: string;
-    variant?: "default" | "sm" | "link";
+    variant?: "default" | "link";
+    sm?: boolean;
 };
-const FollowButton = ({ userId, variant = "link" }: Props) => {
+const FollowButton = ({ userId, variant = "link", sm }: Props) => {
     const user = useUser();
     const { toast } = useToast();
     const location = useLocation();
@@ -54,8 +55,8 @@ const FollowButton = ({ userId, variant = "link" }: Props) => {
             <Button
                 type="submit"
                 disabled={loader.state !== "idle" || fetcher.state !== "idle"}
-                // @ts-expect-error
                 variant={variant}
+                size={sm ? "sm" : "default"}
                 className={cn(
                     variant === "default"
                         ? cn(

@@ -25,10 +25,10 @@ export async function cacheClientLocal({
     serverLoader: any;
 }) {
     if (hasInCache(cacheKey)) return getFromCache(cacheKey);
-    console.log("cache miss");
+    // console.log("cache miss");
     const data = await serverLoader();
     if (data) addToCache(cacheKey, data);
-    console.log(data);
+    // console.log(data);
     return data;
 }
 export async function cacheDashboardBlogs({
@@ -45,24 +45,25 @@ export async function cacheDashboardBlogs({
 
     if (hasInCache(cacheKey)) {
         const blogs = getFromCache(cacheKey).blogs as any[];
+        // console.log(blogs.slice(skip, Math.min(pageSize * page, blogs.length)));
         return {
-            blogs: blogs.splice(skip, pageSize),
+            blogs: blogs.slice(skip, Math.min(pageSize * page, blogs.length)),
             totalBlogs: blogs.length,
         };
     }
-    console.log("cache miss");
-    const data = await serverLoader();
-    console.log(data);
-    if (data && data.blogs?.length > 0) {
-        addToCache(cacheKey, data);
-        window.dispatchEvent(new Event("localStorageChange"));
-    }
+    // console.log("cache miss");
+    // const data = await serverLoader();
     // console.log(data);
+    // if (data && data.blogs?.length > 0) {
+    //     addToCache(cacheKey, data);
+    //     window.dispatchEvent(new Event("localStorageChange"));
+    // }
+    // // console.log(data);
 
-    return {
-        blogs: data.blogs.splice(skip, pageSize),
-        totalBlogs: data.blogs.length,
-    };
+    // return {
+    //     blogs: data.blogs.splice(skip, pageSize),
+    //     totalBlogs: data.blogs.length,
+    // };
 }
 
 export async function cachedClientAction({

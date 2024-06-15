@@ -1,4 +1,8 @@
-import { json, useLoaderData } from "@remix-run/react";
+import {
+    ShouldRevalidateFunction,
+    json,
+    useLoaderData,
+} from "@remix-run/react";
 import {
     Carousel,
     CarouselContent,
@@ -33,6 +37,9 @@ export const loader = async ({}) => {
         { latestBlogs, popularBlogs, trendingBlogs },
         { headers: { "Cache-control": "max-age=300" } }
     );
+};
+export const shouldRevalidate: ShouldRevalidateFunction = () => {
+    return false;
 };
 
 const AllBlogs = () => {

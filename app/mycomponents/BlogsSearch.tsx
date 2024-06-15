@@ -53,7 +53,7 @@ const BlogsSearch = (props: Props) => {
     });
 
     return (
-        <div className="mx-auto relative sm:w-[300px]">
+        <div className="mx-auto relative w-full xs:max-w-[350px] sm:w-[300px] lg:w-[450px]">
             <div
                 onClick={() => {
                     setHidden(true);
@@ -72,6 +72,7 @@ const BlogsSearch = (props: Props) => {
                     if (e.target.value.length >= 2) setHidden(false);
                 }}
                 onBlur={() => {
+                    if (!searchParams.has("searchTag")) return;
                     setSearchParams((prev) => {
                         prev.delete("searchTag");
                         return prev;

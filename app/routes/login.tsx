@@ -4,7 +4,7 @@ import {
     MetaFunction,
     json,
 } from "@remix-run/node";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect } from "react";
 import { AuthorizationError } from "remix-auth";
 import { ZodError } from "zod";
@@ -14,6 +14,7 @@ import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "~/components/ui/card";
@@ -76,20 +77,22 @@ const Login = () => {
     useEffect(() => {
         if (error && error.error) {
             if (typeof error.error === "string")
-                toast({ description: error.error });
+                toast({ description: error.error, variant: "destructive" });
             else if (error.error.fieldErrors) {
                 const { email, password } = error.error.fieldErrors;
                 if (email || password)
                     toast({
-                        description: `${email ? email[0] + "<br>" : ""}${
-                            password && password[0]
+                        description: `${email ? email[0] + " \n" : ""}${
+                            password ? password[0] : ""
                         }`,
+                        variant: "destructive",
+                        style: { whiteSpace: "pre-line" },
                     });
             }
         }
     }, [error]);
     return (
-        <Card className="w-[350px]">
+        <Card className="xs:w-[350px] mb-4">
             <CardHeader>
                 <CardTitle>Welcome Back!</CardTitle>
                 <CardDescription>Login to see your account</CardDescription>
@@ -127,6 +130,12 @@ const Login = () => {
                     </Button>
                 </Form>
             </CardContent>
+            <CardFooter className="flex items-center text-muted-foreground">
+                <span>New to RemixBlog? </span>
+                <Link to="/register">
+                    <Button variant="link">Register</Button>
+                </Link>
+            </CardFooter>
         </Card>
     );
 };

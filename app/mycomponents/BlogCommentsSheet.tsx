@@ -37,7 +37,7 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     // console.log(fetcher.data);
     useEffect(() => {
         if (fetcher.data) {
-            console.log(fetcher.data.append);
+            // console.log(fetcher.data.append);
             if (!fetcher.data.append) {
                 setComments(fetcher.data.comments as CommentDoc[]);
             } else {
@@ -100,7 +100,7 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <SheetContent className="w-[400px] sm:w-[540px] flex flex-col gap-4 max-h-screen overflow-auto ver_scroll">
+            <SheetContent className="w-full xs:w-[350px] sm:w-[540px] flex flex-col gap-4 max-h-screen overflow-auto ver_scroll">
                 <SheetHeader>
                     <SheetTitle className="text-xl">
                         Responses ({commentsNumber})

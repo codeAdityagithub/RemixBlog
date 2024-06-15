@@ -24,19 +24,21 @@ export default function NavSheet() {
                 <Button
                     variant="outline"
                     size="icon"
-                    className="md:hidden mr-auto"
+                    className="md:hidden mr-auto min-w-9"
                 >
                     <HamburgerMenuIcon />
                     <span className="sr-only">Toggle navigation menu</span>
                 </Button>
             </SheetTrigger>
             <SheetContent side="left">
-                <nav className="grid gap-6 text-lg font-medium">
-                    <TypographyH1>RemixBlog</TypographyH1>
+                <nav className="grid gap-4 text-lg font-medium">
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        RemixBlog
+                    </h1>
                     <SheetClose asChild>
                         <NavLink
                             to="/"
-                            className="text-muted-foreground hover:text-foreground"
+                            className="text-muted-foreground hover:text-foreground py-2"
                         >
                             Home
                         </NavLink>
@@ -44,7 +46,7 @@ export default function NavSheet() {
                     <SheetClose asChild>
                         <NavLink
                             to="/blogs"
-                            className="text-muted-foreground hover:text-foreground target:text-primary"
+                            className="text-muted-foreground hover:text-foreground py-2"
                         >
                             Blogs
                         </NavLink>
@@ -52,12 +54,12 @@ export default function NavSheet() {
                     <SheetClose asChild>
                         <NavLink
                             to="/dashboard"
-                            className="text-muted-foreground hover:text-foreground target:text-primary"
+                            className="text-muted-foreground hover:text-foreground py-2"
                         >
                             Dashboard
                         </NavLink>
                     </SheetClose>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 py-2">
                         <span className="text-muted-foreground">
                             Toggle Theme
                         </span>
@@ -94,6 +96,18 @@ export default function NavSheet() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                        <SheetClose asChild>
+                            <Link to={`/login?redirectTo=${pathname}`}>
+                                <Button>Login</Button>
+                            </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                            <Link to={`/register?redirectTo=${pathname}`}>
+                                <Button variant="outline">Register</Button>
+                            </Link>
+                        </SheetClose>
                     </div>
                 </nav>
             </SheetContent>

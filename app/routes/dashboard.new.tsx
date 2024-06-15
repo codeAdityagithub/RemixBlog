@@ -1,3 +1,4 @@
+import { Cross1Icon } from "@radix-ui/react-icons";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { ClientActionFunctionArgs, Form, useFetcher } from "@remix-run/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -48,6 +49,7 @@ export async function clientAction({
     serverAction,
 }: ClientActionFunctionArgs) {
     localStorage.removeItem("formData");
+    localStorage.removeItem("dashboardBlogs");
     return await serverAction();
 }
 const InitialContent = { content: "", heading: "", image: "" };
@@ -90,7 +92,7 @@ const CreateNewBlog = (props: Props) => {
             const localData = JSON.parse(
                 localStorage.getItem("formData") ?? "1"
             );
-            console.log(typeof localData, typeof InitialBlog);
+            // console.log(typeof localData, typeof InitialBlog);
             if (
                 typeof localData === "object" &&
                 isEqual(localData, InitialBlog)
@@ -237,7 +239,7 @@ const CreateNewBlog = (props: Props) => {
                         Tags{" "}
                         <span className="text-red-500">{res?.error?.tags}</span>
                     </Label>
-                    <div className="flex gap-2 glex-wrap">
+                    <div className="flex gap-2 flex-wrap">
                         {formData.tags.map((tag, ind) => (
                             <Badge
                                 title="delete tag"
@@ -245,6 +247,11 @@ const CreateNewBlog = (props: Props) => {
                                 className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
                             >
                                 {tag}
+                                <Cross1Icon
+                                    width={10}
+                                    height={10}
+                                    className="ml-2"
+                                />
                             </Badge>
                         ))}
                     </div>
@@ -253,7 +260,34 @@ const CreateNewBlog = (props: Props) => {
                             id="tags"
                             name="tags"
                             type="text"
+                            onPaste={(e) => {
+                                e.preventDefault();
+                                const data = e.clipboardData
+                                    .getData("Text")
+                                    .replace(/#/g, "")
+                                    .split(" ")
+                                    .splice(0, 5);
+                                if (data.length + formData.tags.length <= 5)
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        tags: [...formData.tags, ...data],
+                                    }));
+                            }}
                             onKeyDown={(e) => {
+                                if (
+                                    e.key === "Backspace" &&
+                                    e.currentTarget.value === ""
+                                ) {
+                                    if (formData.tags.length > 0) {
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            tags: formData.tags.slice(
+                                                0,
+                                                formData.tags.length - 1
+                                            ),
+                                        }));
+                                    }
+                                }
                                 if (
                                     formData.tags.length >= 5 ||
                                     e.currentTarget.value.trim() === ""

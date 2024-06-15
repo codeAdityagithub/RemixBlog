@@ -89,26 +89,31 @@ const BlogPage = () => {
                 <TypographyH1>{blog.title}</TypographyH1>
                 <div className="flex flex-row h-16 items-center gap-4 p-4 rounded-lg">
                     <Avatar>
-                        <AvatarImage
-                            alt="Author Avatar"
-                            src={blog.author.picture}
-                        />
+                        <Link to={`/profiles/${blog.author.username}`}>
+                            <AvatarImage
+                                alt="Author Avatar"
+                                src={blog.author.picture}
+                            />
+                        </Link>
                         <AvatarFallback>
                             <AvatarIcon className="w-full h-full" />
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                        <p className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                             <Link to={`/profiles/${blog.author.username}`}>
                                 {blog.author.username}
                             </Link>{" "}
                             {user?._id === blog.author._id ? null : (
                                 <>
                                     <DotFilledIcon />
-                                    <FollowButton userId={blog.author._id!} />
+                                    <FollowButton
+                                        sm
+                                        userId={blog.author._id!}
+                                    />
                                 </>
                             )}
-                        </p>
+                        </div>
                         <small className="flex items-center gap-1 text-muted-foreground">
                             {readTime} min read <DotFilledIcon />{" "}
                             {formatTime(blog.createdAt)}

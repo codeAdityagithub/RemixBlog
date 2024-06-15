@@ -41,13 +41,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction = ({
     defaultShouldRevalidate,
     formAction,
+    currentUrl,
     nextUrl,
 }) => {
+    if (
+        currentUrl.search !== nextUrl.search &&
+        currentUrl.pathname === nextUrl.pathname
+    )
+        return false;
     if (!formAction) return defaultShouldRevalidate;
     if (
         !formAction?.startsWith("/logout") &&
         !formAction?.startsWith("/api/profile") &&
-        !formAction?.startsWith("/login")
+        !formAction?.startsWith("/login") &&
+        !formAction?.startsWith("/register")
     )
         return false;
     return defaultShouldRevalidate;

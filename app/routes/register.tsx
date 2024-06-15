@@ -1,4 +1,4 @@
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import React, { useEffect } from "react";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -60,10 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
         return res;
     } catch (error: any) {
         if (error instanceof ZodError) {
-            return json(
-                { error: error.flatten().fieldErrors },
-                { status: 400 }
-            );
+            return json({ error: error.flatten() }, { status: 400 });
         }
         if (error instanceof Response) return error;
         console.log(error);
@@ -76,34 +73,30 @@ const Register = () => {
     const navigation = useNavigation();
     const { toast } = useToast();
     const error = data?.error;
-    const { emailError, passwordError, usernameError } =
-        error && typeof error !== "string"
-            ? {
-                  emailError: error.email,
-                  passwordError: error.password,
-                  usernameError: error.username,
-              }
-            : { emailError: "", passwordError: "", usernameError: "" };
+
     useEffect(() => {
-        if (error && error.error) {
-            if (typeof error.error === "string")
-                toast({ description: error.error });
-            else if (error.error.fieldErrors) {
-                const { email, password } = error.error.fieldErrors;
-                if (email || password)
+        if (error) {
+            if (typeof error === "string")
+                toast({ description: error, variant: "destructive" });
+            else if (error.fieldErrors) {
+                const { email, password, username } = error.fieldErrors;
+                if (email || password || username)
                     toast({
-                        description: `${email ? email[0] + "<br>" : ""}${
-                            password && password[0]
-                        }`,
+                        description: `${email ? email[0] + "\n" : ""}${
+                            password ? password[0] + "\n" : ""
+                        }${username ? username[0] : ""}
+                        `,
+                        variant: "destructive",
+                        style: { whiteSpace: "pre-line" },
                     });
             }
         }
     }, [error]);
     return (
-        <Card className="w-[350px]">
+        <Card className="xs:w-[350px] mb-4">
             <CardHeader>
-                <CardTitle>Welcome Back!</CardTitle>
-                <CardDescription>Login to see your account</CardDescription>
+                <CardTitle>Welcome!</CardTitle>
+                <CardDescription>Register to RemixBlog</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form method="post">
@@ -111,9 +104,9 @@ const Register = () => {
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="username">
                                 Username
-                                <div className="text-red-600 py-1">
+                                {/* <div className="text-red-600 py-1">
                                     {usernameError}
-                                </div>
+                                </div> */}
                             </Label>
                             <Input
                                 id="username"
@@ -126,9 +119,9 @@ const Register = () => {
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="email">
                                 Email{" "}
-                                <div className="text-red-600 py-1">
+                                {/* <div className="text-red-600 py-1">
                                     {emailError}
-                                </div>
+                                </div> */}
                             </Label>
                             <Input
                                 id="email"
@@ -141,9 +134,9 @@ const Register = () => {
                         <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="email">
                                 Password{" "}
-                                <div className="text-red-600 py-1">
+                                {/* <div className="text-red-600 py-1">
                                     {passwordError}
-                                </div>
+                                </div> */}
                             </Label>
                             <Input
                                 id="password"
@@ -163,8 +156,11 @@ const Register = () => {
                     </Button>
                 </Form>
             </CardContent>
-            <CardFooter className="text-red-600">
-                {error && typeof error === "string" ? error : null}
+            <CardFooter className="flex items-center text-muted-foreground">
+                <span>Already have an account? </span>
+                <Link to="/login">
+                    <Button variant="link">Login</Button>
+                </Link>
             </CardFooter>
         </Card>
     );

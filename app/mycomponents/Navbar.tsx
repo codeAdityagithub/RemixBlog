@@ -37,7 +37,7 @@ const Navbar = (props: Props) => {
     const { pathname } = useLocation();
     const user = useUser();
     return (
-        <NavigationMenu className="sticky top-0 min-w-full justify-between py-2 h-14 px-4 md:px-6 border-b border-border">
+        <NavigationMenu className="sticky top-0 min-w-full justify-between gap-4 py-2 h-14 pr-4 pl-0 md:px-6 border-b border-border">
             {/* dekstop  */}
             <NavigationMenuList className="gap-10 hidden md:flex">
                 <NavigationMenuItem className="">
@@ -62,7 +62,7 @@ const Navbar = (props: Props) => {
             {/* mobile  */}
             <NavSheet />
             <BlogsSearch />
-            <NavigationMenuList className="gap-3">
+            <NavigationMenuList className="gap-2 justify-between">
                 {user ? (
                     <>
                         <NavigationMenuItem>
@@ -121,20 +121,14 @@ const Navbar = (props: Props) => {
                     </>
                 ) : (
                     <>
-                        <NavigationMenuItem>
-                            <Link
-                                to={`/login?redirectTo=${pathname}`}
-                                className={navigationMenuTriggerStyle()}
-                            >
-                                Login
+                        <NavigationMenuItem className="hidden xs:flex" asChild>
+                            <Link to={`/login?redirectTo=${pathname}`}>
+                                <Button>Login</Button>
                             </Link>
                         </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <Link
-                                to={`/register?redirectTo=${pathname}`}
-                                className={navigationMenuTriggerStyle()}
-                            >
-                                Register
+                        <NavigationMenuItem className="hidden sm:flex" asChild>
+                            <Link to={`/register?redirectTo=${pathname}`}>
+                                <Button variant="outline">Register</Button>
                             </Link>
                         </NavigationMenuItem>
                     </>

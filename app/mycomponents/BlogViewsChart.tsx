@@ -35,7 +35,7 @@ const BlogViewsChart = (props: Props) => {
                 `/api/viewchart?filter=${graphState.filter}&duration=${graphState.duration}`
             );
             const data = await res.json();
-            console.log(data);
+            // console.log(data);
             return data.views as { key: string; views: number }[];
         },
         staleTime: 1000 * 60 * 5,
