@@ -4,7 +4,9 @@ import {
     useFetcher,
     useLoaderData,
 } from "@remix-run/react";
-import { FormEvent, useEffect } from "react";
+import { useEditor } from "@tiptap/react";
+import { FormEvent, useCallback, useEffect } from "react";
+import sanitizeHtml from "sanitize-html";
 import invariant from "tiny-invariant";
 import { ZodError } from "zod";
 import { authenticator } from "~/auth.server";
@@ -18,19 +20,17 @@ import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
 import { Blogs } from "~/models/Schema.server";
 import { deleteBlog } from "~/models/functions.server";
+import BlogFormTags from "~/mycomponents/BlogFormTags";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
+import { editorExtensions } from "~/mycomponents/Editor";
+import EditorClient from "~/mycomponents/EditorClient";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
-import { parseNewBlog, parseZodBlogError } from "~/utils/general";
+import { parseZodBlogError } from "~/utils/general";
 import { cachedClientAction } from "~/utils/localStorageCache.client";
 export type InitialBlog = {
     title: string;
     desc: string;
     thumbnail: string;
-    content: {
-        content: string;
-        heading: string;
-        image: string;
-    }[];
     tags: string[];
 };
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -40,17 +40,29 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { blogId } = params;
     invariant(blogId, "No blogId specified");
     await connect();
-    const blog = (await Blogs.findOne({
-        author: user._id,
-        _id: blogId,
-    })) as InitialBlog | null;
+    const blog = (await Blogs.findOne(
+        {
+            author: user._id,
+            _id: blogId,
+        },
+        {
+            _id: 0,
+            comments: 0,
+            likes: 0,
+            createdAt: 0,
+            updatedAt: 0,
+            views: 0,
+            author: 0,
+        }
+    ).lean()) as (InitialBlog & { content: string }) | null;
 
     if (!blog)
         throw json("Blog Not Found", {
             status: 404,
             statusText: "Requested blog not found",
         });
-    return { blog };
+    const { content, ...blogWithoutContent } = blog;
+    return { blog: blogWithoutContent, content };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -68,11 +80,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         console.log("deleted");
         return { deleted: true };
     }
-    const body = await request.json();
-    const parsed = parseNewBlog(body);
     try {
         // console.log(parsed);
-        const updatedBlog = NewBlogSchema.parse(parsed);
+        const body = await request.json();
+        // const parsed = parseNewBlog(body);
+        // console.log(blog.get("content"));
+        const updatedBlog = NewBlogSchema.parse(body);
+        updatedBlog.content = sanitizeHtml(updatedBlog.content);
         // console.log(updatedBlog);
         await Blogs.updateOne(
             {
@@ -107,62 +121,90 @@ export async function clientAction({
 }
 
 const DashboardBlogEdit = () => {
-    const initialBlog = useLoaderData<typeof loader>()
-        .blog as unknown as InitialBlog;
-    // const [content, setContent] = useState(
-    //     Array.from({ length: initialBlog.content.length })
-    // );
+    const { blog: initialBlog, content: initialContent } =
+        useLoaderData<typeof loader>();
     const fetcher = useFetcher();
     const { toast } = useToast();
-    const { formData, handleChange, setFormData, hasChanged } =
+    const { formData, handleChange, setFormData, hasChanged, setHasChanged } =
         useInitialForm(initialBlog);
     const disabled = !hasChanged || fetcher.state === "submitting";
     const res = fetcher.data as any;
+    const editor = useEditor({
+        content: initialContent,
+        extensions: editorExtensions,
+        editorProps: {
+            scrollMargin: { top: 5, left: 5, right: 5, bottom: 150 },
+        },
+        onUpdate() {
+            setHasChanged(true);
+        },
+    });
+
     useEffect(() => {
         if (res?.error?.message)
             toast({ description: res?.error?.message, variant: "destructive" });
         else if (res?.error === null) {
-            toast({ description: "Blog Updated Successfully" });
+            toast({
+                description: "Blog Updated Successfully",
+                className: "bg-green-600 text-white",
+            });
         }
         // console.log(res);
     }, [initialBlog, res]);
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        fetcher.submit(formData, {
-            method: "POST",
-            encType: "application/json",
-        });
+        if ((editor?.getText().length ?? 0) < 200) {
+            toast({
+                description: "Content must be atleast 200 characters long",
+                variant: "destructive",
+            });
+            return;
+        }
+        const html = editor?.getHTML();
+        if (!html) {
+            toast({
+                description: "Something went wrong!",
+                variant: "destructive",
+            });
+            return;
+        }
+        if (html === initialContent) {
+            setHasChanged(false);
+            return;
+        }
+        fetcher.submit(
+            { ...formData, content: html },
+            {
+                method: "POST",
+                encType: "application/json",
+            }
+        );
     };
 
-    function addMore() {
-        if (formData.content.length >= 5) return;
-        setFormData((prev) => ({
-            ...prev,
-            content: [...prev.content, { heading: "", content: "", image: "" }],
-        }));
-    }
-    function deleteContent(index: number) {
-        setFormData((prev) => ({
-            ...prev,
-            content: prev.content.filter((_, ind) => index !== ind),
-        }));
-    }
-    const addTag = (val: string) => {
-        if (formData.tags.length > 5) return;
-        setFormData((prev) => ({
-            ...prev,
-            tags: [...prev.tags, val],
-        }));
-    };
-    const removeTag = (ind: number) => {
+    const addTag = useCallback(
+        (val: string) => {
+            if (formData.tags.length > 5) return;
+            setFormData((prev) => ({
+                ...prev,
+                tags: [...prev.tags, val],
+            }));
+        },
+        [formData.tags]
+    );
+
+    const removeTag = useCallback((ind: number) => {
         setFormData((prev) => ({
             ...prev,
             tags: prev.tags.filter((_, i) => i !== ind),
         }));
-    };
+    }, []);
+
     return (
-        <form onSubmit={handleSubmit} className="container max-w-3xl flex-1">
+        <form
+            onSubmit={handleSubmit}
+            className="container max-w-3xl flex-1 p-0 sm:px-6"
+        >
             {/* <ScrollArea> */}
             <div className="grid w-full items-center gap-4">
                 <div className="flex flex-col space-y-1.5">
@@ -222,6 +264,7 @@ const DashboardBlogEdit = () => {
                         {formData.tags.map((tag, ind) => (
                             <Badge
                                 title="delete tag"
+                                key={`tag-${ind}`}
                                 onClick={() => removeTag(ind)}
                                 className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
                             >
@@ -229,67 +272,15 @@ const DashboardBlogEdit = () => {
                             </Badge>
                         ))}
                     </div>
-                    {formData.tags.length >= 5 ? null : (
-                        <Input
-                            id="tags"
-                            name="tags"
-                            type="text"
-                            onKeyDown={(e) => {
-                                if (
-                                    formData.tags.length >= 5 ||
-                                    e.currentTarget.value.trim() === ""
-                                )
-                                    return;
-
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    addTag(e.currentTarget.value.trim());
-                                    e.currentTarget.value = "";
-                                }
-                            }}
-                            onChange={(e) => {
-                                if (formData.tags.length >= 5) return;
-                                const val = e.target.value,
-                                    char = val[val.length - 1];
-                                if (val.trim() === "") return;
-                                if (char === " " || char === ",") {
-                                    addTag(val.slice(0, val.length - 1));
-                                    e.target.value = "";
-                                }
-                            }}
-                            placeholder="Tags for your blogs"
-                        />
-                    )}
+                    <BlogFormTags
+                        addTag={addTag}
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
                 </div>
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="content1">Content</Label>
-                    <div className="p-2 pl-6 md:pl-10">
-                        {formData.content.map((c, ind) => (
-                            <ContentItemwChange
-                                key={ind}
-                                index={ind}
-                                deleteContent={deleteContent}
-                                errors={
-                                    res?.error?.content
-                                        ? res.error.content[ind]
-                                        : undefined
-                                }
-                                values={c}
-                                handleChange={handleChange}
-                            />
-                        ))}
-                        {formData.content.length < 5 ? (
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                className="w-full"
-                                onClick={addMore}
-                            >
-                                Add More
-                            </Button>
-                        ) : null}
-                    </div>
+                    <EditorClient editor={editor} />
                 </div>
             </div>
             <div className="mt-4">

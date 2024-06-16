@@ -31,18 +31,8 @@ export async function checkUnauthViewed(request: Request, blogId: string) {
 }
 
 const AVG_READ_SPEED = 200;
-export function readMin(content: Content[]) {
-    let length = 0,
-        textlength =
-            content.reduce((count, c) => count + c.content.length, 0) / 1000;
+export function readMin(content: String) {
+    let textlength = content.length / 1000;
 
-    content.forEach((c) => {
-        for (let i = 0; i < c.content.length; i++) {
-            // Check if the current character is a whitespace and the previous character is not a whitespace
-            if (c.content[i] === " " && (i === 0 || c.content[i - 1] !== " ")) {
-                length++;
-            }
-        }
-    });
-    return Math.max(Math.ceil(length / AVG_READ_SPEED), Math.ceil(textlength));
+    return Math.ceil(textlength);
 }

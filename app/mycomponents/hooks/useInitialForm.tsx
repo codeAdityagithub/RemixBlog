@@ -9,6 +9,7 @@ interface ReturnValue<T> {
     ) => void;
     setFormData: React.Dispatch<React.SetStateAction<T>>;
     hasChanged: boolean;
+    setHasChanged: React.Dispatch<React.SetStateAction<boolean>>;
 }
 function useInitialForm(initialData: InitialBlog): ReturnValue<InitialBlog> {
     const [formData, setFormData] = useState(initialData);
@@ -21,25 +22,11 @@ function useInitialForm(initialData: InitialBlog): ReturnValue<InitialBlog> {
     }, [initialData]);
     const handleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-            let name = e.target.name;
-            const index = Number(name[name.length - 1]) - 1;
-            name = name.slice(0, -1);
-            const newContent = [...formData.content];
-            newContent[index] = {
-                ...newContent[index],
-                [name]: e.target.value,
-            };
-            if (isNaN(index))
-                setFormData({ ...formData, [e.target.name]: e.target.value });
-            else
-                setFormData({
-                    ...formData,
-                    content: newContent,
-                });
+            setFormData({ ...formData, [e.target.name]: e.target.value });
         },
         [initialData]
     );
-    return { formData, handleChange, setFormData, hasChanged };
+    return { formData, handleChange, setFormData, hasChanged, setHasChanged };
 }
 
 export default useInitialForm;

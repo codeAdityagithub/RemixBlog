@@ -31,26 +31,26 @@ export function useUser():
     return data.user;
 }
 
-export const parseNewBlog = (form: {
-    title: string;
-    desc: string;
-    thumbnail: string;
-    content: Content[];
-    tags: string[];
-}): {
-    title: string;
-    desc: string;
-    thumbnail: string;
-    content: Content[];
-    tags: string[];
-} => {
-    const contents = form.content.map((content) =>
-        content.image?.trim() === ""
-            ? { heading: content.heading, content: content.content }
-            : content
-    );
-    return { ...form, content: contents };
-};
+// export const parseNewBlog = (form: {
+//     title: string;
+//     desc: string;
+//     thumbnail: string;
+//     content: Content[];
+//     tags: string[];
+// }): {
+//     title: string;
+//     desc: string;
+//     thumbnail: string;
+//     content: Content[];
+//     tags: string[];
+// } => {
+//     const contents = form.content.map((content) =>
+//         content.image?.trim() === ""
+//             ? { heading: content.heading, content: content.content }
+//             : content
+//     );
+//     return { ...form, content: contents };
+// };
 
 export function createArray(n: number) {
     return Array.from({ length: n }, (_, index) => index);

@@ -41,19 +41,8 @@ export const NewBlogSchema = z.object({
                 .max(30, { message: "A tag can be of atmost 30 chars long" })
         )
         .max(5, { message: "A blog can have atmost five tags" }),
-    content: z.array(
-        z.object({
-            heading: z
-                .string()
-                .min(3, { message: "Heading must be atleast 3 characters." }),
-            image: z.optional(
-                z.string().url({
-                    message: "Image must be a valid URL.",
-                })
-            ),
-            content: z.string().min(10, {
-                message: "Subcontent must be atleast 10 characters.",
-            }),
-        })
-    ),
+    content: z
+        .string()
+        .min(200, { message: "Content must be at least 200 chars" })
+        .max(5000, { message: "Content can be atmost 5000 chars" }),
 });

@@ -60,7 +60,7 @@ export interface BlogDocument {
     views: number;
     comments: number;
     thumbnail: string;
-    content: Content[];
+    content: String;
     author: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
@@ -74,7 +74,7 @@ export interface BlogDocumentwUser {
     views: number;
     tags: string[];
     thumbnail: string;
-    content: Content[];
+    content: String;
     author: { _id?: string; username?: string; picture?: string };
     createdAt: Date | string;
     updatedAt: Date | string;
@@ -125,14 +125,6 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
     { timestamps: true }
 );
 
-const contentSchema = new mongoose.Schema<Content>({
-    heading: { type: String, required: true },
-    image: {
-        type: String,
-    },
-    content: { type: String, required: true },
-});
-
 const blogSchema = new mongoose.Schema<BlogDocument>(
     {
         title: { type: String, required: true, maxLength: 150, index: true },
@@ -145,7 +137,7 @@ const blogSchema = new mongoose.Schema<BlogDocument>(
         views: { type: Number, default: 0 },
         likes: { type: Number, default: 0 },
         comments: { type: Number, default: 0 },
-        content: { type: [contentSchema], maxLength: 5 },
+        content: { type: String, maxLength: 5000 },
         author: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Users",

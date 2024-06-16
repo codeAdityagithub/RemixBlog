@@ -52,18 +52,18 @@ export async function cacheDashboardBlogs({
         };
     }
     // console.log("cache miss");
-    // const data = await serverLoader();
+    const data = await serverLoader();
     // console.log(data);
-    // if (data && data.blogs?.length > 0) {
-    //     addToCache(cacheKey, data);
-    //     window.dispatchEvent(new Event("localStorageChange"));
-    // }
-    // // console.log(data);
+    if (data && data.blogs?.length > 0) {
+        addToCache(cacheKey, data);
+        window.dispatchEvent(new Event("localStorageChange"));
+    }
+    // console.log(data);
 
-    // return {
-    //     blogs: data.blogs.splice(skip, pageSize),
-    //     totalBlogs: data.blogs.length,
-    // };
+    return {
+        blogs: data.blogs.splice(skip, pageSize),
+        totalBlogs: data.blogs.length,
+    };
 }
 
 export async function cachedClientAction({

@@ -5,6 +5,7 @@ import {
     ShouldRevalidateFunction,
     useLoaderData,
 } from "@remix-run/react";
+import { generateHTML } from "@tiptap/react";
 import { Types } from "mongoose";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
@@ -134,11 +135,10 @@ const BlogPage = () => {
                 />
             </header>
             <main>
-                <article className="flex flex-col gap-6">
-                    {blog.content.map((content, ind) => (
-                        <BlogContent key={`blog${ind}`} {...content} />
-                    ))}
-                </article>
+                <article
+                    className="tiptap max-w-full break-words"
+                    dangerouslySetInnerHTML={{ __html: blog.content }}
+                ></article>
             </main>
         </div>
     );

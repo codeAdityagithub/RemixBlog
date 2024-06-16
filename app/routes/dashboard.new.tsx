@@ -1,6 +1,7 @@
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { ClientActionFunctionArgs, Form, useFetcher } from "@remix-run/react";
+import { useEditor } from "@tiptap/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ZodError } from "zod";
 import { authenticator } from "~/auth.server";
@@ -14,9 +15,11 @@ import { useToast } from "~/components/ui/use-toast";
 import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
 import { Blogs } from "~/models/Schema.server";
-import ContentItemwChange from "~/mycomponents/ContentItemwChange";
-import Editor from "~/mycomponents/Editor";
-import { isEqual, parseNewBlog, parseZodBlogError } from "~/utils/general";
+import BlogFormTags from "~/mycomponents/BlogFormTags";
+import { editorExtensions } from "~/mycomponents/Editor";
+import EditorClient from "~/mycomponents/EditorClient";
+import { isEqual, parseZodBlogError } from "~/utils/general";
+import sanitizeHtml from "sanitize-html";
 
 type Props = {};
 
@@ -26,11 +29,13 @@ export async function action({ request }: ActionFunctionArgs) {
         failureRedirect: "/login",
     });
     // console.log(user);
-    const body = await request.json();
-    const parsed = parseNewBlog(body);
-    // console.log(blog.get("content"));
     try {
-        const newBlog = NewBlogSchema.parse(parsed);
+        const body = await request.json();
+        // const parsed = parseNewBlog(body);
+        // console.log(blog.get("content"));
+        const newBlog = NewBlogSchema.parse(body);
+        newBlog.content = sanitizeHtml(newBlog.content);
+        // console.log(newBlog.content);
         await connect();
         const dbblog = await Blogs.create({ ...newBlog, author: user._id });
         // console.log(dbblog);
@@ -53,13 +58,14 @@ export async function clientAction({
     localStorage.removeItem("dashboardBlogs");
     return await serverAction();
 }
-const InitialContent = { content: "", heading: "", image: "" };
 const InitialBlog = {
     title: "",
     desc: "",
     thumbnail: "",
     tags: [] as string[],
 };
+export type BlogFormData = typeof InitialBlog & { content?: string };
+
 const CreateNewBlog = (props: Props) => {
     // const [content, setContent] = useState([0]);
     const [formData, setFormData] = useState(InitialBlog);
@@ -71,7 +77,12 @@ const CreateNewBlog = (props: Props) => {
     const loading = fetcher.state === "submitting";
     const formDataRef = useRef(InitialBlog);
     const isSubmittedRef = useRef(false);
-    // Update the ref whenever formData changes
+    const editor = useEditor({
+        extensions: editorExtensions,
+        editorProps: {
+            scrollMargin: { top: 5, left: 5, right: 5, bottom: 150 },
+        },
+    });
     useEffect(() => {
         formDataRef.current = formData;
     }, [formData]);
@@ -124,24 +135,33 @@ const CreateNewBlog = (props: Props) => {
             toast({ description: res?.error?.message, variant: "destructive" });
     }, [res]);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-    const addTag = (val: string) => {
-        if (formData.tags.length > 5) return;
-        setFormData((prev) => ({
-            ...prev,
-            tags: [...prev.tags, val],
-        }));
-    };
-    const removeTag = (ind: number) => {
+    const handleChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            setFormData((prev) => ({
+                ...prev,
+                [e.target.name]: e.target.value,
+            }));
+        },
+        []
+    );
+
+    const addTag = useCallback(
+        (val: string) => {
+            if (formData.tags.length > 5) return;
+            setFormData((prev) => ({
+                ...prev,
+                tags: [...prev.tags, val],
+            }));
+        },
+        [formData.tags]
+    );
+
+    const removeTag = useCallback((ind: number) => {
         setFormData((prev) => ({
             ...prev,
             tags: prev.tags.filter((_, i) => i !== ind),
         }));
-    };
+    }, []);
 
     return (
         <Form
@@ -150,10 +170,29 @@ const CreateNewBlog = (props: Props) => {
                 e.preventDefault();
                 // console.log(formData);
                 isSubmittedRef.current = true;
-                fetcher.submit(formData, {
-                    method: "POST",
-                    encType: "application/json",
-                });
+                if ((editor?.getText().length ?? 0) < 200) {
+                    toast({
+                        description:
+                            "Content must be atleast 200 characters long",
+                        variant: "destructive",
+                    });
+                    return;
+                }
+                const html = editor?.getHTML();
+                if (!html) {
+                    toast({
+                        description: "Something went wrong!",
+                        variant: "destructive",
+                    });
+                    return;
+                }
+                fetcher.submit(
+                    { ...formData, content: html },
+                    {
+                        method: "POST",
+                        encType: "application/json",
+                    }
+                );
             }}
             className="container max-w-3xl flex-1"
         >
@@ -216,6 +255,7 @@ const CreateNewBlog = (props: Props) => {
                         {formData.tags.map((tag, ind) => (
                             <Badge
                                 title="delete tag"
+                                key={"tag" + ind}
                                 onClick={() => removeTag(ind)}
                                 className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
                             >
@@ -227,69 +267,16 @@ const CreateNewBlog = (props: Props) => {
                                 />
                             </Badge>
                         ))}
-                    </div>
-                    {formData.tags.length >= 5 ? null : (
-                        <Input
-                            id="tags"
-                            name="tags"
-                            type="text"
-                            onPaste={(e) => {
-                                e.preventDefault();
-                                const data = e.clipboardData
-                                    .getData("Text")
-                                    .replace(/#/g, "")
-                                    .split(" ")
-                                    .splice(0, 5);
-                                if (data.length + formData.tags.length <= 5)
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        tags: [...formData.tags, ...data],
-                                    }));
-                            }}
-                            onKeyDown={(e) => {
-                                if (
-                                    e.key === "Backspace" &&
-                                    e.currentTarget.value === ""
-                                ) {
-                                    if (formData.tags.length > 0) {
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            tags: formData.tags.slice(
-                                                0,
-                                                formData.tags.length - 1
-                                            ),
-                                        }));
-                                    }
-                                }
-                                if (
-                                    formData.tags.length >= 5 ||
-                                    e.currentTarget.value.trim() === ""
-                                )
-                                    return;
-
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    addTag(e.currentTarget.value.trim());
-                                    e.currentTarget.value = "";
-                                }
-                            }}
-                            onChange={(e) => {
-                                if (formData.tags.length >= 5) return;
-                                const val = e.target.value,
-                                    char = val[val.length - 1];
-                                if (val.trim() === "") return;
-                                if (char === " " || char === ",") {
-                                    addTag(val.slice(0, val.length - 1));
-                                    e.target.value = "";
-                                }
-                            }}
-                            placeholder="Tags for your blogs"
+                        <BlogFormTags
+                            formData={formData}
+                            setFormData={setFormData}
+                            addTag={addTag}
                         />
-                    )}
+                    </div>
                 </div>
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="content1">Content</Label>
-                    <Editor />
+                    <EditorClient editor={editor} />
                 </div>
             </div>
             <Button type="submit" disabled={loading} className="mt-4">

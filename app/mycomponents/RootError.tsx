@@ -15,6 +15,7 @@ type Props = {
 };
 
 const RootError = ({ error }: Props) => {
+    console.log(error);
     return (
         <div className="grid place-items-center h-screen">
             <Card>

@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 @layer components {
-    .tiptap {
-        @apply p-2 rounded-md border border-primary mt-2 min-h-[300px];
+    div#tiptap {
+        @apply max-w-[calc(100vw-32px)] min-w-[320px] sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto;
+    }
+
+    div.tiptap {
+        @apply p-2 rounded-md border border-primary mt-2 min-h-[300px] w-full;
     }
     /* Headings */
     .tiptap h1 {
@@ -49,12 +53,14 @@
 
     /* Code */
     .tiptap code {
-        @apply bg-secondary text-secondary-foreground p-1 rounded;
+        @apply bg-gray-700 text-white dark:bg-slate-700 p-1 rounded;
     }
-
+    .tiptap {
+        @apply *:has-[code]:leading-[2.25];
+    }
     /* Preformatted text */
     .tiptap pre {
-        @apply bg-gray-900 text-white p-4 rounded overflow-x-auto;
+        @apply bg-gray-900 text-white dark:bg-slate-500 p-4 rounded overflow-x-auto;
     }
 
     /* Links */
