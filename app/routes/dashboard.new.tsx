@@ -15,6 +15,7 @@ import { connect } from "~/db.server";
 import { NewBlogSchema } from "~/lib/zod";
 import { Blogs } from "~/models/Schema.server";
 import ContentItemwChange from "~/mycomponents/ContentItemwChange";
+import Editor from "~/mycomponents/Editor";
 import { isEqual, parseNewBlog, parseZodBlogError } from "~/utils/general";
 
 type Props = {};
@@ -57,7 +58,6 @@ const InitialBlog = {
     title: "",
     desc: "",
     thumbnail: "",
-    content: [InitialContent],
     tags: [] as string[],
 };
 const CreateNewBlog = (props: Props) => {
@@ -123,38 +123,11 @@ const CreateNewBlog = (props: Props) => {
         if (res?.error?.message)
             toast({ description: res?.error?.message, variant: "destructive" });
     }, [res]);
-    function addMore() {
-        if (formData.content.length >= 5) return;
-        setFormData((prev) => ({
-            ...prev,
-            content: [...formData.content, InitialContent],
-        }));
-    }
-    const deleteContent = useCallback((index: number) => {
-        setFormData((prev) => ({
-            ...prev,
-            content: prev.content.filter((_, ind) => index !== ind),
-        }));
-    }, []);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        let name = e.target.name;
-        const index = Number(name[name.length - 1]) - 1;
-        name = name.slice(0, -1);
-        const newContent = [...formData.content];
-        newContent[index] = {
-            ...newContent[index],
-            [name]: e.target.value,
-        };
-        if (isNaN(index))
-            setFormData({ ...formData, [e.target.name]: e.target.value });
-        else
-            setFormData({
-                ...formData,
-                content: newContent,
-            });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
     const addTag = (val: string) => {
         if (formData.tags.length > 5) return;
@@ -316,33 +289,7 @@ const CreateNewBlog = (props: Props) => {
                 </div>
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="content1">Content</Label>
-                    <div className="p-2 pl-6 md:pl-10">
-                        {formData.content.map((c, ind) => (
-                            <ContentItemwChange
-                                key={ind}
-                                index={ind}
-                                deleteContent={deleteContent}
-                                handleChange={handleChange}
-                                errors={
-                                    res?.error?.content
-                                        ? res.error.content[ind]
-                                        : undefined
-                                }
-                                values={c}
-                            />
-                        ))}
-                        {formData.content.length < 5 ? (
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                className="w-full"
-                                onClick={addMore}
-                            >
-                                Add More
-                            </Button>
-                        ) : null}
-                    </div>
+                    <Editor />
                 </div>
             </div>
             <Button type="submit" disabled={loading} className="mt-4">
