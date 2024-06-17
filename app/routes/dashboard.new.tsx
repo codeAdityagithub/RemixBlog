@@ -1,5 +1,10 @@
 import { Cross1Icon } from "@radix-ui/react-icons";
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import {
+    ActionFunctionArgs,
+    LoaderFunctionArgs,
+    json,
+    redirect,
+} from "@remix-run/node";
 import { ClientActionFunctionArgs, Form, useFetcher } from "@remix-run/react";
 import { useEditor } from "@tiptap/react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,6 +28,12 @@ import sanitizeHtml from "sanitize-html";
 
 type Props = {};
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    await authenticator.isAuthenticated(request, {
+        failureRedirect: "/login?redirectTo=/dashboard/new",
+    });
+    return {};
+};
 export async function action({ request }: ActionFunctionArgs) {
     // return redirect("/dashboard/new");
     const user = await authenticator.isAuthenticated(request, {
@@ -114,41 +125,52 @@ const CreateNewBlog = (props: Props) => {
             if (!isSubmittedRef.current && formDataRef.current !== InitialBlog)
                 localStorage.setItem(
                     "formData",
-                    JSON.stringify(formDataRef.current)
+                    JSON.stringify({
+                        ...formDataRef.current,
+                        content: editor?.getHTML(),
+                    })
                 );
         };
-
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        try {
-            const localData = JSON.parse(
-                localStorage.getItem("formData") ?? "1"
-            );
-            // console.log(typeof localData, typeof InitialBlog);
-            if (
-                typeof localData === "object" &&
-                isEqual(localData, InitialBlog)
-            ) {
-                // console.log("first");
-                toast({
-                    description: "Previous progress restored successfully!",
-                    className: "bg-green-600 text-primary",
-                    duration: 1000,
-                });
-                setFormData(localData);
+        function setSavedContent() {
+            try {
+                const localData = JSON.parse(
+                    localStorage.getItem("formData") ?? "1"
+                );
+                if (typeof localData !== "object") return;
+                // console.log(typeof localData, typeof InitialBlog);
+                const { content, ...rest } = localData;
+                if (isEqual(rest, InitialBlog)) {
+                    // console.log("first");
+                    setFormData(rest);
+                    editor?.commands.insertContent(content);
+                    toast({
+                        description: "Previous progress restored successfully!",
+                        className: "bg-green-600 text-primary",
+                        duration: 1000,
+                    });
+                }
+            } catch (error) {
+                console.log("Invalid formData in local storage");
             }
-        } catch (error) {
-            console.log("Invalid formData in local storage");
         }
+        setSavedContent();
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
         return () => {
             // console.log(fetcher);
+            // console.log(editor?.getHTML());
+
             if (!isSubmittedRef.current && formDataRef.current !== InitialBlog)
                 localStorage.setItem(
                     "formData",
-                    JSON.stringify(formDataRef.current)
+                    JSON.stringify({
+                        ...formDataRef.current,
+                        content: editor?.getHTML(),
+                    })
                 );
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, []);
+    }, [editor]);
     useEffect(() => {
         if (res?.error) isSubmittedRef.current = false;
         if (res?.error?.message)
