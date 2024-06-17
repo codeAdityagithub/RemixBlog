@@ -31,27 +31,25 @@ export function useUser():
     return data.user;
 }
 
-// export const parseNewBlog = (form: {
-//     title: string;
-//     desc: string;
-//     thumbnail: string;
-//     content: Content[];
-//     tags: string[];
-// }): {
-//     title: string;
-//     desc: string;
-//     thumbnail: string;
-//     content: Content[];
-//     tags: string[];
-// } => {
-//     const contents = form.content.map((content) =>
-//         content.image?.trim() === ""
-//             ? { heading: content.heading, content: content.content }
-//             : content
-//     );
-//     return { ...form, content: contents };
-// };
-
+export function limitImageTags(html: string, limit = 6) {
+    let start = 0,
+        imgInd = 0,
+        imgCount = 0;
+    while (start < html.length) {
+        imgInd = html.indexOf("<img", start);
+        if (imgInd === -1) {
+            break;
+        }
+        imgCount++;
+        console.log(imgCount);
+        if (imgCount > limit) {
+            throw new Error(
+                `The blog content can have atmost ${limit} Images.`
+            );
+        }
+        start = imgInd + 1;
+    }
+}
 export function createArray(n: number) {
     return Array.from({ length: n }, (_, index) => index);
 }

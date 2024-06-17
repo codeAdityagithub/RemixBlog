@@ -1,8 +1,10 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import {
     ClientActionFunctionArgs,
+    Link,
     useFetcher,
     useLoaderData,
+    useParams,
 } from "@remix-run/react";
 import { useEditor } from "@tiptap/react";
 import { FormEvent, useCallback, useEffect } from "react";
@@ -25,7 +27,7 @@ import ContentItemwChange from "~/mycomponents/ContentItemwChange";
 import { editorExtensions } from "~/mycomponents/Editor";
 import EditorClient from "~/mycomponents/EditorClient";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
-import { parseZodBlogError } from "~/utils/general";
+import { limitImageTags, parseZodBlogError } from "~/utils/general";
 import { cachedClientAction } from "~/utils/localStorageCache.client";
 export type InitialBlog = {
     title: string;
@@ -73,9 +75,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const { blogId } = params;
     invariant(blogId);
     if (request.method === "DELETE") {
-        // const page = (await request.formData()).get("page");
-        // console.log(page);
-        // return redirect(`/dashboard/blogs?page=${page}`);
         await deleteBlog(blogId, user._id);
         console.log("deleted");
         return { deleted: true };
@@ -83,11 +82,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
     try {
         // console.log(parsed);
         const body = await request.json();
-        // const parsed = parseNewBlog(body);
-        // console.log(blog.get("content"));
+
         const updatedBlog = NewBlogSchema.parse(body);
-        updatedBlog.content = sanitizeHtml(updatedBlog.content);
+        updatedBlog.content = sanitizeHtml(updatedBlog.content, {
+            allowedSchemes: ["http", "https"],
+            allowedAttributes: {
+                img: ["src", "alt", "width", "height"], // Allow specific attributes for 'img'
+            },
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
+        });
         // console.log(updatedBlog);
+        try {
+            limitImageTags(updatedBlog.content);
+        } catch (error: any) {
+            return json(
+                {
+                    error: {
+                        message: error.message ?? "Something went wrong!",
+                    },
+                },
+                { status: 400 }
+            );
+        }
         await Blogs.updateOne(
             {
                 author: user._id,
@@ -123,6 +139,7 @@ export async function clientAction({
 const DashboardBlogEdit = () => {
     const { blog: initialBlog, content: initialContent } =
         useLoaderData<typeof loader>();
+    const blogId = useParams().blogId;
     const fetcher = useFetcher();
     const { toast } = useToast();
     const { formData, handleChange, setFormData, hasChanged, setHasChanged } =
@@ -173,13 +190,21 @@ const DashboardBlogEdit = () => {
             setHasChanged(false);
             return;
         }
-        fetcher.submit(
-            { ...formData, content: html },
-            {
-                method: "POST",
-                encType: "application/json",
-            }
-        );
+        try {
+            limitImageTags(html);
+            fetcher.submit(
+                { ...formData, content: html },
+                {
+                    method: "POST",
+                    encType: "application/json",
+                }
+            );
+        } catch (error: any) {
+            toast({
+                description: error.message ?? "Something went wrong",
+                variant: "destructive",
+            });
+        }
     };
 
     const addTag = useCallback(
@@ -283,7 +308,7 @@ const DashboardBlogEdit = () => {
                     <EditorClient editor={editor} />
                 </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 space-x-4">
                 <Button type="submit" disabled={disabled} className="mt-4">
                     {formData === initialBlog
                         ? "Edit to save changes"
@@ -291,6 +316,9 @@ const DashboardBlogEdit = () => {
                         ? "Saving changes..."
                         : "Save changes"}
                 </Button>
+                <Link to={`/blogs/${blogId}`} prefetch="intent">
+                    <Button variant="outline">View</Button>
+                </Link>
                 {/* </ScrollArea> */}
             </div>
         </form>

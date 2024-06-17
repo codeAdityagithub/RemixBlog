@@ -20,13 +20,13 @@
         @apply text-2xl font-bold;
     }
     .tiptap h4 {
-        @apply text-xl font-bold;
-    }
-    .tiptap h5 {
         @apply text-lg font-bold;
     }
-    .tiptap h6 {
+    .tiptap h5 {
         @apply text-base font-bold;
+    }
+    .tiptap h6 {
+        @apply text-sm font-bold;
     }
 
     /* Lists */
@@ -78,6 +78,9 @@
 
     .tiptap ul {
         @apply list-disc;
+    }
+    .tiptap img {
+        @apply rounded-sm my-4;
     }
     .button-group > button.is-active {
         @apply bg-primary text-primary-foreground;

@@ -18,7 +18,7 @@ import { Blogs } from "~/models/Schema.server";
 import BlogFormTags from "~/mycomponents/BlogFormTags";
 import { editorExtensions } from "~/mycomponents/Editor";
 import EditorClient from "~/mycomponents/EditorClient";
-import { isEqual, parseZodBlogError } from "~/utils/general";
+import { isEqual, limitImageTags, parseZodBlogError } from "~/utils/general";
 import sanitizeHtml from "sanitize-html";
 
 type Props = {};
@@ -34,7 +34,26 @@ export async function action({ request }: ActionFunctionArgs) {
         // const parsed = parseNewBlog(body);
         // console.log(blog.get("content"));
         const newBlog = NewBlogSchema.parse(body);
-        newBlog.content = sanitizeHtml(newBlog.content);
+        newBlog.content = sanitizeHtml(newBlog.content, {
+            allowedSchemes: ["http", "https"],
+            allowedAttributes: {
+                img: ["src", "alt", "width", "height"], // Allow specific attributes for 'img'
+            },
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
+        });
+        // console.log(newBlog.content);
+        try {
+            limitImageTags(newBlog.content);
+        } catch (error: any) {
+            return json(
+                {
+                    error: {
+                        message: error.message ?? "Something went wrong!",
+                    },
+                },
+                { status: 400 }
+            );
+        }
         // console.log(newBlog.content);
         await connect();
         const dbblog = await Blogs.create({ ...newBlog, author: user._id });
@@ -44,8 +63,9 @@ export async function action({ request }: ActionFunctionArgs) {
         if (error instanceof ZodError) {
             return json(parseZodBlogError(error), { status: 400 });
         }
+        console.log(error);
         return json(
-            { error: { message: "Something went wrong" } },
+            { error: { message: "Something went wrong!" } },
             { status: 500 }
         );
     }
@@ -186,15 +206,23 @@ const CreateNewBlog = (props: Props) => {
                     });
                     return;
                 }
-                fetcher.submit(
-                    { ...formData, content: html },
-                    {
-                        method: "POST",
-                        encType: "application/json",
-                    }
-                );
+                try {
+                    limitImageTags(html);
+                    fetcher.submit(
+                        { ...formData, content: html },
+                        {
+                            method: "POST",
+                            encType: "application/json",
+                        }
+                    );
+                } catch (error: any) {
+                    toast({
+                        description: error.message ?? "Something went wrong",
+                        variant: "destructive",
+                    });
+                }
             }}
-            className="container max-w-3xl flex-1"
+            className="container max-w-3xl flex-1  p-0 sm:px-6"
         >
             {/* <ScrollArea> */}
             <div className="grid w-full items-center gap-4">

@@ -6,10 +6,12 @@ import {
     DividerHorizontalIcon,
     FontBoldIcon,
     FontItalicIcon,
+    ImageIcon,
     LinkBreak1Icon,
     ListBulletIcon,
     QuoteIcon,
     StrikethroughIcon,
+    UnderlineIcon,
 } from "@radix-ui/react-icons";
 import {
     Editor,
@@ -19,16 +21,31 @@ import {
     useEditor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import Underline from "@tiptap/extension-underline";
+
 import { BsTextParagraph } from "react-icons/bs";
 import { FaListOl } from "react-icons/fa6";
 import { BiCodeBlock } from "react-icons/bi";
 import { IoIosUndo } from "react-icons/io";
 import { IoIosRedo } from "react-icons/io";
+import CustomPrompt from "./CustomPrompt";
+import { useCallback } from "react";
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
     if (!editor) {
         return null;
     }
+    const promptCb = useCallback(
+        (url: string) => {
+            editor
+                .chain()
+                .focus()
+                .setImage({ src: url, alt: "Image not found" })
+                .run();
+        },
+        [editor]
+    );
 
     return (
         <div className="rounded-md p-2">
@@ -71,6 +88,20 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
                     title="Toggle strikethrough"
                 >
                     <StrikethroughIcon />
+                </button>
+                <button
+                    type="button"
+                    onClick={() =>
+                        editor.chain().focus().toggleUnderline().run()
+                    }
+                    disabled={
+                        !editor.can().chain().focus().toggleUnderline().run()
+                    }
+                    className={editor.isActive("underline") ? "is-active" : ""}
+                    aria-label="Toggle underline"
+                    title="Toggle underline"
+                >
+                    <UnderlineIcon />
                 </button>
                 <button
                     type="button"
@@ -261,6 +292,9 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
                 >
                     <LinkBreak1Icon />
                 </button>
+
+                <CustomPrompt callback={promptCb} />
+
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().undo().run()}
@@ -295,8 +329,12 @@ export const editorExtensions = [
             keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
         },
     }),
+    Image,
+    Underline,
 ];
 export default ({ editor }: { editor: Editor | null }) => {
+    // const addImage = useCallback(() => {}, []);
+
     return (
         <div id="tiptap">
             <MenuBar editor={editor} />
