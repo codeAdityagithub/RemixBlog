@@ -13,6 +13,8 @@ import { getGreeting, useUser } from "~/utils/general";
 import { FaUsersViewfinder } from "react-icons/fa6";
 import DashboardComments from "~/mycomponents/DashboardComments";
 import BlogViewsChart from "~/mycomponents/BlogViewsChart";
+import { getFollowStats } from "~/models/follow.server";
+import { Types } from "mongoose";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
@@ -20,11 +22,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
     await connect();
     const analytics = await getAnalytics(user._id);
-    return { analytics };
+    const { followersCount, followingCount } = await getFollowStats(
+        new Types.ObjectId(user._id)
+    );
+    return { analytics, followers: followersCount, following: followingCount };
 };
 
 const Dashboard = () => {
-    const initial = useLoaderData<typeof loader>().analytics;
+    const {
+        analytics: initial,
+        followers,
+        following,
+    } = useLoaderData<typeof loader>();
     // const fetcher = useFetcher<any>();
     const user = useUser();
     const { data: analytics, isLoading } = useQuery({
@@ -36,7 +45,7 @@ const Dashboard = () => {
             }).then((res) => res.json());
             return data?.analytics;
         },
-        refetchInterval: 10000,
+        refetchInterval: 1000 * 60,
         enabled: initial.totalBlogs > 0,
     });
 
@@ -59,7 +68,11 @@ const Dashboard = () => {
             </header>
             <h2 className="col-span-6 text-2xl font-bold">Overview</h2>
             <div className="col-span-6 md:col-span-2">
-                <Dashboarduser totalBlogs={analytics.totalBlogs} />
+                <Dashboarduser
+                    totalBlogs={analytics.totalBlogs}
+                    followers={followers}
+                    following={following}
+                />
             </div>
             <div className="col-span-6 md:col-span-4 grid place-content-start grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
                 <DashboardAnalyticCard

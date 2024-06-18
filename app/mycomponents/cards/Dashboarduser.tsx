@@ -11,9 +11,11 @@ import { useUser } from "~/utils/general";
 
 type Props = {
     totalBlogs: number;
+    followers: number;
+    following: number;
 };
 
-const Dashboarduser = ({ totalBlogs }: Props) => {
+const Dashboarduser = ({ totalBlogs, followers, following }: Props) => {
     const user = useUser()!;
     // console.log(user);
     return (
@@ -46,13 +48,13 @@ const Dashboarduser = ({ totalBlogs }: Props) => {
                     </div>
                 </div>
                 <div className="text-xl font-bold flex-1 flex flex-col items-center sm:flex-row sm:gap-2 ">
-                    <p className="flex-1">104 </p>
+                    <p className="flex-1">{followers} </p>
                     <div className="text-muted-foreground text-sm flex-[4]">
                         Followers
                     </div>
                 </div>
                 <div className="text-xl font-bold flex-1 flex flex-col items-center sm:flex-row sm:gap-2 ">
-                    <p className="flex-1">23 </p>
+                    <p className="flex-1">{following} </p>
                     <div className="text-muted-foreground text-sm flex-[4]">
                         Following
                     </div>
