@@ -6,6 +6,8 @@ import {
 } from "@remix-run/node";
 import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect } from "react";
+import { FcGoogle } from "react-icons/fc";
+
 import { AuthorizationError } from "remix-auth";
 import { ZodError } from "zod";
 import { authenticator } from "~/auth.server";
@@ -20,6 +22,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Separator } from "~/components/ui/separator";
 // import { ZodError } from "zod";
 // import { commitSession, getSession } from "~/session.server";
 import { useToast } from "~/components/ui/use-toast";
@@ -93,11 +96,17 @@ const Login = () => {
     }, [error]);
     return (
         <Card className="xs:w-[350px] mb-4">
-            <CardHeader>
+            <CardHeader className="pb-2">
                 <CardTitle>Welcome Back!</CardTitle>
                 <CardDescription>Login to see your account</CardDescription>
             </CardHeader>
             <CardContent>
+                <Form action="/auth/google" method="post">
+                    <Button className="w-full mb-4">
+                        Login with <FcGoogle className="text-2xl ml-2" />
+                    </Button>
+                </Form>
+                <Separator className="mb-2" />
                 <Form method="post">
                     <div className="grid w-full items-center gap-4">
                         <div className="flex flex-col space-y-1.5">

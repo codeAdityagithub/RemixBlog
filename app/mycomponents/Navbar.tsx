@@ -37,7 +37,7 @@ const Navbar = (props: Props) => {
     const { pathname } = useLocation();
     const user = useUser();
     return (
-        <NavigationMenu className="sticky top-0 min-w-full justify-between gap-4 py-2 h-14 pr-4 pl-0 md:px-6 border-b border-border">
+        <NavigationMenu className="sticky bg-background top-0 min-w-full justify-between gap-4 py-2 h-14 pr-4 pl-0 md:px-6 border-b border-border">
             {/* dekstop  */}
             <NavigationMenuList className="gap-10 hidden md:flex">
                 <NavigationMenuItem className="">

@@ -64,7 +64,7 @@ const BlogsSearch = (props: Props) => {
                 <FaSearch />
             </span>
             <Input
-                placeholder="Search"
+                placeholder="Search blogs..."
                 className="pl-8"
                 ref={input}
                 value={query}

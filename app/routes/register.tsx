@@ -23,6 +23,8 @@ import { register } from "~/models/functions.server";
 import { RegisterFormSchema } from "~/lib/zod";
 import { ZodError } from "zod";
 import { useToast } from "~/components/ui/use-toast";
+import { FcGoogle } from "react-icons/fc";
+import { Separator } from "~/components/ui/separator";
 
 export const meta: MetaFunction = () => {
     return [
@@ -94,11 +96,18 @@ const Register = () => {
     }, [error]);
     return (
         <Card className="xs:w-[350px] mb-4">
-            <CardHeader>
+            <CardHeader className="pb-2">
                 <CardTitle>Welcome!</CardTitle>
                 <CardDescription>Register to RemixBlog</CardDescription>
             </CardHeader>
             <CardContent>
+                <Form action="/auth/google" method="post">
+                    <Button className="w-full mb-4">
+                        Register with <FcGoogle className="text-2xl ml-2" />
+                    </Button>
+                </Form>
+                <Separator className="mb-2" />
+
                 <Form method="post">
                     <div className="grid w-full items-center gap-4">
                         <div className="flex flex-col space-y-1.5">

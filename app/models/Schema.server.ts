@@ -93,7 +93,7 @@ const userSchema = new mongoose.Schema<UserDocument>(
     {
         username: { type: String, required: true, unique: true, index: true },
         email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
+        password: { type: String },
         picture: { type: String },
     },
     { timestamps: true }

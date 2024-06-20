@@ -46,7 +46,7 @@ async function getLatestBlogs() {
         .lean()
         .populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
-
+d;
 const updateCache = async () => {
     try {
         await connect();
