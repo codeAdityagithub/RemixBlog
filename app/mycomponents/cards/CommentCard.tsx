@@ -1,6 +1,7 @@
 import { AvatarIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
     FetcherWithComponents,
+    Link,
     useFetcher,
     useSearchParams,
 } from "@remix-run/react";
@@ -19,6 +20,7 @@ import {
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 type Props = {
     comment: CommentDoc;
@@ -59,10 +61,28 @@ const CommentCard = ({ comment, revalidate }: Props) => {
             )}
         >
             <div className="flex flex-row items-center gap-4">
-                <AvatarIcon className="h-8 w-8" />
+                <Avatar className="h-9 w-9">
+                    <Link to={`/profiles/${comment.user.username}`}>
+                        <AvatarImage
+                            width={96}
+                            height={96}
+                            alt={comment.user.username}
+                            src={comment.user.picture}
+                            className=""
+                        ></AvatarImage>
+                    </Link>
+                    <AvatarFallback>
+                        <AvatarIcon
+                            className="w-full h-full"
+                            style={{ margin: 0 }}
+                        />
+                    </AvatarFallback>
+                </Avatar>
                 <div className="flex flex-col">
                     <p className="text-sm">
-                        {comment.user.username}
+                        <Link to={`/profiles/${comment.user.username}`}>
+                            {comment.user.username}
+                        </Link>
                         {comment.user.username === user?.username && " (You)"}
                     </p>
                     <small className="text-muted-foreground">

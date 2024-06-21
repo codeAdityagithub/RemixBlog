@@ -1,6 +1,7 @@
 import { AvatarIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
     FetcherWithComponents,
+    Link,
     useFetcher,
     useSearchParams,
 } from "@remix-run/react";
@@ -19,13 +20,15 @@ import {
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 type Props = {
     reply: CommentDoc;
     revalidate: () => void;
+    tagPerson: (username: string) => void;
 };
 
-const ReplyCard = ({ reply, revalidate }: Props) => {
+const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
     const fetcher = useFetcher<any>();
     const user = useUser();
     const divref = useRef<HTMLDivElement>(null);
@@ -49,6 +52,9 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
             });
         }
     }, [commentHighlight]);
+    const replyTo = () => {
+        tagPerson(reply.user.username);
+    };
 
     return (
         <div
@@ -59,22 +65,40 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
             )}
         >
             <div className="flex flex-row items-center gap-4">
-                <AvatarIcon className="h-8 w-8" />
+                <Avatar className="h-9 w-9">
+                    <Link to={`/profiles/${reply.user.username}`}>
+                        <AvatarImage
+                            width={96}
+                            height={96}
+                            alt={reply.user.username}
+                            src={reply.user.picture}
+                            className=""
+                        ></AvatarImage>
+                    </Link>
+                    <AvatarFallback>
+                        <AvatarIcon
+                            className="w-full h-full"
+                            style={{ margin: 0 }}
+                        />
+                    </AvatarFallback>
+                </Avatar>
                 <div className="flex flex-col">
                     <p className="text-sm">
-                        {reply.user.username}
+                        <Link to={`/profiles/${reply.user.username}`}>
+                            {reply.user.username}
+                        </Link>
                         {reply.user.username === user?.username && " (You)"}
                     </p>
                     <small className="text-muted-foreground">
                         {formatTime(reply.createdAt.toString())}
                     </small>
                 </div>
-                {reply.user.username === user?.username && (
-                    <DeleteButton
-                        replyId={reply._id.toString()}
-                        fetcher={fetcher}
-                    />
-                )}
+                <ReplyMenu
+                    isOwner={reply.user.username === user?.username}
+                    replyId={reply._id.toString()}
+                    fetcher={fetcher}
+                    reply={replyTo}
+                />
             </div>
             <p className="line-clamp-3 break-words">{reply.content}</p>
             <div className="flex justify-between items-start relative">
@@ -130,12 +154,16 @@ function LikeButton({
         </form>
     );
 }
-function DeleteButton({
+function ReplyMenu({
     replyId,
     fetcher,
+    isOwner,
+    reply,
 }: {
     replyId: string;
+    isOwner: boolean;
     fetcher: FetcherWithComponents<any>;
+    reply: () => void;
 }) {
     return (
         <DropdownMenu>
@@ -147,22 +175,35 @@ function DeleteButton({
                     Reply Menu
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <Button
-                        disabled={fetcher.state !== "idle"}
-                        onClick={() =>
-                            fetcher.submit(
-                                { _action: "deleteReply", replyId },
-                                { method: "POST", action: "replies" }
-                            )
-                        }
-                        size="sm"
-                        variant="destructive"
-                        className="hover:cursor-pointer w-full"
-                    >
-                        Delete Reply
-                    </Button>
-                </DropdownMenuItem>
+                {isOwner ? (
+                    <DropdownMenuItem asChild>
+                        <Button
+                            disabled={fetcher.state !== "idle"}
+                            onClick={() =>
+                                fetcher.submit(
+                                    { _action: "deleteReply", replyId },
+                                    { method: "POST", action: "replies" }
+                                )
+                            }
+                            size="sm"
+                            variant="destructive"
+                            className="hover:cursor-pointer w-full"
+                        >
+                            Delete Reply
+                        </Button>
+                    </DropdownMenuItem>
+                ) : (
+                    <DropdownMenuItem asChild>
+                        <Button
+                            onClick={reply}
+                            size="sm"
+                            variant="secondary"
+                            className="hover:cursor-pointer w-full"
+                        >
+                            Reply
+                        </Button>
+                    </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     );

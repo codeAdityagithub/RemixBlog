@@ -44,7 +44,7 @@ export interface ReplyDocument {
 export interface CommentDocumentwUser {
     _id: Types.ObjectId;
     content: string;
-    user: { username: string; picture?: string };
+    user: { username: string; picture?: string; id: ObjectId };
     blogId: Types.ObjectId;
     likes: number;
     likedBy: Types.ObjectId[];

@@ -20,6 +20,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const replies = await Replies.find({ parentComment: commentId })
         .populate("user", {
             username: 1,
+            picture: 1,
         })
         .lean();
 

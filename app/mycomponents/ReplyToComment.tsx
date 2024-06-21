@@ -1,5 +1,5 @@
 import { useFetcher, useParams } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Accordion,
     AccordionContent,
@@ -32,13 +32,16 @@ const ReplyToComment = ({ commentId }: Props) => {
         }
     }, [fetcher.data]);
 
-    async function fetchReplies() {
+    const fetchReplies = useCallback(async () => {
         // if (fetcher1.state === "idle") fetcher1.load(`comments/${commentId}`);
         const data = await fetch(
             `/blogs/${blogId}/replies?parentComment=${commentId}`
         ).then((res) => res.json());
         setReplies(data.replies);
-    }
+    }, []);
+    const tagPerson = useCallback((username: string) => {
+        console.log(username);
+    }, []);
     return (
         <Accordion className="w-full space-y-2" type="multiple">
             <AccordionItem className="border-none" value="replyto">
@@ -99,6 +102,7 @@ const ReplyToComment = ({ commentId }: Props) => {
                                     key={reply._id.toString()}
                                     reply={reply}
                                     revalidate={fetchReplies}
+                                    tagPerson={tagPerson}
                                 />
                             ))
                         )

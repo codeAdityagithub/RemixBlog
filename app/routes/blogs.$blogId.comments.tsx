@@ -28,6 +28,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         .limit(pageSize)
         .populate("user", {
             username: 1,
+            picture: 1,
         })
         .lean();
 
