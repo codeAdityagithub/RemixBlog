@@ -26,8 +26,18 @@ export interface CommentDocument {
     blogId: Types.ObjectId;
     likes: number;
     likedBy: Types.ObjectId[];
-    parentComment?: Types.ObjectId;
     blogOwner: Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ReplyDocument {
+    _id: Types.ObjectId;
+    content: string;
+    user: Types.ObjectId;
+    blogId: Types.ObjectId;
+    likes: number;
+    likedBy: Types.ObjectId[];
+    parentComment: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -38,18 +48,12 @@ export interface CommentDocumentwUser {
     blogId: Types.ObjectId;
     likes: number;
     likedBy: Types.ObjectId[];
-    parentComment?: Types.ObjectId;
     blogOwner?: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
 
 // Content Schema Interface
-export interface Content {
-    heading: string;
-    image?: string;
-    content: string;
-}
 
 export interface BlogDocument {
     _id: ObjectId;
@@ -104,7 +108,6 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
     {
         content: { type: String, required: true },
         likes: { type: Number, default: 0 },
-        parentComment: { type: Types.ObjectId, default: null },
         likedBy: { type: [Types.ObjectId], default: [] },
         user: {
             type: mongoose.Schema.Types.ObjectId,
@@ -113,10 +116,33 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
         },
         blogId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Posts",
+            ref: "Blogs",
             required: true,
         },
         blogOwner: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
+            index: true,
+        },
+    },
+    { timestamps: true }
+);
+const replySchema = new mongoose.Schema<ReplyDocument>(
+    {
+        content: { type: String, required: true },
+        likes: { type: Number, default: 0 },
+        likedBy: { type: [Types.ObjectId], default: [] },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
+            required: true,
+        },
+        blogId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Blogs",
+            required: true,
+        },
+        parentComment: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Users",
             index: true,
@@ -181,6 +207,9 @@ export const Follow =
 export const Comments: Model<CommentDocument> =
     mongoose.models.Comments ||
     mongoose.model<CommentDocument>("Comments", commentSchema);
+export const Replies: Model<ReplyDocument> =
+    mongoose.models.Replies ||
+    mongoose.model<ReplyDocument>("Replies", replySchema);
 export const Blogs: Model<BlogDocument> =
     mongoose.models.Blogs || mongoose.model<BlogDocument>("Blogs", blogSchema);
 export const Engagements: Model<EngagementDoc> =

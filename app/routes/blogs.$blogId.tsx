@@ -10,16 +10,13 @@ import {
     ShouldRevalidateFunction,
     useLoaderData,
 } from "@remix-run/react";
-import { generateHTML } from "@tiptap/react";
 import { Types } from "mongoose";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { TypographyH1 } from "~/components/Typography";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import { connect } from "~/db.server";
 import { BlogDocumentwUser, Blogs } from "~/models/Schema.server";
-import BlogContent from "~/mycomponents/BlogContent";
 import BlogEngagement from "~/mycomponents/BlogEngagement";
 import FollowButton from "~/mycomponents/FollowButton";
 import { checkUnauthViewed, readMin } from "~/utils/blogUtils.server";

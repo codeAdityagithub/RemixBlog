@@ -22,7 +22,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const pageSize = all === "true" ? page * 10 : 10;
     const skip = all === "true" ? 0 : (page - 1) * pageSize;
     await connect();
-    const comments = await Comments.find({ blogId, parentComment: null }, {})
+    const comments = await Comments.find({ blogId }, {})
         .sort({ likes: -1 })
         .skip(skip)
         .limit(pageSize)
@@ -79,8 +79,4 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
     return false;
-    // if (formAction?.split("/").pop() !== "comments") return false;
-    // // else if (actionResult?.message === "deleted") return false;
-
-    // return defaultShouldRevalidate;
 };

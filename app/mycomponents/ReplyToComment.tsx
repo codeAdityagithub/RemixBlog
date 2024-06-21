@@ -12,83 +12,71 @@ import { Textarea } from "~/components/ui/textarea";
 import { CommentDoc } from "./BlogCommentsSheet";
 import CommentCard from "./cards/CommentCard";
 import CommentLoader from "./loaders/CommentLoader";
+import ReplyCard from "./cards/ReplyCard";
 
 type Props = {
     commentId: string;
-    isOwner: boolean;
 };
 
-const ReplyToComment = ({ commentId, isOwner }: Props) => {
+const ReplyToComment = ({ commentId }: Props) => {
     // const fetcher1 = useFetcher<any>({ key: `load-replies${commentId}` });
     const fetcher = useFetcher<any>();
     const [replies, setReplies] = useState<CommentDoc[] | null>(null);
-    const [comment, setComment] = useState("");
+    const [reply, setReply] = useState("");
     const blogId = useParams().blogId;
 
     useEffect(() => {
-        if (fetcher.data?.ok) {
-            console.log("fetching replies");
-            setComment("");
+        if (fetcher.data?.message === "added") {
+            setReply("");
             fetchReplies();
         }
     }, [fetcher.data]);
 
     async function fetchReplies() {
         // if (fetcher1.state === "idle") fetcher1.load(`comments/${commentId}`);
-        const data = await fetch(`/blogs/${blogId}/comments/${commentId}`).then(
-            (res) => res.json()
-        );
+        const data = await fetch(
+            `/blogs/${blogId}/replies?parentComment=${commentId}`
+        ).then((res) => res.json());
         setReplies(data.replies);
     }
     return (
         <Accordion className="w-full space-y-2" type="multiple">
-            {!isOwner ? (
-                <AccordionItem className="border-none" value="replyto">
-                    <AccordionTrigger className="flex justify-end py-2">
-                        Reply
-                    </AccordionTrigger>
-                    <AccordionContent className="w-full p-2 mt-2">
-                        <fetcher.Form
-                            method="POST"
-                            action={`comments/${commentId}`}
-                            // onSubmit={(e) => {
-                            //     e.preventDefault();
-                            //     fetcher.submit(e.currentTarget, {
-                            //         action: `comments/${commentId}`,
-                            //         method: "POST",
-                            //         navigate: false,
-                            //     });
-                            // }}
+            <AccordionItem className="border-none" value="replyto">
+                <AccordionTrigger className="flex justify-end py-1">
+                    Reply
+                </AccordionTrigger>
+                <AccordionContent className="w-full p-2 mt-2">
+                    <fetcher.Form method="POST" action={`replies`}>
+                        <input
+                            type="hidden"
+                            name="parentComment"
+                            value={commentId}
+                        />
+                        <Textarea
+                            name="reply"
+                            className="w-full"
+                            value={reply}
+                            onChange={(e) => setReply(e.target.value)}
+                            required
+                            placeholder="Write your reply here..."
+                        />
+                        <Button
+                            type="submit"
+                            className="mt-1"
+                            name="_action"
+                            value="replyComment"
+                            size="sm"
+                            disabled={
+                                fetcher.state === "submitting" ||
+                                reply.trim().length === 0
+                            }
                         >
-                            <Textarea
-                                name="comment"
-                                className="w-full"
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                required
-                                placeholder="Write your reply here..."
-                            />
-                            <Button
-                                type="submit"
-                                className="mt-1"
-                                name="_action"
-                                value="replyComment"
-                                size="sm"
-                                disabled={
-                                    fetcher.state === "submitting" ||
-                                    comment.length === 0
-                                }
-                            >
-                                reply
-                            </Button>
-                        </fetcher.Form>
-                    </AccordionContent>
-                </AccordionItem>
-            ) : null}
-            <AccordionItem
-                value="replies"
-                className={`border-none ${isOwner ? "mt-11" : ""}`}
-            >
+                            reply
+                        </Button>
+                    </fetcher.Form>
+                </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="replies" className="border-none">
                 <MyAccordionTrigger asChild>
                     <Button
                         onClick={(e) => {
@@ -104,13 +92,13 @@ const ReplyToComment = ({ commentId, isOwner }: Props) => {
                 <AccordionContent className="w-full mt-2 space-y-1">
                     {replies ? (
                         replies.length === 0 ? (
-                            <p>No replies on this comment</p>
+                            <p className="px-2">No replies on this comment</p>
                         ) : (
-                            replies.map((comment) => (
-                                <CommentCard
-                                    key={comment._id.toString()}
-                                    comment={comment}
-                                    updateReplies={fetchReplies}
+                            replies.map((reply) => (
+                                <ReplyCard
+                                    key={reply._id.toString()}
+                                    reply={reply}
+                                    revalidate={fetchReplies}
                                 />
                             ))
                         )

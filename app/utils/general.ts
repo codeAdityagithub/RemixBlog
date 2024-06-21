@@ -1,7 +1,6 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 import { ZodError } from "zod";
-import { Content } from "~/models/Schema.server";
 
 export const destructiveToastStyle = {
     backgroundColor: "hsl(var(--destructive))",
@@ -55,26 +54,8 @@ export function createArray(n: number) {
 }
 
 export function parseZodBlogError(error: ZodError) {
-    const contentError: any = error.format((issue) => issue.message);
-    const contentErrors: Content[] = [];
-    // console.log(arr);
-    if (contentError.content) {
-        const arr = Array.from(Object.keys(contentError.content));
-        arr.forEach((item) => {
-            if (!isNaN(Number(item))) {
-                const curError = contentError.content[item];
-                contentErrors[Number(item)] = {
-                    heading: curError?.heading?._errors,
-                    content: curError?.content?._errors,
-                    image: curError?.image?._errors,
-                };
-            }
-        });
-    }
-    // console.log(contentErrors);
     const err = error.flatten();
-    // console.log(err);
-    return { error: { ...err.fieldErrors, content: contentErrors } };
+    return { error: { ...err.fieldErrors } };
 }
 
 export function formatTime(input: string): string {

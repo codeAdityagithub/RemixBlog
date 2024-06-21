@@ -1,5 +1,4 @@
 import z from "zod";
-import { Content } from "~/models/Schema.server";
 
 export const LoginFormSchema = z.object({
     email: z.string().email({ message: "Please recheck provided email" }),

@@ -21,16 +21,16 @@ import {
 import { cn } from "~/lib/utils";
 
 type Props = {
-    comment: CommentDoc;
+    reply: CommentDoc;
     revalidate: () => void;
 };
 
-const CommentCard = ({ comment, revalidate }: Props) => {
+const ReplyCard = ({ reply, revalidate }: Props) => {
     const fetcher = useFetcher<any>();
     const user = useUser();
     const divref = useRef<HTMLDivElement>(null);
     const commentHighlight =
-        useSearchParams()[0].get("comment") === comment._id.toString();
+        useSearchParams()[0].get("comment") === reply._id.toString();
     useEffect(() => {
         if (
             fetcher.data?.message === "deleted" ||
@@ -54,7 +54,7 @@ const CommentCard = ({ comment, revalidate }: Props) => {
         <div
             ref={divref}
             className={cn(
-                "p-2 border border-border rounded-md space-y-2",
+                "p-1 border border-border rounded-md space-y-2",
                 commentHighlight ? "bg-secondary" : ""
             )}
         >
@@ -62,29 +62,28 @@ const CommentCard = ({ comment, revalidate }: Props) => {
                 <AvatarIcon className="h-8 w-8" />
                 <div className="flex flex-col">
                     <p className="text-sm">
-                        {comment.user.username}
-                        {comment.user.username === user?.username && " (You)"}
+                        {reply.user.username}
+                        {reply.user.username === user?.username && " (You)"}
                     </p>
                     <small className="text-muted-foreground">
-                        {formatTime(comment.createdAt.toString())}
+                        {formatTime(reply.createdAt.toString())}
                     </small>
                 </div>
-                {comment.user.username === user?.username && (
+                {reply.user.username === user?.username && (
                     <DeleteButton
-                        commentId={comment._id.toString()}
+                        replyId={reply._id.toString()}
                         fetcher={fetcher}
                     />
                 )}
             </div>
-            <p className="line-clamp-3 break-words">{comment.content}</p>
+            <p className="line-clamp-3 break-words">{reply.content}</p>
             <div className="flex justify-between items-start relative">
                 <LikeButton
-                    commentId={comment._id.toString()}
-                    liked={comment.liked}
+                    replyId={reply._id.toString()}
+                    liked={reply.liked}
                     fetcher={fetcher}
-                    likes={comment.likes}
+                    likes={reply.likes}
                 />
-                <ReplyToComment commentId={comment._id.toString()} />
             </div>
         </div>
     );
@@ -93,34 +92,29 @@ const CommentCard = ({ comment, revalidate }: Props) => {
 function LikeButton({
     likes,
     liked,
-    commentId,
+    replyId,
     fetcher,
 }: {
     likes: number;
     liked: boolean;
-    commentId: string;
+    replyId: string;
     fetcher: FetcherWithComponents<any>;
 }) {
     const [state, setState] = useState({ likes, liked });
-    // if (fetcher.formData?.get("_action") === "likeComment") {
-    //     setState((prev) => ({
-    //         likes: prev.likes + (liked ? -1 : 1),
-    //         liked: !prev.liked,
-    //     }));
-    // }
 
     return (
         <form
-            className="absolute top-0 left-0"
+            className="top-2 left-0"
             onSubmit={(e) => {
                 e.preventDefault();
                 setState((prev) => ({
                     likes: prev.likes + (liked ? -1 : 1),
                     liked: !prev.liked,
                 }));
+                // console.log(likes);
                 fetcher.submit(
-                    { _action: "likeComment", commentId },
-                    { action: "comments", method: "POST" }
+                    { _action: "likeReply", replyId },
+                    { action: "replies", method: "POST" }
                 );
             }}
         >
@@ -137,10 +131,10 @@ function LikeButton({
     );
 }
 function DeleteButton({
-    commentId,
+    replyId,
     fetcher,
 }: {
-    commentId: string;
+    replyId: string;
     fetcher: FetcherWithComponents<any>;
 }) {
     return (
@@ -149,22 +143,24 @@ function DeleteButton({
                 <DotsVerticalIcon />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuLabel>Comment Menu</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-center">
+                    Reply Menu
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <Button
                         disabled={fetcher.state !== "idle"}
                         onClick={() =>
                             fetcher.submit(
-                                { _action: "deleteComment", commentId },
-                                { method: "POST", action: "comments" }
+                                { _action: "deleteReply", replyId },
+                                { method: "POST", action: "replies" }
                             )
                         }
                         size="sm"
                         variant="destructive"
-                        className="hover:cursor-pointer"
+                        className="hover:cursor-pointer w-full"
                     >
-                        Delete Comment
+                        Delete Reply
                     </Button>
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -172,4 +168,4 @@ function DeleteButton({
     );
 }
 
-export default CommentCard;
+export default ReplyCard;

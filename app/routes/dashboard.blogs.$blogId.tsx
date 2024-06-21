@@ -28,7 +28,6 @@ import { NewBlogSchema } from "~/lib/zod";
 import { Blogs } from "~/models/Schema.server";
 import { deleteBlog } from "~/models/functions.server";
 import BlogFormTags from "~/mycomponents/BlogFormTags";
-import ContentItemwChange from "~/mycomponents/ContentItemwChange";
 import { editorExtensions } from "~/mycomponents/Editor";
 import EditorClient from "~/mycomponents/EditorClient";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";

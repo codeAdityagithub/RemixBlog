@@ -15,7 +15,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     try {
         await connect();
         const comments = await Comments.find(
-            { blogOwner: user._id, parentComment: null },
+            { blogOwner: user._id },
             { content: 1, likes: 1, user: 1, blogId: 1, createdAt: 1 }
         )
             .sort({ createdAt: -1 })

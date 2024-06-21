@@ -72,7 +72,7 @@ const CommentList = ({ comments: initialComments, revalidate }: Props) => {
                         <CommentCard
                             key={comment._id.toString()}
                             comment={comment}
-                            updateReplies={revalidate}
+                            revalidate={revalidate}
                         />
                     ))
                 ))}

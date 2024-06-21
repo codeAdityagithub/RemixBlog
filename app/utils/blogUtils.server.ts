@@ -1,5 +1,4 @@
 import { createCookie } from "@remix-run/node";
-import { Content } from "~/models/Schema.server";
 import { incViews } from "~/models/functions.server";
 
 const viewedBlogCookie = createCookie("viewedBlogs", {

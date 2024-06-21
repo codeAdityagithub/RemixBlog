@@ -1,6 +1,6 @@
 import { ChatBubbleIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { useFetcher, useParams, useSearchParams } from "@remix-run/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
     Sheet,
@@ -49,11 +49,11 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
         }
     }, [fetcher.data]);
 
-    function revalidate() {
+    const revalidate = useCallback(() => {
         fetcher.load(
             `/blogs/${params.blogId}/comments?page=${page.current}&all=true`
         );
-    }
+    }, [fetcher]);
 
     useEffect(() => {
         if (commentHighlight) fetchComments();

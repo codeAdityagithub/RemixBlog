@@ -1,12 +1,10 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
-import { ShouldRevalidateFunction, useLoaderData } from "@remix-run/react";
+import { ShouldRevalidateFunction } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { connect } from "~/db.server";
-import { BlogDocument, BlogDocumentwUser, Blogs } from "~/models/Schema.server";
+import { BlogDocument, Blogs } from "~/models/Schema.server";
 import { isBlogLikedViewed, likeBlog } from "~/models/functions.server";
-import BlogEngagement from "~/mycomponents/BlogEngagement";
-import { checkUnauthViewed, readMin } from "~/utils/blogUtils.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { blogId } = params;
@@ -55,6 +53,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     if (
         action === "likeComment" ||
         action === "replyComment" ||
+        action === "likeReply" ||
+        action === "deleteReply" ||
         formAction === "/api/profile" ||
         formAction === "/api/follow"
     )

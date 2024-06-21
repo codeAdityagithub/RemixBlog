@@ -1,14 +1,6 @@
-import { connect } from "~/db.server";
-import {
-    BlogDocument,
-    Blogs,
-    Comments,
-    Engagements,
-    UserDocument,
-    Users,
-} from "./Schema.server";
 import bcrypt from "bcryptjs";
-import mongoose, { ObjectId } from "mongoose";
+import mongoose from "mongoose";
+import { Blogs, Comments, Engagements, Replies, Users } from "./Schema.server";
 
 export async function verifyLogin(
     email: string,
@@ -73,6 +65,7 @@ export async function deleteBlog(blogId: string, userId: string) {
 
         await Engagements.deleteMany({ blogId: deletedBlog._id });
         await Comments.deleteMany({ blogId: deletedBlog._id });
+        await Replies.deleteMany({ blogId: deletedBlog._id });
     } catch (error: any) {
         await session.abortTransaction();
         console.error(
