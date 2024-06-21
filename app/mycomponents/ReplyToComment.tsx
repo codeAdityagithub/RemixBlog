@@ -13,15 +13,20 @@ import { CommentDoc } from "./BlogCommentsSheet";
 import CommentCard from "./cards/CommentCard";
 import CommentLoader from "./loaders/CommentLoader";
 import ReplyCard from "./cards/ReplyCard";
+import { ReplyDocumentwUser } from "~/models/Schema.server";
 
 type Props = {
     commentId: string;
 };
 
+type ReplyDoc = Omit<ReplyDocumentwUser, "likedBy"> & {
+    liked: boolean;
+};
+
 const ReplyToComment = ({ commentId }: Props) => {
     // const fetcher1 = useFetcher<any>({ key: `load-replies${commentId}` });
     const fetcher = useFetcher<any>();
-    const [replies, setReplies] = useState<CommentDoc[] | null>(null);
+    const [replies, setReplies] = useState<ReplyDoc[] | null>(null);
     const [reply, setReply] = useState("");
     const blogId = useParams().blogId;
 
@@ -45,7 +50,7 @@ const ReplyToComment = ({ commentId }: Props) => {
     return (
         <Accordion className="w-full space-y-2" type="multiple">
             <AccordionItem className="border-none" value="replyto">
-                <AccordionTrigger className="flex justify-end py-1">
+                <AccordionTrigger className="flex justify-end py-1 pr-2">
                     Reply
                 </AccordionTrigger>
                 <AccordionContent className="w-full p-2 mt-2">
@@ -92,7 +97,7 @@ const ReplyToComment = ({ commentId }: Props) => {
                         Replies
                     </Button>
                 </MyAccordionTrigger>
-                <AccordionContent className="w-full mt-2 space-y-1">
+                <AccordionContent className="w-full mt-2 space-y-2">
                     {replies ? (
                         replies.length === 0 ? (
                             <p className="px-2">No replies on this comment</p>

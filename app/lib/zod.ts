@@ -12,7 +12,7 @@ export const RegisterFormSchema = z.object({
     username: z
         .string()
         .min(6, { message: "Username must be atleast 6 characters" })
-        .max(255, "Username must be atmost 255 characters"),
+        .max(30, "Username must be atmost 30 characters"),
     email: z.string().email({ message: "Please recheck provided email" }),
     password: z
         .string()

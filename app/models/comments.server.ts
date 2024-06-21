@@ -155,3 +155,12 @@ export async function replyCommentToBlog(
 ) {
     await Replies.create({ blogId, content, user: userId, parentComment });
 }
+export async function tagReply(
+    tag: { username: string; replyId: string },
+    blogId: string,
+    userId: string,
+    content: string,
+    parentComment: string
+) {
+    await Replies.create({ blogId, content, user: userId, parentComment, tag });
+}

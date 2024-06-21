@@ -100,7 +100,7 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <SheetContent className="w-full xs:w-[350px] sm:w-[540px] flex flex-col gap-4 max-h-screen overflow-auto ver_scroll">
+            <SheetContent className="w-full xs:w-[350px] sm:w-[540px] flex flex-col gap-4 max-h-screen scroll-smooth overflow-auto ver_scroll">
                 <SheetHeader>
                     <SheetTitle className="text-xl">
                         Responses ({commentsNumber})

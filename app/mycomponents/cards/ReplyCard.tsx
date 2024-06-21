@@ -21,9 +21,20 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "~/components/ui/accordion";
+import { Textarea } from "~/components/ui/textarea";
+import { Badge } from "~/components/ui/badge";
+import { ReplyDocument, ReplyDocumentwUser } from "~/models/Schema.server";
 
 type Props = {
-    reply: CommentDoc;
+    reply: Omit<ReplyDocumentwUser, "likedBy"> & {
+        liked: boolean;
+    };
     revalidate: () => void;
     tagPerson: (username: string) => void;
 };
@@ -32,36 +43,41 @@ const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
     const fetcher = useFetcher<any>();
     const user = useUser();
     const divref = useRef<HTMLDivElement>(null);
-    const commentHighlight =
-        useSearchParams()[0].get("comment") === reply._id.toString();
+    // const commentHighlight =
+    //     useSearchParams()[0].get("comment") === reply._id.toString();
+    const [searchParams, setSearchParams] = useSearchParams();
     useEffect(() => {
         if (
             fetcher.data?.message === "deleted" ||
-            fetcher.data?.message === "liked"
+            fetcher.data?.message === "liked" ||
+            fetcher.data?.message === "tagged"
         ) {
             revalidate();
         }
     }, [fetcher.data]);
 
     useEffect(() => {
-        if (commentHighlight) {
+        if (searchParams.get("tag") === reply._id.toString()) {
             divref.current?.scrollIntoView({
                 behavior: "smooth",
-                block: "nearest",
-                inline: "nearest",
+                block: "center",
+                inline: "center",
             });
         }
-    }, [commentHighlight]);
+    }, [searchParams]);
     const replyTo = () => {
         tagPerson(reply.user.username);
     };
-
+    // console.log(reply.tag);
     return (
         <div
             ref={divref}
+            id={`replycard-${reply._id.toString()}`}
             className={cn(
-                "p-1 border border-border rounded-md space-y-2",
-                commentHighlight ? "bg-secondary" : ""
+                "p-1 border border-border rounded-md space-y-2 transition-colors",
+                searchParams.get("tag") === reply._id.toString()
+                    ? "bg-secondary"
+                    : ""
             )}
         >
             <div className="flex flex-row items-center gap-4">
@@ -100,7 +116,32 @@ const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
                     reply={replyTo}
                 />
             </div>
-            <p className="line-clamp-3 break-words">{reply.content}</p>
+
+            <p className="line-clamp-3 break-words">
+                {reply.tag ? (
+                    <Badge
+                        // to={`#replycard-${reply.tag.replyId}`}
+                        onClick={(e) => {
+                            setSearchParams((prev) => {
+                                // @ts-expect-error
+                                prev.set(`tag`, reply.tag.replyId.toString());
+                                return prev;
+                            });
+                            setTimeout(() => {
+                                setSearchParams((prev) => {
+                                    prev.delete("tag");
+                                    return prev;
+                                });
+                            }, 500);
+                        }}
+                        variant="secondary"
+                        className="text-blue-600 cursor-pointer mr-1"
+                    >
+                        @{reply.tag.username}{" "}
+                    </Badge>
+                ) : null}
+                {reply.content}
+            </p>
             <div className="flex justify-between items-start relative">
                 <LikeButton
                     replyId={reply._id.toString()}
@@ -108,10 +149,95 @@ const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
                     fetcher={fetcher}
                     likes={reply.likes}
                 />
+                {user?.username !== reply.user.username ? (
+                    <ReplyAccordian
+                        fetcher={fetcher}
+                        replyId={reply._id.toString()}
+                        username={reply.user.username}
+                        parentComment={reply.parentComment.toString()}
+                    />
+                ) : (
+                    <div className="py-4"></div>
+                )}
             </div>
         </div>
     );
 };
+
+function ReplyAccordian({
+    fetcher,
+    replyId,
+    username,
+    parentComment,
+}: {
+    fetcher: FetcherWithComponents<any>;
+    replyId: string;
+    username: string;
+    parentComment: string;
+}) {
+    const [reply, setReply] = useState("");
+    const accRef = useRef<HTMLButtonElement>(null);
+    return (
+        <Accordion className="w-full space-y-2" type="multiple">
+            <AccordionItem className="border-none" value="replyto">
+                <AccordionTrigger
+                    ref={accRef}
+                    className="flex justify-end py-1.5 pr-3"
+                >
+                    Reply
+                </AccordionTrigger>
+                <AccordionContent className="w-full p-2 mt-2 relative">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setReply("");
+                            accRef.current?.click();
+                            fetcher.submit(
+                                {
+                                    _action: "tagReply",
+                                    replyId,
+                                    username,
+                                    parentComment,
+                                    reply,
+                                },
+                                { action: "replies", method: "POST" }
+                            );
+                        }}
+                    >
+                        <Badge
+                            variant="secondary"
+                            className="absolute top-4 left-4"
+                        >
+                            replying to
+                            <span className="text-blue-600 ml-1">
+                                @{username}
+                            </span>
+                        </Badge>
+                        <Textarea
+                            name="reply"
+                            className="w-full pt-8"
+                            value={reply}
+                            onChange={(e) => setReply(e.target.value)}
+                            required
+                            placeholder="Write your reply here..."
+                        />
+                        <Button
+                            type="submit"
+                            className="mt-1"
+                            size="sm"
+                            disabled={
+                                fetcher.state === "submitting" ||
+                                reply.trim().length === 0
+                            }
+                        >
+                            reply
+                        </Button>
+                    </form>
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
+    );
+}
 
 function LikeButton({
     likes,
@@ -128,7 +254,7 @@ function LikeButton({
 
     return (
         <form
-            className="top-2 left-0"
+            className="absolute top-0 left-0"
             onSubmit={(e) => {
                 e.preventDefault();
                 setState((prev) => ({

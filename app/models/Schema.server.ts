@@ -38,6 +38,19 @@ export interface ReplyDocument {
     likes: number;
     likedBy: Types.ObjectId[];
     parentComment: Types.ObjectId;
+    tag?: { username: string; replyId: ObjectId };
+    createdAt: Date;
+    updatedAt: Date;
+}
+export interface ReplyDocumentwUser {
+    _id: Types.ObjectId;
+    content: string;
+    user: { username: string; picture?: string; id: ObjectId };
+    blogId: Types.ObjectId;
+    likes: number;
+    likedBy: Types.ObjectId[];
+    parentComment: Types.ObjectId;
+    tag?: { username: string; replyId: ObjectId };
     createdAt: Date;
     updatedAt: Date;
 }
@@ -146,6 +159,10 @@ const replySchema = new mongoose.Schema<ReplyDocument>(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Users",
             index: true,
+        },
+        tag: {
+            username: { type: String },
+            replyId: { type: Types.ObjectId, ref: "Replies" },
         },
     },
     { timestamps: true }

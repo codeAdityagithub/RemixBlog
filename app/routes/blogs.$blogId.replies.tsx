@@ -7,6 +7,7 @@ import {
     deleteReply,
     likeReply,
     replyCommentToBlog,
+    tagReply,
 } from "~/models/comments.server";
 
 type Props = {};
@@ -66,9 +67,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
     const form = await request.formData();
     const { blogId } = params;
-    const { _id: userId } = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/login",
-    });
+    const { _id: userId, username: user_name } =
+        await authenticator.isAuthenticated(request, {
+            failureRedirect: "/login",
+        });
     invariant(blogId);
     await connect();
     try {
@@ -82,6 +84,25 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             invariant(replyId);
             await deleteReply(replyId.toString(), userId);
             return { message: "deleted" };
+        } else if (form.get("_action") === "tagReply") {
+            const replyId = String(form.get("replyId"));
+            const reply = String(form.get("reply"));
+            const parentComment = String(form.get("parentComment"));
+
+            const username = String(form.get("username"));
+
+            invariant(replyId);
+            invariant(reply);
+            invariant(parentComment);
+            if (username === user_name) return { message: "cannot tag self" };
+            await tagReply(
+                { replyId, username },
+                blogId,
+                userId,
+                reply,
+                parentComment
+            );
+            return { message: "tagged" };
         } else {
             const reply = String(form.get("reply"));
             const parentComment = String(form.get("parentComment"));

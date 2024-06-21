@@ -55,6 +55,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
         action === "replyComment" ||
         action === "likeReply" ||
         action === "deleteReply" ||
+        action === "tagReply" ||
         formAction === "/api/profile" ||
         formAction === "/api/follow"
     )
