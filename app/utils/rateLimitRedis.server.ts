@@ -4,7 +4,9 @@ import Redis from "ioredis";
 invariant(process.env.REDIS_RENDER_URL);
 
 const ratelimitCache = singleton("ratelimitCache", () => {
-    const redis = new Redis(process.env.REDIS_RENDER_URL!);
+    const redis = new Redis(process.env.REDIS_RENDER_URL!, {
+        maxRetriesPerRequest: 3,
+    });
 
     redis.on("error", (err) => {
         console.error("Redis render error:", err);

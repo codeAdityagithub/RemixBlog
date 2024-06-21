@@ -1,5 +1,10 @@
 import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
-import { HeadersFunction, LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+    HeadersFunction,
+    LoaderFunctionArgs,
+    MetaFunction,
+    json,
+} from "@remix-run/node";
 import {
     Link,
     ShouldRevalidateFunction,
@@ -73,11 +78,22 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
           );
 };
 
+export const meta: MetaFunction = ({ data }) => {
+    // @ts-expect-error
+    const { title, desc } = data.blog;
+    return [
+        { title },
+        {
+            name: "description",
+            content: desc,
+        },
+    ];
+};
 export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
     return false;
 };
-export let headers: HeadersFunction = () => {
-    return { "Cache-Control": "max-age=3600" };
+export let headers: HeadersFunction = ({ loaderHeaders }) => {
+    return { "Cache-Control": loaderHeaders.get("Cache-Control")! };
 };
 const BlogPage = () => {
     const { blog, readTime } = useLoaderData<typeof loader>();

@@ -2,6 +2,7 @@ import { Cross1Icon } from "@radix-ui/react-icons";
 import {
     ActionFunctionArgs,
     LoaderFunctionArgs,
+    MetaFunction,
     json,
     redirect,
 } from "@remix-run/node";
@@ -27,6 +28,16 @@ import { isEqual, limitImageTags, parseZodBlogError } from "~/utils/general";
 import sanitizeHtml from "sanitize-html";
 
 type Props = {};
+export const meta: MetaFunction = () => {
+    return [
+        { title: "RemixBlog | Create New Blog" },
+        {
+            name: "description",
+            content:
+                "A feature rich and comprehensive form to create a new blog.",
+        },
+    ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     await authenticator.isAuthenticated(request, {

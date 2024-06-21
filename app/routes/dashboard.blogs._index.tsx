@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import {
     ClientLoaderFunctionArgs,
     Link,
@@ -15,6 +15,15 @@ import DashboardPagination from "~/mycomponents/DashboardPagination";
 import { cacheDashboardBlogs } from "~/utils/localStorageCache.client";
 
 type BlogDoc = Pick<BlogDocument, "_id" | "desc" | "title" | "updatedAt">;
+export const meta: MetaFunction = () => {
+    return [
+        { title: "RemixBlog | Your Blogs" },
+        {
+            name: "description",
+            content: "Manage all your blogs that you have uploaded",
+        },
+    ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {

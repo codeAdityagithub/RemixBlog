@@ -1,5 +1,9 @@
 import { AvatarIcon } from "@radix-ui/react-icons";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import {
+    ActionFunctionArgs,
+    LoaderFunctionArgs,
+    MetaFunction,
+} from "@remix-run/node";
 import {
     Link,
     ShouldRevalidateFunction,
@@ -45,6 +49,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         .lean();
     // console.log(followers[0]);
     return { followers };
+};
+export const meta: MetaFunction = () => {
+    return [
+        { title: "RemixBlog | Following" },
+        {
+            name: "description",
+            content: "All the people that you are following",
+        },
+    ];
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({

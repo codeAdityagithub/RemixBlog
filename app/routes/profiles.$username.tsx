@@ -4,32 +4,37 @@ import {
     ChevronDownIcon,
     HeartIcon,
 } from "@radix-ui/react-icons";
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import {
+    ActionFunctionArgs,
+    HeadersFunction,
+    MetaFunction,
+    json,
+} from "@remix-run/node";
 import {
     Link,
     ShouldRevalidateFunction,
-    useFetcher,
     useLoaderData,
 } from "@remix-run/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Types } from "mongoose";
-import { format } from "sharp";
 import invariant from "tiny-invariant";
-import { TypographyH2, TypographyLarge } from "~/components/Typography";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { connect } from "~/db.server";
 import { cn } from "~/lib/utils";
-import {
-    BlogDocument,
-    Blogs,
-    UserDocument,
-    Users,
-} from "~/models/Schema.server";
+import { Blogs, Users } from "~/models/Schema.server";
 import { getFollowStats } from "~/models/follow.server";
 import FollowButton from "~/mycomponents/FollowButton";
-import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
 import { formatTime, useUser } from "~/utils/general";
+
+export const meta: MetaFunction = ({ params }) => {
+    return [
+        { title: "RemixBlog | " + params.username },
+        {
+            name: "description",
+            content: `Profile information for ${params.username}`,
+        },
+    ];
+};
 
 export const loader = async ({ request, params }: ActionFunctionArgs) => {
     const username = params.username;
@@ -55,8 +60,18 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
         .lean();
     return json(
         { user, blogs, followersCount, followingCount },
-        { headers: { "Cache-Control": "public, max-age=3600, s-maxage=3600" } }
+        {
+            headers: {
+                "Cache-Control":
+                    "public, max-age=3600, s-maxage=3600, stale-while-revalidate=200",
+            },
+        }
     );
+};
+
+export const headers: HeadersFunction = ({ loaderHeaders }) => {
+    // console.log(loaderHeaders);
+    return { "Cache-Control": loaderHeaders.get("Cache-Control") ?? "" };
 };
 export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
     return false;

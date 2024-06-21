@@ -1,5 +1,9 @@
 import { EyeOpenIcon, HeartFilledIcon } from "@radix-ui/react-icons";
-import { LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
+import {
+    LoaderFunction,
+    LoaderFunctionArgs,
+    MetaFunction,
+} from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -15,6 +19,17 @@ import DashboardComments from "~/mycomponents/DashboardComments";
 import BlogViewsChart from "~/mycomponents/BlogViewsChart";
 import { getFollowStats } from "~/models/follow.server";
 import { Types } from "mongoose";
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "RemixBlog | Dashboard" },
+        {
+            name: "description",
+            content:
+                "Manage all your blogs and personal information on remix blog dashboard",
+        },
+    ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {

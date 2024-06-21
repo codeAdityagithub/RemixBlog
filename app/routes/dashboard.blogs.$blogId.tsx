@@ -1,4 +1,9 @@
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+    ActionFunctionArgs,
+    LoaderFunctionArgs,
+    MetaFunction,
+    json,
+} from "@remix-run/node";
 import {
     ClientActionFunctionArgs,
     Link,
@@ -35,6 +40,16 @@ export type InitialBlog = {
     thumbnail: string;
     tags: string[];
 };
+export const meta: MetaFunction = () => {
+    return [
+        { title: "RemixBlog | Edit Blog" },
+        {
+            name: "description",
+            content: "Edit your blogs quickly and easily",
+        },
+    ];
+};
+
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",

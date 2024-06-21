@@ -36,7 +36,7 @@ export const loader = async ({}) => {
         { latestBlogs, popularBlogs, trendingBlogs },
         {
             headers: {
-                "Cache-control": "max-age=600, stale-while-revalidate=100",
+                "Cache-Control": "max-age=600, stale-while-revalidate=100",
             },
         }
     );
