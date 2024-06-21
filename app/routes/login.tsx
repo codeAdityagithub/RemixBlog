@@ -26,6 +26,7 @@ import { Separator } from "~/components/ui/separator";
 // import { ZodError } from "zod";
 // import { commitSession, getSession } from "~/session.server";
 import { useToast } from "~/components/ui/use-toast";
+import { ratelimitHeaders } from "~/utils/ratelimit.server";
 
 export const meta: MetaFunction = () => {
     return [
@@ -54,6 +55,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
     const redirectTo = new URL(request.url).searchParams.get("redirectTo");
     try {
+        const { left } = await ratelimitHeaders(
+            "login",
+            request.headers,
+            60,
+            3
+        );
+        if (left === 0)
+            return json(
+                { error: "Too many login attempts, try again later." },
+                { status: 429 }
+            );
         const res = await authenticator.authenticate("user-pass", request, {
             successRedirect: redirectTo ?? "/dashboard",
             // failureRedirect: "/login",

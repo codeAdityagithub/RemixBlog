@@ -34,6 +34,7 @@ const BlogCardSmall = ({
         <Card className="w-full max-w-md h-min">
             <img
                 alt="Blog Post Image"
+                loading="lazy"
                 className="w-full h-48 object-cover rounded-t-lg"
                 height={360}
                 src={thumbnail}

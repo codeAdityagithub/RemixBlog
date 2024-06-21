@@ -25,6 +25,7 @@ const BlogCardLarge = ({
         <Card>
             <img
                 alt="Blog Post Image"
+                loading="lazy"
                 className="w-full h-[300px] md:h-[400px] object-cover rounded-t-lg"
                 height={600}
                 src={thumbnail}

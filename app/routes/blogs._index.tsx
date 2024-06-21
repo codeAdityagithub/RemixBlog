@@ -3,6 +3,7 @@ import {
     json,
     useLoaderData,
 } from "@remix-run/react";
+import type { HeadersFunction } from "@remix-run/node"; // or cloudflare/deno
 import {
     Carousel,
     CarouselContent,
@@ -13,7 +14,7 @@ import {
 import { connect } from "~/db.server";
 
 import { TypographyH2 } from "~/components/Typography";
-import cache from "~/models/modelCache.server";
+import { getBlogs } from "~/models/modelCache.server";
 import BlogCardLarge from "~/mycomponents/cards/BlogCardLarge";
 import BlogCardSmall from "~/mycomponents/cards/BlogCardSmall";
 import { MetaFunction } from "@remix-run/node";
@@ -30,14 +31,21 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({}) => {
     await connect();
-    const latestBlogs = cache.latestBlogs;
-    const popularBlogs = cache.popularBlogs;
-    const trendingBlogs = cache.trendingBlogs;
+    const { latestBlogs, trendingBlogs, popularBlogs } = await getBlogs();
     return json(
         { latestBlogs, popularBlogs, trendingBlogs },
-        { headers: { "Cache-control": "max-age=300" } }
+        {
+            headers: {
+                "Cache-control": "max-age=600, stale-while-revalidate=100",
+            },
+        }
     );
 };
+
+export const headers: HeadersFunction = ({ loaderHeaders }) => ({
+    "Cache-Control": loaderHeaders.get("Cache-Control")!,
+});
+
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
     return false;
 };

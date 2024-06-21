@@ -1,19 +1,14 @@
 import { connect } from "~/db.server";
 import { BlogDocument, Blogs } from "./Schema.server";
+import { getCache, setCache } from "~/utils/redisCache.server";
 export interface BlogDocumentwPic extends Omit<BlogDocument, "author"> {
     author: { username: string; picture?: string };
 }
-type cacheType = {
+export interface cacheBlogsType {
     popularBlogs: BlogDocumentwPic[];
     trendingBlogs: BlogDocumentwPic[];
     latestBlogs: BlogDocumentwPic[];
-};
-const cache: cacheType = {
-    popularBlogs: [],
-    trendingBlogs: [], //combination of likes and comments in a giver time period
-    latestBlogs: [],
-};
-
+}
 async function getPopularBlogs() {
     return (await Blogs.find({}, { comments: 0, likes: 0, content: 0 })
         .sort({ views: -1 })
@@ -46,23 +41,36 @@ async function getLatestBlogs() {
         .lean()
         .populate("author", { username: 1, picture: 1, _id: 0 })) as any;
 }
-d;
+
 const updateCache = async () => {
     try {
         await connect();
-        cache.popularBlogs = await getPopularBlogs();
-        cache.trendingBlogs = await getTrendingBlogs();
-        cache.latestBlogs = await getLatestBlogs();
+        const popularBlogs = await getPopularBlogs();
+        const trendingBlogs = await getTrendingBlogs();
+        const latestBlogs = await getLatestBlogs();
+        setCache("popularBlogs", popularBlogs, 600);
+        setCache("trendingBlogs", trendingBlogs, 600);
+        setCache("latestBlogs", latestBlogs, 600);
         console.log("Cache updated at", new Date());
+
+        return { popularBlogs, trendingBlogs, latestBlogs } as cacheBlogsType;
     } catch (err) {
         console.error("Error updating cache:", err);
+        return {
+            popularBlogs: [],
+            trendingBlogs: [],
+            latestBlogs: [],
+        } as cacheBlogsType;
     }
 };
-
-// Update the cache every hour (3600000 milliseconds)
-setInterval(updateCache, 5 * 60 * 1000);
-
-// Initial cache population
-updateCache();
-export default cache;
-// console.log(cache.latestBlogs);
+export const getBlogs = async () => {
+    const popularBlogs = await getCache("popularBlogs");
+    const trendingBlogs = await getCache("trendingBlogs");
+    const latestBlogs = await getCache("latestBlogs");
+    if (!popularBlogs || !trendingBlogs || !latestBlogs) {
+        console.log("cache miss");
+        return await updateCache();
+    }
+    console.log("cache hit");
+    return { popularBlogs, trendingBlogs, latestBlogs } as cacheBlogsType;
+};
