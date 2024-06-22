@@ -36,10 +36,9 @@ type Props = {
         liked: boolean;
     };
     revalidate: () => void;
-    tagPerson: (username: string) => void;
 };
 
-const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
+const ReplyCard = ({ reply, revalidate }: Props) => {
     const fetcher = useFetcher<any>();
     const user = useUser();
     const divref = useRef<HTMLDivElement>(null);
@@ -65,9 +64,7 @@ const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
             });
         }
     }, [searchParams]);
-    const replyTo = () => {
-        tagPerson(reply.user.username);
-    };
+
     // console.log(reply.tag);
     return (
         <div
@@ -109,12 +106,12 @@ const ReplyCard = ({ reply, revalidate, tagPerson }: Props) => {
                         {formatTime(reply.createdAt.toString())}
                     </small>
                 </div>
-                <ReplyMenu
-                    isOwner={reply.user.username === user?.username}
-                    replyId={reply._id.toString()}
-                    fetcher={fetcher}
-                    reply={replyTo}
-                />
+                {reply.user.username === user?.username ? (
+                    <ReplyMenu
+                        replyId={reply._id.toString()}
+                        fetcher={fetcher}
+                    />
+                ) : null}
             </div>
 
             <p className="line-clamp-3 break-words">
@@ -177,6 +174,11 @@ function ReplyAccordian({
 }) {
     const [reply, setReply] = useState("");
     const accRef = useRef<HTMLButtonElement>(null);
+    useEffect(() => {
+        if (fetcher.data?.message !== "tagged") {
+            accRef.current?.click();
+        }
+    }, [fetcher.data]);
     return (
         <Accordion className="w-full space-y-2" type="multiple">
             <AccordionItem className="border-none" value="replyto">
@@ -186,6 +188,7 @@ function ReplyAccordian({
                 >
                     Reply
                 </AccordionTrigger>
+
                 <AccordionContent className="w-full p-2 mt-2 relative">
                     <form
                         onSubmit={(e) => {
@@ -221,6 +224,10 @@ function ReplyAccordian({
                             required
                             placeholder="Write your reply here..."
                         />
+                        <div className="text-red-600 text-xs">
+                            {fetcher.data?.message !== "tagged" &&
+                                fetcher.data?.message}
+                        </div>
                         <Button
                             type="submit"
                             className="mt-1"
@@ -283,13 +290,9 @@ function LikeButton({
 function ReplyMenu({
     replyId,
     fetcher,
-    isOwner,
-    reply,
 }: {
     replyId: string;
-    isOwner: boolean;
     fetcher: FetcherWithComponents<any>;
-    reply: () => void;
 }) {
     return (
         <DropdownMenu>
@@ -301,35 +304,22 @@ function ReplyMenu({
                     Reply Menu
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {isOwner ? (
-                    <DropdownMenuItem asChild>
-                        <Button
-                            disabled={fetcher.state !== "idle"}
-                            onClick={() =>
-                                fetcher.submit(
-                                    { _action: "deleteReply", replyId },
-                                    { method: "POST", action: "replies" }
-                                )
-                            }
-                            size="sm"
-                            variant="destructive"
-                            className="hover:cursor-pointer w-full"
-                        >
-                            Delete Reply
-                        </Button>
-                    </DropdownMenuItem>
-                ) : (
-                    <DropdownMenuItem asChild>
-                        <Button
-                            onClick={reply}
-                            size="sm"
-                            variant="secondary"
-                            className="hover:cursor-pointer w-full"
-                        >
-                            Reply
-                        </Button>
-                    </DropdownMenuItem>
-                )}
+                <DropdownMenuItem asChild>
+                    <Button
+                        disabled={fetcher.state !== "idle"}
+                        onClick={() =>
+                            fetcher.submit(
+                                { _action: "deleteReply", replyId },
+                                { method: "POST", action: "replies" }
+                            )
+                        }
+                        size="sm"
+                        variant="destructive"
+                        className="hover:cursor-pointer w-full"
+                    >
+                        Delete Reply
+                    </Button>
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

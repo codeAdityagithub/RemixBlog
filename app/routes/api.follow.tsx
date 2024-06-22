@@ -27,9 +27,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     // invariant(isFollowing ?? "");
     if (isFollowing !== false && typeof isFollowing === "string") {
         const time = parseInt(isFollowing.split("T").pop() ?? "");
-        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        const fiveMinutesAgo = Date.now() - 1 * 60 * 1000;
         if (fiveMinutesAgo < time)
-            return json("Unfollow after 5 mins", { status: 429 });
+            return json(
+                "To prevent accidental unfollows, you can unfollow after 1 minute",
+                { status: 429 }
+            );
     }
     await connect();
     if (request.method === "POST") {
@@ -42,8 +45,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 export const shouldRevalidate: ShouldRevalidateFunction = ({
     defaultShouldRevalidate,
     formAction,
+    actionResult,
 }) => {
     // if (formAction?.split("/").pop() === "comments") return false;
-    if (!formAction?.startsWith("/api/follow")) return false;
+    if (
+        !formAction?.startsWith("/api/follow") ||
+        (actionResult !== "followed" && actionResult !== "unfollowed")
+    )
+        return false;
     return defaultShouldRevalidate;
 };

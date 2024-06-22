@@ -67,6 +67,17 @@ export const getBlogs = async () => {
     const popularBlogs = await getCache("popularBlogs");
     const trendingBlogs = await getCache("trendingBlogs");
     const latestBlogs = await getCache("latestBlogs");
+    if (
+        typeof popularBlogs === "object" &&
+        popularBlogs &&
+        popularBlogs.length === 0
+    ) {
+        return {
+            popularBlogs: [],
+            trendingBlogs: [],
+            latestBlogs: [],
+        };
+    }
     if (!popularBlogs || !trendingBlogs || !latestBlogs) {
         console.log("cache miss");
         return await updateCache();

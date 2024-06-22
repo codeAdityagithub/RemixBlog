@@ -41,7 +41,9 @@ const Navbar = (props: Props) => {
             {/* dekstop  */}
             <NavigationMenuList className="gap-10 hidden md:flex">
                 <NavigationMenuItem className="">
-                    <h1 className="font-bold text-lg">RemixBlog</h1>
+                    <h1 className="font-bold text-lg">
+                        <Link to="/">RemixBlog</Link>
+                    </h1>
                 </NavigationMenuItem>
                 <div className="flex-1 flex gap-3">
                     <NavigationMenuItem>

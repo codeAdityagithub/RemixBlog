@@ -7,6 +7,7 @@ import {
 import {
     ClientActionFunctionArgs,
     Link,
+    ShouldRevalidateFunction,
     useFetcher,
     useLoaderData,
     useParams,
@@ -33,6 +34,7 @@ import EditorClient from "~/mycomponents/EditorClient";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
 import { limitImageTags, parseZodBlogError } from "~/utils/general";
 import { cachedClientAction } from "~/utils/localStorageCache.client";
+import { ratelimitId } from "~/utils/ratelimit.server";
 export type InitialBlog = {
     title: string;
     desc: string;
@@ -95,6 +97,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     try {
         // console.log(parsed);
+        const { left } = await ratelimitId("editBlog", user._id, 300, 5);
+        if (left === 0)
+            return json({
+                error: {
+                    message: "Too many frequest edits, try again later!",
+                },
+            });
+
         const body = await request.json();
 
         const updatedBlog = NewBlogSchema.parse(body);
@@ -149,6 +159,13 @@ export async function clientAction({
     }
     return await serverAction();
 }
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+    defaultShouldRevalidate,
+    actionResult,
+}) => {
+    if (actionResult.error) return false;
+    return defaultShouldRevalidate;
+};
 
 const DashboardBlogEdit = () => {
     const { blog: initialBlog, content: initialContent } =

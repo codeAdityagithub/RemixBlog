@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { connect } from "~/db.server";
@@ -9,6 +9,7 @@ import {
     replyCommentToBlog,
     tagReply,
 } from "~/models/comments.server";
+import { ratelimitId } from "~/utils/ratelimit.server";
 
 type Props = {};
 
@@ -85,6 +86,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             await deleteReply(replyId.toString(), userId);
             return { message: "deleted" };
         } else if (form.get("_action") === "tagReply") {
+            const { left } = await ratelimitId("tagReply", userId, 60, 3);
+            // console.log(left);
+            if (left === 0)
+                return json(
+                    { message: "You can only add 3 replies per minute" },
+                    { status: 429 }
+                );
             const replyId = String(form.get("replyId"));
             const reply = String(form.get("reply"));
             const parentComment = String(form.get("parentComment"));
@@ -104,6 +112,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             );
             return { message: "tagged" };
         } else {
+            const { left } = await ratelimitId("reply", userId, 60, 3);
+            // console.log(left);
+            if (left === 0)
+                return json(
+                    { message: "You can only add 3 replies per minute" },
+                    { status: 429 }
+                );
             const reply = String(form.get("reply"));
             const parentComment = String(form.get("parentComment"));
             invariant(reply);

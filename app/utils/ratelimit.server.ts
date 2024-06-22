@@ -23,8 +23,8 @@ export async function ratelimitId(
     if (requests === 1) {
         await ratelimitCache.expire(key, duration);
     }
-    if (requests >= limit) {
+    if (requests > limit) {
         return { left: 0 };
     }
-    return { left: limit - requests };
+    return { left: limit - requests + 1 };
 }

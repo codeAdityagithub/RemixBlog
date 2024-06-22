@@ -14,9 +14,12 @@ const BlogComments = ({ revalidate }: Props) => {
     const [comment, setComment] = useState("");
     const fetcher = useFetcher<any>();
     useEffect(() => {
-        setComment("");
-        if (fetcher.data?.message === "added") revalidate();
+        if (fetcher.data?.message === "added") {
+            setComment("");
+            revalidate();
+        }
         // console.log(fetcher.formData);
+
         // addComment();
     }, [fetcher.data]);
     return (
@@ -29,6 +32,9 @@ const BlogComments = ({ revalidate }: Props) => {
                 placeholder="What are your thoughts?"
                 name="comment"
             />
+            <small className="text-red-600">
+                {fetcher.data?.message !== "added" && fetcher.data?.message}
+            </small>
             <Button
                 type="submit"
                 size="sm"

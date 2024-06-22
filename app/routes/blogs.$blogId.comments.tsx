@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { ShouldRevalidateFunction } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
@@ -9,6 +9,7 @@ import {
     deleteComment,
     likeComment,
 } from "~/models/comments.server";
+import { ratelimitId } from "~/utils/ratelimit.server";
 
 type Props = {};
 
@@ -70,6 +71,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         } else {
             const comment = form.get("comment");
             invariant(comment);
+            const { left } = await ratelimitId("commentAdd", userId, 60, 3);
+            // console.log(left);
+            if (left === 0)
+                return json(
+                    { message: "You can only add 3 comments per minute" },
+                    { status: 429 }
+                );
             await addCommentToBlog(blogId, userId, comment.toString());
             return { message: "added" };
         }

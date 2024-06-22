@@ -26,6 +26,7 @@ import { editorExtensions } from "~/mycomponents/Editor";
 import EditorClient from "~/mycomponents/EditorClient";
 import { isEqual, limitImageTags, parseZodBlogError } from "~/utils/general";
 import sanitizeHtml from "sanitize-html";
+import { ratelimitId } from "~/utils/ratelimit.server";
 
 type Props = {};
 export const meta: MetaFunction = () => {
@@ -52,6 +53,14 @@ export async function action({ request }: ActionFunctionArgs) {
     });
     // console.log(user);
     try {
+        const { left } = await ratelimitId("createBlog", user._id, 300, 1);
+        if (left === 0)
+            return json({
+                error: {
+                    message: "You can only upload one blog every 5 minutes.",
+                },
+            });
+
         const body = await request.json();
         // const parsed = parseNewBlog(body);
         // console.log(blog.get("content"));

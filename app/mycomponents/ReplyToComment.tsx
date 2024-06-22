@@ -44,9 +44,7 @@ const ReplyToComment = ({ commentId }: Props) => {
         ).then((res) => res.json());
         setReplies(data.replies);
     }, []);
-    const tagPerson = useCallback((username: string) => {
-        console.log(username);
-    }, []);
+
     return (
         <Accordion className="w-full space-y-2" type="multiple">
             <AccordionItem className="border-none" value="replyto">
@@ -60,6 +58,10 @@ const ReplyToComment = ({ commentId }: Props) => {
                             name="parentComment"
                             value={commentId}
                         />
+                        <small className="text-red-600 w-full">
+                            {fetcher.data?.message !== "added" &&
+                                fetcher.data?.message}
+                        </small>
                         <Textarea
                             name="reply"
                             className="w-full"
@@ -107,7 +109,6 @@ const ReplyToComment = ({ commentId }: Props) => {
                                     key={reply._id.toString()}
                                     reply={reply}
                                     revalidate={fetchReplies}
-                                    tagPerson={tagPerson}
                                 />
                             ))
                         )
