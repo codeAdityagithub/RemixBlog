@@ -50,7 +50,9 @@ const Navbar = (props: Props) => {
                         <NavLink to="/">Home</NavLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <NavLink to="/blogs">Blogs</NavLink>
+                        <NavLink to="/blogs" prefetch="intent">
+                            Blogs
+                        </NavLink>
                     </NavigationMenuItem>
                     {user && (
                         <NavigationMenuItem>

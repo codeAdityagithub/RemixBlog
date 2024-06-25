@@ -63,13 +63,13 @@ export const HydrateFallback = () => {
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div
                         key={i}
-                        className="w-full border flex gap-4 p-6 rounded-lg"
+                        className="w-full border flex flex-col sm:flex-row gap-4 p-6 rounded-lg"
                     >
                         <div className="flex flex-col items-start gap-3 flex-1">
                             <Skeleton className="w-full h-6" />
                             <Skeleton className="w-3/5 h-4" />
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 justify-end">
                             <Skeleton className="h-9 w-20 rounded-lg" />
                             <Skeleton className="h-9 w-20 rounded-lg" />
                         </div>

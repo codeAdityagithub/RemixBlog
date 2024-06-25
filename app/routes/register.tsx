@@ -1,5 +1,5 @@
 import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
@@ -25,6 +25,14 @@ import { ZodError } from "zod";
 import { useToast } from "~/components/ui/use-toast";
 import { FcGoogle } from "react-icons/fc";
 import { Separator } from "~/components/ui/separator";
+import { ratelimitHeaders } from "~/utils/ratelimit.server";
+import {
+    EmailLimitExceededError,
+    sendVerificationEmail,
+} from "~/utils/nodemailer.server";
+import { Users } from "~/models/Schema.server";
+import { connect } from "~/db.server";
+import ratelimitCache from "~/utils/rateLimitRedis.server";
 
 export const meta: MetaFunction = () => {
     return [
@@ -41,30 +49,52 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
     const form = await request.formData();
-    const redirectTo = new URL(request.url).searchParams.get("redirectTo");
+    if (form.get("password") !== form.get("confirmPassword"))
+        return json({ error: "Passwords don't match." });
 
     try {
+        await connect();
+
         const { username, email, password } = RegisterFormSchema.parse({
             username: form.get("username"),
             email: form.get("email"),
             password: form.get("password"),
         });
-        const user = await register(username, email, password);
-        // console.log(user);
-        if (!user)
-            return json({ error: "User already exists" }, { status: 406 });
-        // if (user) return redirect("/login");
-        const res = await authenticator.authenticate("user-pass", request, {
-            // failureRedirect: "/login",
-            successRedirect: redirectTo ?? "/blogs",
-            context: { formData: form },
-        });
-        return res;
+        // const user = await register(username, email, password);
+        const user = await Users.findOne({ $or: [{ email }, { username }] });
+        if (user)
+            return json(
+                {
+                    error: "User already exists! Login or try a different username or email",
+                },
+                { status: 406 }
+            );
+        const { left } = await ratelimitHeaders(
+            "register",
+            request.headers,
+            10,
+            1
+        );
+
+        if (left === 0)
+            return json(
+                { error: "Too many registration attempts!" },
+                { status: 429 }
+            );
+        await sendVerificationEmail(username, email, password);
+
+        return {
+            message:
+                "Verification email sent successfully! Please check your email and click on verify button. ",
+        };
     } catch (error: any) {
         if (error instanceof ZodError) {
             return json({ error: error.flatten() }, { status: 400 });
         }
         if (error instanceof Response) return error;
+        if (error instanceof EmailLimitExceededError)
+            return json({ error: error.message }, { status: 429 });
+
         console.log(error);
         return json({ error: "Something went wrong" }, { status: 500 });
     }
@@ -74,9 +104,9 @@ const Register = () => {
     const data = useActionData<typeof action>();
     const navigation = useNavigation();
     const { toast } = useToast();
-    const error = data?.error;
-
+    const formRef = useRef<HTMLFormElement>(null);
     useEffect(() => {
+        const error = data?.error;
         if (error) {
             if (typeof error === "string")
                 toast({ description: error, variant: "destructive" });
@@ -87,13 +117,23 @@ const Register = () => {
                         description: `${email ? email[0] + "\n" : ""}${
                             password ? password[0] + "\n" : ""
                         }${username ? username[0] : ""}
-                        `,
+                `,
                         variant: "destructive",
                         style: { whiteSpace: "pre-line" },
                     });
             }
         }
-    }, [error]);
+    }, [data]);
+    useEffect(() => {
+        const message = data?.message;
+        if (message) {
+            toast({
+                description: message,
+                className: "bg-green-600 text-white text-lg",
+            });
+            formRef.current?.reset();
+        }
+    }, [data?.message]);
     return (
         <Card className="xs:w-[350px] mb-4">
             <CardHeader className="pb-2">
@@ -108,15 +148,10 @@ const Register = () => {
                 </Form>
                 <Separator className="mb-2" />
 
-                <Form method="post">
+                <Form ref={formRef} method="post">
                     <div className="grid w-full items-center gap-4">
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="username">
-                                Username
-                                {/* <div className="text-red-600 py-1">
-                                    {usernameError}
-                                </div> */}
-                            </Label>
+                            <Label htmlFor="username">Username</Label>
                             <Input
                                 id="username"
                                 name="username"
@@ -126,12 +161,7 @@ const Register = () => {
                             />
                         </div>
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="email">
-                                Email{" "}
-                                {/* <div className="text-red-600 py-1">
-                                    {emailError}
-                                </div> */}
-                            </Label>
+                            <Label htmlFor="email">Email </Label>
                             <Input
                                 id="email"
                                 name="email"
@@ -141,18 +171,25 @@ const Register = () => {
                             />
                         </div>
                         <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="email">
-                                Password{" "}
-                                {/* <div className="text-red-600 py-1">
-                                    {passwordError}
-                                </div> */}
-                            </Label>
+                            <Label htmlFor="password">Password </Label>
                             <Input
                                 id="password"
                                 name="password"
                                 required
                                 type="password"
                                 placeholder="Your password"
+                            />
+                        </div>
+                        <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="confirmPassword">
+                                Confirm Password{" "}
+                            </Label>
+                            <Input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                required
+                                type="password"
+                                placeholder="Confirm your password"
                             />
                         </div>
                     </div>

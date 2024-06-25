@@ -30,3 +30,32 @@ export async function deleteCache(key: string) {
         console.error("Error deleting cache:", error);
     }
 }
+
+export async function ratelimitHeadersUpstash(
+    endpoint: string,
+    headers: Headers,
+    duration: number,
+    limit: number
+) {
+    const ip = headers.get("x-forwarded-for") ?? "";
+    const key = `ratelimit:${endpoint}:${ip}`;
+
+    return await ratelimitIdUpstash(endpoint, key, duration, limit);
+}
+export async function ratelimitIdUpstash(
+    endpoint: string,
+    id: string,
+    duration: number,
+    limit: number
+) {
+    const key = `ratelimit:${endpoint}:${id}`;
+
+    const requests = await redisCache.incr(key);
+    if (requests === 1) {
+        await redisCache.expire(key, duration);
+    }
+    if (requests > limit) {
+        return { left: 0 };
+    }
+    return { left: limit - requests + 1 };
+}

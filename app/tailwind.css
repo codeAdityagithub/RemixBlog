@@ -53,14 +53,14 @@
 
     /* Code */
     .tiptap code {
-        @apply bg-gray-700 text-white dark:bg-slate-700 p-1 rounded;
+        @apply bg-secondary text-secondary-foreground p-1 rounded;
     }
     .tiptap {
         @apply *:has-[code]:leading-[2.25];
     }
     /* Preformatted text */
     .tiptap pre {
-        @apply bg-gray-900 text-white dark:bg-slate-500 p-4 rounded overflow-x-auto;
+        @apply bg-secondary text-secondary-foreground p-4 rounded overflow-x-auto;
     }
 
     /* Links */

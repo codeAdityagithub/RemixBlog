@@ -54,7 +54,8 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
         !formAction?.startsWith("/logout") &&
         !formAction?.startsWith("/api/profile") &&
         !formAction?.startsWith("/login") &&
-        !formAction?.startsWith("/register")
+        !formAction?.startsWith("/register") &&
+        !formAction?.startsWith("/verify")
     )
         return false;
     return defaultShouldRevalidate;

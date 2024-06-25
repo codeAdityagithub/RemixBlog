@@ -67,6 +67,7 @@ let googleStrategy = new GoogleStrategy(
 authenticator.use(
     new FormStrategy(async ({ form }) => {
         // console.log("first");
+        // console.log(form.get("email"));
         const { email, password } = LoginFormSchema.parse({
             email: form.get("email"),
             password: form.get("password"),

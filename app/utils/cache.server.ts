@@ -6,6 +6,7 @@ invariant(process.env.REDIS_UPSTASH_URL);
 const redisCache = singleton("redisCache", () => {
     const redis = new Redis(process.env.REDIS_UPSTASH_URL!, {
         maxRetriesPerRequest: 3,
+        retryStrategy: (times) => (times > 10 ? null : 5000),
     });
 
     redis.on("error", (err) => {

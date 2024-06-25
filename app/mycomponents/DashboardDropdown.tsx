@@ -26,7 +26,12 @@ const DashboardDropdown = (props: Props) => {
                     variant="ghost"
                     className="hover:bg-secondary/60"
                 >
-                    <NavLink to="/dashboard" end className="tablink">
+                    <NavLink
+                        prefetch="intent"
+                        to="/dashboard"
+                        end
+                        className="tablink"
+                    >
                         Dashboard
                     </NavLink>
                 </Button>
@@ -36,7 +41,11 @@ const DashboardDropdown = (props: Props) => {
                     variant="ghost"
                     className="hover:bg-secondary/60"
                 >
-                    <NavLink to="/dashboard/new" className="tablink">
+                    <NavLink
+                        prefetch="intent"
+                        to="/dashboard/new"
+                        className="tablink"
+                    >
                         New Blog
                     </NavLink>
                 </Button>
@@ -46,7 +55,11 @@ const DashboardDropdown = (props: Props) => {
                     variant="ghost"
                     className="hover:bg-secondary/60"
                 >
-                    <NavLink to="/dashboard/blogs" className="tablink">
+                    <NavLink
+                        prefetch="intent"
+                        to="/dashboard/blogs"
+                        className="tablink"
+                    >
                         Your Blogs
                     </NavLink>
                 </Button>
@@ -56,7 +69,11 @@ const DashboardDropdown = (props: Props) => {
                     variant="ghost"
                     className="hover:bg-secondary/60"
                 >
-                    <NavLink to="/dashboard/following" className="tablink">
+                    <NavLink
+                        prefetch="intent"
+                        to="/dashboard/following"
+                        className="tablink"
+                    >
                         Following
                     </NavLink>
                 </Button>

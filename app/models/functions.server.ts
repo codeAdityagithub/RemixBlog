@@ -41,7 +41,7 @@ export async function register(
     email: string,
     password: string
 ) {
-    const user = await Users.findOne({ email });
+    const user = await Users.findOne({ $or: [{ email }, { username }] });
     if (user) return null;
     const hashedPassword = await bcrypt.hash(password, 10);
     const createdUser = await Users.create({
