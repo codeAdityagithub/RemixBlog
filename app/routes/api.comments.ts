@@ -12,18 +12,37 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const searchParams = new URL(request.url).searchParams;
     const page = parseInt(searchParams.get("page") ?? "1");
     const skip = (page - 1) * 10;
+    if (page > 5) return { comments: [] };
     try {
         await connect();
         const comments = await Comments.find(
             { blogOwner: user._id },
-            { content: 1, likes: 1, user: 1, blogId: 1, createdAt: 1 }
+            {
+                content: 1,
+                likes: 1,
+                user: 1,
+                blogId: 1,
+                createdAt: 1,
+                blogOwner: 1,
+                likedBy: 1,
+            }
         )
             .sort({ createdAt: -1 })
             .limit(10)
             .skip(skip)
-            .populate("user", { username: 1 })
+            .populate("user", { username: 1, picture: 1 })
             .lean();
-        return { comments };
+        const commentsWithLiked = comments.map((comment) => {
+            const isLiked = comment.likedBy.some(
+                (likedUserId) => likedUserId.toString() === user?._id
+            );
+            const { likedBy, ...commentWithoutLikedBy } = comment;
+            return {
+                ...commentWithoutLikedBy,
+                liked: isLiked,
+            };
+        });
+        return { comments: commentsWithLiked };
     } catch (error) {
         return json({ error: "Somthing went wrong" }, { status: 500 });
     }

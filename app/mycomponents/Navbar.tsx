@@ -126,12 +126,12 @@ const Navbar = (props: Props) => {
                 ) : (
                     <>
                         <NavigationMenuItem className="hidden xs:flex" asChild>
-                            <Link to={`/login?redirectTo=${pathname}`}>
+                            <Link to="/login">
                                 <Button>Login</Button>
                             </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem className="hidden sm:flex" asChild>
-                            <Link to={`/register?redirectTo=${pathname}`}>
+                            <Link to="/register">
                                 <Button variant="outline">Register</Button>
                             </Link>
                         </NavigationMenuItem>

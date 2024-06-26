@@ -71,7 +71,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
             ref={divref}
             id={`replycard-${reply._id.toString()}`}
             className={cn(
-                "p-1 border border-border rounded-md space-y-2 transition-colors",
+                "p-1 border border-primary/25 rounded-md space-y-2 transition-colors",
                 searchParams.get("tag") === reply._id.toString()
                     ? "bg-secondary"
                     : ""
@@ -175,7 +175,7 @@ function ReplyAccordian({
     const [reply, setReply] = useState("");
     const accRef = useRef<HTMLButtonElement>(null);
     useEffect(() => {
-        if (fetcher.data?.message !== "tagged") {
+        if (fetcher.data?.message && fetcher.data?.message !== "tagged") {
             accRef.current?.click();
         }
     }, [fetcher.data]);

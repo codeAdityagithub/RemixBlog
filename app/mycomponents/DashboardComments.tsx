@@ -1,6 +1,10 @@
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+import {
+    AvatarIcon,
+    ChevronDownIcon,
+    DotFilledIcon,
+} from "@radix-ui/react-icons";
 import { Link, useFetcher } from "@remix-run/react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,6 +18,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { CommentDocument, CommentDocumentwUser } from "~/models/Schema.server";
 import { formatTime, useUser } from "~/utils/general";
 import DeleteButtonwDialog from "./DeleteButtonwDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 type Props = {};
 type Card = Omit<
@@ -22,27 +27,7 @@ type Card = Omit<
 >;
 const DashboardComments = (props: Props) => {
     const user = useUser()!;
-    // const {
-    //     data: comments,
-    //     isLoading,
-    //     error,
-    //     refetch,
-    // } = useQuery({
-    //     queryKey: ["dashboardComments"],
-    //     queryFn: async () => {
-    //         const res = await fetch("/api/comments", {
-    //             credentials: "same-origin",
-    //         });
-    //         const data = await res.json();
-    //         // console.log(data);
-    //         if (!res.ok) throw new Error("Something went wrong");
 
-    //         return data?.comments as Card[];
-    //     },
-    //     refetchInterval: 1000 * 10,
-    //     retry: 1,
-    //     staleTime: 1000 * 60,
-    // });
     const {
         data: comments,
         fetchNextPage,
@@ -125,6 +110,7 @@ function DashboardCommentCard({
     refetch: () => void;
 }) {
     const fetcher = useFetcher<any>();
+    const queryClient = useQueryClient();
     const deleteComment = () => {
         fetcher.submit(
             { commentId: comment._id.toString() },
@@ -138,22 +124,52 @@ function DashboardCommentCard({
         fetcher.data?.message === "deleted" && refetch();
     }, [fetcher.data]);
     return (
-        <Card className="flex w-full justify-between flex-col sm:flex-row relative">
-            <CardHeader className="">
-                <CardTitle className="text-muted-foreground">
-                    {comment.user.username}
-                    {comment.user.username === user?.username && " (You)"}
-                </CardTitle>
-                <CardDescription className="line-clamp-2 text-foreground">
+        <div className="w-full p-4 border rounded-md flex justify-between flex-col sm:flex-row">
+            <div className="">
+                <div className="flex items-start flex-col">
+                    <Link
+                        className="flex items-center flex-wrap"
+                        to={`/profiles/${comment.user.username}`}
+                    >
+                        <Avatar className="h-8 w-8 mr-2">
+                            <AvatarImage
+                                width={32}
+                                height={32}
+                                alt={comment.user.username}
+                                src={comment.user.picture}
+                                className=""
+                            ></AvatarImage>
+                            <AvatarFallback>
+                                <AvatarIcon
+                                    className="w-full h-full"
+                                    style={{ margin: 0 }}
+                                />
+                            </AvatarFallback>
+                        </Avatar>
+                        {comment.user.username}
+                        <span className="text-muted-foreground ml-1">
+                            {comment.user.username === user?.username &&
+                                "(You)"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                            <DotFilledIcon className="w-2 h-2 mx-2 inline" />
+                            {formatTime(comment.createdAt.toString())}
+                        </span>
+                    </Link>
+                </div>
+                <p className="line-clamp-2 break-words p-1 text-foreground/80">
                     {comment.content}
-                </CardDescription>
-            </CardHeader>
-            <span className="text-xs text-muted-foreground absolute right-6 top-1">
-                {formatTime(comment.createdAt.toString())}
-            </span>
-            <CardFooter className="flex sm:pb-0 gap-4 items-center justify-end">
+                </p>
+            </div>
+            <div className="flex sm:pb-0 gap-4 items-center justify-end">
                 <Link
                     to={`/blogs/${comment.blogId.toString()}?comment=${comment._id.toString()}`}
+                    onClick={(e) => {
+                        queryClient.setQueryData(
+                            ["highlightedComment"],
+                            comment
+                        );
+                    }}
                     className="line-clamp-2 leading-5"
                 >
                     View
@@ -163,8 +179,8 @@ function DashboardCommentCard({
                     action={deleteComment}
                     label="comment"
                 />
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     );
 }
 

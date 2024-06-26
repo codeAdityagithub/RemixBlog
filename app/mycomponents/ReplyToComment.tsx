@@ -91,7 +91,21 @@ const ReplyToComment = ({ commentId }: Props) => {
                     <Button
                         onClick={(e) => {
                             const state = e.currentTarget.dataset.state;
-                            if (state === "closed" && !replies) fetchReplies();
+
+                            if (state === "closed" && !replies) {
+                                fetchReplies();
+                            }
+                            if (state === "closed")
+                                e.currentTarget.classList.add(
+                                    "bg-secondary",
+                                    "repliesOpen"
+                                );
+                            else {
+                                e.currentTarget.classList.remove(
+                                    "bg-secondary",
+                                    "repliesOpen"
+                                );
+                            }
                         }}
                         size="sm"
                         variant="outline"

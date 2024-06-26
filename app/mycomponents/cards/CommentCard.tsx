@@ -44,21 +44,23 @@ const CommentCard = ({ comment, revalidate }: Props) => {
 
     useEffect(() => {
         if (commentHighlight) {
+            // console.log(commentHighlight);
             divref.current?.scrollIntoView({
                 behavior: "smooth",
-                block: "nearest",
+                block: "center",
                 inline: "nearest",
             });
+            divref.current?.classList.add("bg-secondary");
+            setTimeout(() => {
+                divref.current?.classList.remove("bg-secondary");
+            }, 1000);
         }
-    }, [commentHighlight]);
+    }, [commentHighlight, comment]);
 
     return (
         <div
             ref={divref}
-            className={cn(
-                "p-2 border border-border rounded-md space-y-2",
-                commentHighlight ? "bg-secondary" : ""
-            )}
+            className="p-2 border border-border rounded-md space-y-2 has-[.repliesOpen]:border-primary/65"
         >
             <div className="flex flex-row items-center gap-4">
                 <Avatar className="h-9 w-9">

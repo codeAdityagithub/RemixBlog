@@ -13,37 +13,54 @@ import {
 } from "~/components/ui/select";
 
 import type { CommentDoc } from "./BlogCommentsSheet";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useSearchParams } from "@remix-run/react";
 import { Separator } from "~/components/ui/separator";
 import ReplyToComment from "./ReplyToComment";
 import CommentCard from "./cards/CommentCard";
+import { useQueryClient } from "@tanstack/react-query";
 type Props = {
-    comments: CommentDoc[] | undefined;
+    comments: CommentDoc[];
     revalidate: () => void;
 };
 
 const CommentList = ({ comments: initialComments, revalidate }: Props) => {
     const [comments, setComments] = useState(initialComments);
     const [sorting, setSorting] = useState("mostRelevant");
+    const commentHighlight = useSearchParams()[0].get("comment");
+    const queryClient = useQueryClient();
+
     useEffect(() => {
         handleSort(sorting);
-        // setComments(initialComments?.sort((a, b) => b.likes - a.likes));
-    }, [initialComments]);
+    }, [sorting, initialComments]);
+
+    useEffect(() => {
+        if (
+            commentHighlight &&
+            !comments.some(
+                (comment) => comment._id.toString() === commentHighlight
+            )
+        ) {
+            const comment = queryClient.getQueryData([
+                "highlightedComment",
+            ]) as CommentDoc;
+            if (comment) {
+                setComments((prev) => [comment, ...prev]);
+            }
+        }
+    }, [commentHighlight, queryClient, comments]);
 
     function handleSort(value: string) {
-        // console.log(value);
-        setComments((prev) =>
-            initialComments?.sort((a, b) => {
-                if (value === "mostRelevant") {
-                    return b.likes - a.likes;
-                } else {
-                    return (
-                        new Date(b.createdAt).getTime() -
-                        new Date(a.createdAt).getTime()
-                    );
-                }
-            })
-        );
+        const sortedComments = [...initialComments].sort((a, b) => {
+            if (value === "mostRelevant") {
+                return b.likes - a.likes;
+            } else {
+                return (
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                );
+            }
+        });
+        setComments(sortedComments);
     }
     return (
         <div className="flex flex-col gap-2">
