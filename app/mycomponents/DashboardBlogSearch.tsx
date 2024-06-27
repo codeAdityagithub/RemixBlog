@@ -12,9 +12,9 @@ import { Input } from "~/components/ui/input";
 import { BlogDocument } from "~/models/Schema.server";
 import { getFromCache } from "~/utils/localStorageCache.client";
 import DashboardBlogCard from "./DashboardBlogCard";
+import { BlogDoc } from "~/routes/dashboard.blogs._index";
 
 type Props = {};
-type BlogDoc = Pick<BlogDocument, "_id" | "desc" | "title" | "updatedAt">;
 
 const DashboardBlogSearch = (props: Props) => {
     const [query, setQuery] = useState("");
@@ -60,13 +60,7 @@ const DashboardBlogSearch = (props: Props) => {
                 <div className="flex flex-col gap-2 flex-1 overflow-auto ver_scroll">
                     {query.trim() !== "" ? (
                         results.map((res) => (
-                            <DashboardBlogCard
-                                _id={res._id.toString()}
-                                title={res.title}
-                                desc={res.desc}
-                                updatedAt={res.updatedAt.toString()}
-                                key={`search-${res._id}`}
-                            />
+                            <DashboardBlogCard key={res._id} {...res} />
                         ))
                     ) : (
                         <span className="text-muted-foreground px-2">

@@ -1,3 +1,4 @@
+import { ChatBubbleIcon, HeartIcon } from "@radix-ui/react-icons";
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import {
     ClientLoaderFunctionArgs,
@@ -12,9 +13,13 @@ import { connect } from "~/db.server";
 import { BlogDocument, Blogs } from "~/models/Schema.server";
 import DashboardBlogCard from "~/mycomponents/DashboardBlogCard";
 import DashboardPagination from "~/mycomponents/DashboardPagination";
+import { formatTime } from "~/utils/general";
 import { cacheDashboardBlogs } from "~/utils/localStorageCache.client";
 
-type BlogDoc = Pick<BlogDocument, "_id" | "desc" | "title" | "updatedAt">;
+export type BlogDoc = Pick<
+    BlogDocument,
+    "desc" | "title" | "likes" | "thumbnail" | "views" | "comments"
+> & { _id: string; createdAt: string };
 export const meta: MetaFunction = () => {
     return [
         { title: "RemixBlog | Your Blogs" },
@@ -25,41 +30,15 @@ export const meta: MetaFunction = () => {
     ];
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-    const user = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/login?redirectTo=/dashboard/blogs",
-    });
-    await connect();
-    const blogs = (await Blogs.find(
-        { author: user._id },
-        {
-            _id: 1,
-            desc: 1,
-            title: 1,
-            updatedAt: 1,
-        }
-    )
-        .sort({ updatedAt: -1 })
-        .lean()) as BlogDoc[];
-    console.log(blogs.length);
-    return { blogs, totalBlogs: blogs.length };
-};
-
-export const clientLoader = ({
-    request,
-    serverLoader,
-}: ClientLoaderFunctionArgs) =>
+export const clientLoader = ({ request }: ClientLoaderFunctionArgs) =>
     cacheDashboardBlogs({
         request,
-        serverLoader,
     });
-
-clientLoader.hydrate = true;
 
 export const HydrateFallback = () => {
     return (
         <div className="h-full flex flex-col items-center">
-            <div className="w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px] overflow-auto ver_scroll flex-1 flex flex-col items-center gap-4">
+            <div className="w-[280px] xs:w-[calc(100vw-64px)] max-w-[500px] md:max-w-[600px] overflow-auto ver_scroll flex-1 flex flex-col items-center gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div
                         key={i}
@@ -85,18 +64,11 @@ const DashboardBlogs = () => {
         blogs: BlogDoc[];
         totalBlogs: number;
     }>();
-    // console.log(totalBlogs);
     return (
         <div className="h-full flex flex-col items-center">
-            <div className="w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px] overflow-auto ver_scroll flex-1 flex flex-col items-center gap-4">
+            <div className="w-[280px] xs:w-[calc(100vw-64px)] max-w-[500px] md:max-w-[600px]  p-3 overflow-auto ver_scroll flex-1 flex flex-col items-center gap-4">
                 {blogs.map((blog, ind) => (
-                    <DashboardBlogCard
-                        key={blog._id?.toString()}
-                        title={blog.title}
-                        _id={blog._id.toString()}
-                        desc={blog.desc}
-                        updatedAt={blog.updatedAt}
-                    />
+                    <DashboardBlogCard key={blog._id?.toString()} {...blog} />
                 ))}
                 {totalBlogs === 0 ? (
                     <div className="flex h-full gap-6 flex-col items-center justify-center">

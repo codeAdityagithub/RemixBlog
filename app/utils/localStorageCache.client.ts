@@ -31,13 +31,7 @@ export async function cacheClientLocal({
     // console.log(data);
     return data;
 }
-export async function cacheDashboardBlogs({
-    request,
-    serverLoader,
-}: {
-    request: Request;
-    serverLoader: any;
-}) {
+export async function cacheDashboardBlogs({ request }: { request: Request }) {
     const cacheKey = "dashboardBlogs";
     const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
     const pageSize = 10;
@@ -52,8 +46,9 @@ export async function cacheDashboardBlogs({
         };
     }
     // console.log("cache miss");
-    const data = await serverLoader();
-    // console.log(data);
+    const data = await fetch("/api/dashboardBlogs", {
+        credentials: "same-origin",
+    }).then((res) => res.json());
     if (data && data.blogs?.length > 0) {
         addToCache(cacheKey, data);
         window.dispatchEvent(new Event("localStorageChange"));
@@ -78,4 +73,10 @@ export async function cachedClientAction({
     });
     const serverData = await serverAction();
     return serverData;
+}
+
+export function clearLocalCache(cacheKeys: [string]) {
+    cacheKeys.forEach((key) => {
+        removeFromCache(key);
+    });
 }

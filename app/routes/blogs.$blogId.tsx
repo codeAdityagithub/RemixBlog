@@ -100,7 +100,9 @@ const BlogPage = () => {
     return (
         <div className="w-full max-w-2xl p-4 bg-background text-foreground">
             <header className="space-y-8 pb-10 mb-8 border-b border-border relative">
-                <TypographyH1>{blog.title}</TypographyH1>
+                <h1 className="text-3xl md:text-4xl font-bold break-words">
+                    {blog.title}
+                </h1>
                 <div className="flex flex-row h-16 items-center gap-4 p-4 rounded-lg">
                     <Avatar>
                         <Link to={`/profiles/${blog.author.username}`}>

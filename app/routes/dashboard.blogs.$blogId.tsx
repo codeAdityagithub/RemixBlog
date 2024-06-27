@@ -33,7 +33,10 @@ import { editorExtensions } from "~/mycomponents/Editor";
 import EditorClient from "~/mycomponents/EditorClient";
 import useInitialForm from "~/mycomponents/hooks/useInitialForm";
 import { limitImageTags, parseZodBlogError } from "~/utils/general";
-import { cachedClientAction } from "~/utils/localStorageCache.client";
+import {
+    cachedClientAction,
+    clearLocalCache,
+} from "~/utils/localStorageCache.client";
 import { ratelimitId } from "~/utils/ratelimit.server";
 export type InitialBlog = {
     title: string;
@@ -92,7 +95,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     invariant(blogId);
     if (request.method === "DELETE") {
         await deleteBlog(blogId, user._id);
-        console.log("deleted");
+        // console.log("deleted");
         return { deleted: true };
     }
     try {
@@ -151,13 +154,10 @@ export async function clientAction({
     request,
     serverAction,
 }: ClientActionFunctionArgs) {
-    if (request.method === "DELETE") {
-        return cachedClientAction({
-            cacheKeys: [`dashboardBlogs`],
-            serverAction,
-        });
-    }
-    return await serverAction();
+    const res = await serverAction<any>();
+    if (res?.error === null || res?.deleted === true)
+        clearLocalCache(["dashboardBlogs"]);
+    return res;
 }
 export const shouldRevalidate: ShouldRevalidateFunction = ({
     defaultShouldRevalidate,
