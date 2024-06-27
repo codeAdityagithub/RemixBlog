@@ -100,6 +100,9 @@
     .tablink.active {
         @apply bg-secondary hover:bg-secondary border-t border-border border-r border-l sm:rounded-br-none sm:rounded-bl-none;
     }
+    .tablink {
+        font-weight: normal !important;
+    }
     /* .ver_scroll {
         @apply transition-all;
     } */

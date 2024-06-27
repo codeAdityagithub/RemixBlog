@@ -1,6 +1,7 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 import { ZodError } from "zod";
+import { BlogDoc } from "~/routes/dashboard.blogs._index";
 
 export const destructiveToastStyle = {
     backgroundColor: "hsl(var(--destructive))",
@@ -152,4 +153,19 @@ export function getPaginationRange(
         { length: endPage - startPage + 1 },
         (_, i) => startPage + i
     );
+}
+
+export function sortAllBlogs(blogs: BlogDoc[], sortBy: string, sort: string) {
+    if (sortBy === "createdAt" && sort === "asc") return;
+    if (sortBy === "createdAt" && sort === "dsc") blogs.reverse();
+    if (sortBy === "title")
+        blogs.sort((a, b) =>
+            sort === "asc"
+                ? a.title.localeCompare(b.title)
+                : b.title.localeCompare(a.title)
+        );
+    if (sortBy === "views" || sortBy === "likes" || sortBy === "comments")
+        blogs.sort((a, b) =>
+            sort === "asc" ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
+        );
 }

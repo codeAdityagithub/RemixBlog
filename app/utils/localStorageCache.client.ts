@@ -1,3 +1,5 @@
+import { sortAllBlogs } from "./general";
+
 export function addToCache(key: string, data: any): boolean {
     try {
         localStorage.setItem(key, JSON.stringify(data));
@@ -34,12 +36,16 @@ export async function cacheClientLocal({
 export async function cacheDashboardBlogs({ request }: { request: Request }) {
     const cacheKey = "dashboardBlogs";
     const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
+    const sortBy =
+        new URL(request.url).searchParams.get("sortBy") ?? "createdAt";
+    const sort = new URL(request.url).searchParams.get("sort") ?? "asc";
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
     if (hasInCache(cacheKey)) {
         const blogs = getFromCache(cacheKey).blogs as any[];
         // console.log(blogs.slice(skip, Math.min(pageSize * page, blogs.length)));
+        sortAllBlogs(blogs, sortBy, sort);
         return {
             blogs: blogs.slice(skip, Math.min(pageSize * page, blogs.length)),
             totalBlogs: blogs.length,
@@ -54,6 +60,7 @@ export async function cacheDashboardBlogs({ request }: { request: Request }) {
         window.dispatchEvent(new Event("localStorageChange"));
     }
     // console.log(data);
+    sortAllBlogs(data.blogs, sortBy, sort);
 
     return {
         blogs: data.blogs.splice(skip, pageSize),

@@ -3,7 +3,7 @@ import { Link, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { BlogDoc } from "~/routes/dashboard.blogs._index";
 import { formatTime } from "~/utils/general";
-import DeleteButtonwDialog from "./DeleteButtonwDialog";
+import DeleteButtonwDialog from "../DeleteButtonwDialog";
 import { CardTitle, Card, CardFooter } from "~/components/ui/card";
 
 const DashboardBlogCard = ({

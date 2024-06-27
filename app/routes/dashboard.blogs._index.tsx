@@ -11,7 +11,8 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { connect } from "~/db.server";
 import { BlogDocument, Blogs } from "~/models/Schema.server";
-import DashboardBlogCard from "~/mycomponents/DashboardBlogCard";
+import DashboardAllblogFilter from "~/mycomponents/DashboardAllblogFilter";
+import DashboardBlogCard from "~/mycomponents/cards/DashboardBlogCard";
 import DashboardPagination from "~/mycomponents/DashboardPagination";
 import { formatTime } from "~/utils/general";
 import { cacheDashboardBlogs } from "~/utils/localStorageCache.client";
@@ -66,6 +67,7 @@ const DashboardBlogs = () => {
     }>();
     return (
         <div className="h-full flex flex-col items-center">
+            {/* <DashboardAllblogFilter /> */}
             <div className="w-[280px] xs:w-[calc(100vw-64px)] max-w-[500px] md:max-w-[600px]  p-3 overflow-auto ver_scroll flex-1 flex flex-col items-center gap-4">
                 {blogs.map((blog, ind) => (
                     <DashboardBlogCard key={blog._id?.toString()} {...blog} />

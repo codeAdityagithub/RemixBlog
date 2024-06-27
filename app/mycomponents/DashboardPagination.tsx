@@ -1,5 +1,10 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { FetcherWithComponents, Link, useSearchParams } from "@remix-run/react";
+import {
+    FetcherWithComponents,
+    Link,
+    useLocation,
+    useSearchParams,
+} from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import {
     Pagination,
@@ -17,33 +22,50 @@ type Props = {
 };
 const DashboardPagination = ({ totalBlogs }: Props) => {
     const totalPages = Math.ceil(totalBlogs / 10);
-    const activePage = parseInt(useSearchParams()[0].get("page") ?? "1");
-
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activePage = parseInt(searchParams.get("page") ?? "1");
     const paginationRange = getPaginationRange(totalPages, activePage);
     return (
         <Pagination className="mt-1">
             <PaginationContent>
                 {activePage === 1 ? null : (
                     <PaginationItem>
-                        <PaginationLink
+                        <Button
                             aria-label="Go to previous page"
                             size="sm"
-                            to={`?page=${activePage - 1}`}
+                            variant="ghost"
+                            onClick={() =>
+                                setSearchParams((prev) => {
+                                    prev.set(
+                                        "page",
+                                        (activePage - 1).toString()
+                                    );
+                                    return prev;
+                                })
+                            }
+                            // to={`?page=${activePage - 1}`}
                         >
                             <ChevronLeftIcon className="h-4 w-4" />
                             <span className="hidden sm:block">Previous</span>
-                        </PaginationLink>
+                        </Button>
                     </PaginationItem>
                 )}
                 <div className="flex max-w-[250px] gap-1 overflow-x-clip">
                     {paginationRange.map((i) => (
                         <PaginationItem key={`page-${i}`}>
-                            <PaginationLink
-                                to={`?page=${i}`}
-                                isActive={i === activePage}
+                            <Button
+                                size="icon"
+                                className="h-8 w-8"
+                                variant={i === activePage ? "outline" : "ghost"}
+                                onClick={() =>
+                                    setSearchParams((prev) => {
+                                        prev.set("page", i.toString());
+                                        return prev;
+                                    })
+                                }
                             >
                                 {i}
-                            </PaginationLink>
+                            </Button>
                         </PaginationItem>
                     ))}
                 </div>
@@ -52,14 +74,23 @@ const DashboardPagination = ({ totalBlogs }: Props) => {
                 </PaginationItem> */}
                 {activePage === totalPages ? null : (
                     <PaginationItem>
-                        <PaginationLink
-                            aria-label="Go to previous page"
+                        <Button
+                            aria-label="Go to next page"
                             size="sm"
-                            to={`?page=${activePage + 1}`}
+                            variant="ghost"
+                            onClick={() =>
+                                setSearchParams((prev) => {
+                                    prev.set(
+                                        "page",
+                                        (activePage + 1).toString()
+                                    );
+                                    return prev;
+                                })
+                            }
                         >
                             <span className="hidden sm:block">Next</span>
                             <ChevronRightIcon className="h-4 w-4" />
-                        </PaginationLink>
+                        </Button>
                     </PaginationItem>
                 )}
             </PaginationContent>
