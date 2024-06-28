@@ -7,6 +7,7 @@ import { authenticator } from "~/auth.server";
 import { Skeleton } from "~/components/ui/skeleton";
 import BlogViewsChart from "~/mycomponents/BlogViewsChart";
 import DashboardComments from "~/mycomponents/DashboardComments";
+import TopPerformingBlogs from "~/mycomponents/TopPerformingBlogs";
 import DashboardAnalyticCard from "~/mycomponents/cards/DashboardAnalyticCard";
 import Dashboarduser from "~/mycomponents/cards/Dashboarduser";
 import { getGreeting, useUser } from "~/utils/general";
@@ -93,6 +94,7 @@ const Dashboard = () => {
             </div>
             <DashboardComments />
             <BlogViewsChart />
+            <TopPerformingBlogs />
         </div>
     );
 };

@@ -60,7 +60,7 @@ const DashboardComments = (props: Props) => {
 
     return (
         <div
-            className="col-span-6 md:col-span-3 space-y-2"
+            className="col-span-6 md:col-span-3 space-y-2 mt-8"
             id="dashboardComments"
         >
             <h2 className="text-2xl font-bold mb-6">Latest Comments</h2>

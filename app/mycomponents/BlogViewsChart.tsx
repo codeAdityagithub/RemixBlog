@@ -56,7 +56,7 @@ const BlogViewsChart = (props: Props) => {
     return (
         <div
             ref={ref}
-            className="col-span-6 md:col-span-3 space-y-2"
+            className="col-span-6 md:col-span-3 space-y-2 mt-8"
             id="dashboardChart"
         >
             {/* <Link to="/api/viewchart" prefetch="viewport" className=""></Link> */}

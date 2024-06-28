@@ -9,7 +9,6 @@ import { CardTitle, Card, CardFooter } from "~/components/ui/card";
 const DashboardBlogCard = ({
     _id,
     title,
-    desc,
     createdAt,
     likes,
     views,
@@ -79,54 +78,6 @@ const DashboardBlogCard = ({
                 />
             </CardFooter>
         </Card>
-        // <div className="flex w-full h-auto justify-between flex-col rounded-lg sm:flex-row relative border-none shadow-md shadow-primary/10">
-        //         <img
-        //             src={thumbnail}
-        //             alt={title}
-        //             width={320}
-        //             height={180}
-        //             className="w-full sm:w-32 aspect-video rounded-l-md flex-1"
-        //         />
-        //     </Link>
-        //     <Link to={`/blogs/${_id}`} className="w-1/3 flex-1">
-        //         <div className="w-full h-full px-4 py-2 flex flex-col justify-between">
-        //             <h3 className="break-words line-clamp-2">{title}</h3>
-        //             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-        //                 <span
-        //                     title={likes + " likes"}
-        //                     className="flex items-center gap-1 cursor-pointer"
-        //                 >
-        //                     <HeartIcon /> {likes ?? 0}
-        //                 </span>
-        //                 <span
-        //                     title={comments + " responses"}
-        //                     className="flex items-center gap-1 cursor-pointer"
-        //                 >
-        //                     <ChatBubbleIcon /> {comments ?? 0}
-        //                 </span>
-        //                 <span
-        //                     title={views + " views"}
-        //                     className="flex items-center gap-1 cursor-pointer"
-        //                 >
-        //                     <EyeOpenIcon /> {views ?? 0}
-        //                 </span>
-        //             </div>
-        //         </div>
-        //     </Link>
-        //     <span className="text-xs text-muted-foreground absolute right-6 top-2">
-        //         {formatTime(createdAt)}
-        //     </span>
-        //     <div className="flex gap-2 items-center justify-end px-4 pt-2">
-        //         <Link to={`/dashboard/blogs/${_id}`} prefetch="intent">
-        //             <Button variant="link">Edit</Button>
-        //         </Link>
-        //         <DeleteButtonwDialog
-        //             disabled={fetcher.state === "submitting"}
-        //             action={deleteBlog}
-        //             label="blog"
-        //         />
-        //     </div>
-        // </div>
     );
 };
 

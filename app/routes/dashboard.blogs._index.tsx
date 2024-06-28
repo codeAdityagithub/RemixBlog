@@ -19,7 +19,7 @@ import { cacheDashboardBlogs } from "~/utils/localStorageCache.client";
 
 export type BlogDoc = Pick<
     BlogDocument,
-    "desc" | "title" | "likes" | "thumbnail" | "views" | "comments"
+    "title" | "likes" | "thumbnail" | "views" | "comments"
 > & { _id: string; createdAt: string };
 export const meta: MetaFunction = () => {
     return [

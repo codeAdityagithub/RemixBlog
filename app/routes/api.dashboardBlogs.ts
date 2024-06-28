@@ -12,7 +12,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const blogs = (await Blogs.find(
         { author: user._id },
         {
-            desc: 1,
             title: 1,
             createdAt: 1,
             likes: 1,
