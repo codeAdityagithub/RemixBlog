@@ -1,7 +1,11 @@
+// import { redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/react";
 import { sortAllBlogs } from "./general";
 
 export function addToCache(key: string, data: any): boolean {
     try {
+        // console.log(data);
+
         localStorage.setItem(key, JSON.stringify(data));
         return true;
     } catch (error) {
@@ -16,6 +20,7 @@ export function hasInCache(key: string) {
     return localStorage.getItem(key) !== null;
 }
 export function getFromCache(key: string) {
+    // console.log(localStorage.getItem(key));
     return JSON.parse(localStorage.getItem(key)!);
 }
 
@@ -54,10 +59,19 @@ export async function cacheDashboardBlogs({ request }: { request: Request }) {
     // console.log("cache miss");
     const data = await fetch("/api/dashboardBlogs", {
         credentials: "same-origin",
-    }).then((res) => res.json());
+    }).then((res) => {
+        // console.log(res);
+        if (res.redirected) return res;
+
+        if (res.ok) return res.json();
+        throw new Error("Something went wrong");
+    });
+    if (data instanceof Response)
+        return redirect("/login?redirectTo=/dashboard/blogs");
+
     if (data && data.blogs?.length > 0) {
-        addToCache(cacheKey, data);
-        window.dispatchEvent(new Event("localStorageChange"));
+        if (addToCache(cacheKey, data))
+            window.dispatchEvent(new Event("localStorageChange"));
     }
     // console.log(data);
     sortAllBlogs(data.blogs, sortBy, sort);

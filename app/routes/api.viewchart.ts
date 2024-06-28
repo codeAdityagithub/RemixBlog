@@ -63,7 +63,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
                         _id: {
                             $dateToString: {
                                 date: "$createdAt",
-                                format: "%Y-%m-%d",
+                                format: "%m-%d",
                             },
                         },
                         views: { $sum: "$views" },

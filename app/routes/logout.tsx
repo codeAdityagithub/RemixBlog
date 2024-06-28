@@ -15,7 +15,6 @@ export const clientAction = async ({
     request,
     serverAction,
 }: ClientActionFunctionArgs) => {
-    localStorage.clear();
     if ("caches" in window) {
         caches.keys().then(function (names) {
             for (let name of names) caches.delete(name);

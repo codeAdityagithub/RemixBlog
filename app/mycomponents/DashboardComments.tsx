@@ -63,7 +63,7 @@ const DashboardComments = (props: Props) => {
             className="col-span-6 md:col-span-3 space-y-2"
             id="dashboardComments"
         >
-            <h2 className="text-2xl font-bold">Latest Comments</h2>
+            <h2 className="text-2xl font-bold mb-6">Latest Comments</h2>
 
             <div className="flex flex-col gap-2 p-2 border rounded-md max-h-[400px] overflow-auto ver_scroll">
                 {error && error.message}

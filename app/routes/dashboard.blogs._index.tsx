@@ -31,10 +31,18 @@ export const meta: MetaFunction = () => {
     ];
 };
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+    await authenticator.isAuthenticated(request, {
+        failureRedirect: "/login?redirectTo=/dashboard/blogs",
+    });
+    return {};
+};
+
 export const clientLoader = ({ request }: ClientLoaderFunctionArgs) =>
     cacheDashboardBlogs({
         request,
     });
+clientLoader.hydrate = true;
 
 export const HydrateFallback = () => {
     return (

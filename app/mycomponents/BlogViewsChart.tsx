@@ -61,7 +61,7 @@ const BlogViewsChart = (props: Props) => {
         >
             {/* <Link to="/api/viewchart" prefetch="viewport" className=""></Link> */}
             <div className="flex flex-col sm:flex-row gap-3">
-                <h2 className="text-2xl font-bold">Views</h2>
+                <h2 className="text-2xl font-bold mb-4">Views</h2>
                 <Select
                     value={graphState.filter}
                     onValueChange={(val) => handleChange("filter", val)}
