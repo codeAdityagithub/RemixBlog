@@ -86,7 +86,14 @@ export const meta: MetaFunction = ({ data }) => {
         },
     ];
 };
-export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+    formAction,
+    currentUrl,
+    nextUrl,
+    defaultShouldRevalidate,
+}) => {
+    if (!formAction && currentUrl.pathname !== nextUrl.pathname)
+        return defaultShouldRevalidate;
     return false;
 };
 export let headers: HeadersFunction = ({ loaderHeaders }) => {

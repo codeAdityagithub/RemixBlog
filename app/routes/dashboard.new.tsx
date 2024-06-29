@@ -27,6 +27,7 @@ import EditorClient from "~/mycomponents/EditorClient";
 import { isEqual, limitImageTags, parseZodBlogError } from "~/utils/general";
 import sanitizeHtml from "sanitize-html";
 import { ratelimitId } from "~/utils/ratelimit.server";
+import { parseAndUploadNewBlog } from "~/models/dashboard.server";
 
 type Props = {};
 export const meta: MetaFunction = () => {
@@ -51,55 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
-    // console.log(user);
-    try {
-        const { left } = await ratelimitId("createBlog", user._id, 300, 1);
-        if (left === 0)
-            return json({
-                error: {
-                    message: "You can only upload one blog every 5 minutes.",
-                },
-            });
-
-        const body = await request.json();
-        // const parsed = parseNewBlog(body);
-        // console.log(blog.get("content"));
-        const newBlog = NewBlogSchema.parse(body);
-        newBlog.content = sanitizeHtml(newBlog.content, {
-            allowedSchemes: ["http", "https"],
-            allowedAttributes: {
-                img: ["src", "alt", "width", "height"], // Allow specific attributes for 'img'
-            },
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
-        });
-        // console.log(newBlog.content);
-        try {
-            limitImageTags(newBlog.content);
-        } catch (error: any) {
-            return json(
-                {
-                    error: {
-                        message: error.message ?? "Something went wrong!",
-                    },
-                },
-                { status: 400 }
-            );
-        }
-        // console.log(newBlog.content);
-        await connect();
-        const dbblog = await Blogs.create({ ...newBlog, author: user._id });
-        // console.log(dbblog);
-        return redirect(`/blogs/${dbblog._id.toString()}`, { status: 302 });
-    } catch (error: any) {
-        if (error instanceof ZodError) {
-            return json(parseZodBlogError(error), { status: 400 });
-        }
-        console.log(error);
-        return json(
-            { error: { message: "Something went wrong!" } },
-            { status: 500 }
-        );
-    }
+    return await parseAndUploadNewBlog(request, user._id, user.username);
 }
 export async function clientAction({
     request,

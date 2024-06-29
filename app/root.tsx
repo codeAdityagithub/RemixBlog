@@ -44,21 +44,16 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     currentUrl,
     nextUrl,
 }) => {
-    // console.log(formAction);
-    if (!formAction) return defaultShouldRevalidate;
+    console.log(formAction);
     if (
-        !formAction?.startsWith("/logout") &&
-        !formAction?.startsWith("/api/profile") &&
-        !formAction?.startsWith("/login") &&
-        !formAction?.startsWith("/register") &&
-        !formAction?.startsWith("/verify")
+        formAction?.startsWith("/logout") ||
+        formAction?.startsWith("/api/profile") ||
+        formAction?.startsWith("/login") ||
+        formAction?.startsWith("/register") ||
+        formAction?.startsWith("/verify")
     )
-        return false;
-    if (
-        currentUrl.pathname === nextUrl.pathname
-        // currentUrl.search !== nextUrl.search
-    )
-        return false;
+        return defaultShouldRevalidate;
+    if (!formAction && currentUrl.pathname === nextUrl.pathname) return false;
     return defaultShouldRevalidate;
 };
 

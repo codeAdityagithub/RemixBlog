@@ -105,6 +105,16 @@ export interface EngagementDoc {
     createdAt: Date;
     updatedAt: Date;
 }
+export interface FollowDoc {
+    _id: ObjectId;
+    follower: ObjectId;
+    following: ObjectId;
+    notification: string;
+    link: string;
+    read: boolean;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+}
 // User Schema
 const userSchema = new mongoose.Schema<UserDocument>(
     {
@@ -208,18 +218,23 @@ const engagementSchema = new mongoose.Schema<EngagementDoc>(
     },
     { timestamps: true }
 );
-const followSchema = new mongoose.Schema(
+const followSchema = new mongoose.Schema<FollowDoc>(
     {
         follower: { type: Types.ObjectId, ref: "Users", index: true },
         following: { type: Types.ObjectId, ref: "Users", index: true },
+        notification: { type: String, default: "" },
+        read: { type: Boolean, default: false },
+        link: String,
     },
     { timestamps: true }
 );
 followSchema.index({ follower: 1, following: 1 }, { unique: true });
+
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
-export const Follow =
-    mongoose.models.Follow || mongoose.model("Follow", followSchema);
+export const Follows: Model<FollowDoc> =
+    mongoose.models.Follows ||
+    mongoose.model<FollowDoc>("Follows", followSchema);
 
 export const Comments: Model<CommentDocument> =
     mongoose.models.Comments ||

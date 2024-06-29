@@ -1,11 +1,11 @@
 import { json } from "@remix-run/node";
-import { Follow } from "./Schema.server";
+import { Follows } from "./Schema.server";
 import { Types } from "mongoose";
 
 export async function follow(follower: string, following: string) {
     try {
         if (follower === following) throw new Error("Cannot follow self");
-        await Follow.create({ follower, following });
+        await Follows.create({ follower, following });
         return json("followed");
     } catch (error: any) {
         console.log(error.message ?? error);
@@ -14,7 +14,7 @@ export async function follow(follower: string, following: string) {
 }
 export async function isFollowing(userId: string, following: string) {
     try {
-        const doc = await Follow.findOne({ follower: userId, following });
+        const doc = await Follows.findOne({ follower: userId, following });
         // console.log(isFollowing);
         if (!doc) return false;
 
@@ -28,7 +28,7 @@ export async function isFollowing(userId: string, following: string) {
 export async function unfollow(follower: string, following: string) {
     try {
         // Delete the follow relationship if created more than 5 minutes ago
-        await Follow.deleteOne({
+        await Follows.deleteOne({
             follower: follower,
             following: following,
         });
@@ -40,7 +40,7 @@ export async function unfollow(follower: string, following: string) {
 }
 
 export async function getFollowStats(userId: Types.ObjectId) {
-    const result = await Follow.aggregate([
+    const result = await Follows.aggregate([
         {
             $facet: {
                 followers: [

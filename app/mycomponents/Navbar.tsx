@@ -1,21 +1,8 @@
+import { AvatarFallback } from "@radix-ui/react-avatar";
 import { AvatarIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
-import {
-    Form,
-    Link,
-    NavLink,
-    useLocation,
-    useNavigation,
-} from "@remix-run/react";
+import { Form, Link, NavLink, useLocation } from "@remix-run/react";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-    navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,12 +11,16 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuList,
+} from "~/components/ui/navigation-menu";
 import { useUser } from "~/utils/general";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
-import ProfileDialog from "./ProfileDialog";
-import NavSheet from "./NavSheet";
 import BlogsSearch from "./BlogsSearch";
+import NavSheet from "./NavSheet";
+import ProfileDialog from "./ProfileDialog";
+import Notifications from "./Notifications";
 
 type Props = {};
 
@@ -69,6 +60,7 @@ const Navbar = (props: Props) => {
             <NavigationMenuList className="gap-2 justify-between">
                 {user ? (
                     <>
+                        <Notifications />
                         <NavigationMenuItem>
                             <DropdownMenu>
                                 <DropdownMenuTrigger className="flex items-center justify-center">

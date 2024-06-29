@@ -18,9 +18,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { useToast } from "~/components/ui/use-toast";
 import { connect } from "~/db.server";
-import { BlogDocument, Follow } from "~/models/Schema.server";
+import { BlogDocument, Follows } from "~/models/Schema.server";
 import { unfollow } from "~/models/follow.server";
-import DashboardBlogCard from "~/mycomponents/DashboardBlogCard";
+import DashboardBlogCard from "~/mycomponents/cards/DashboardBlogCard";
 import { formatTime } from "~/utils/general";
 
 type BlogDoc = Pick<BlogDocument, "_id" | "desc" | "title" | "updatedAt">;
@@ -37,7 +37,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             picture?: string;
             _id: ObjectId;
         };
-    }[] = await Follow.find(
+    }[] = await Follows.find(
         { follower: user._id },
         { following: 1, createdAt: 1 }
     )

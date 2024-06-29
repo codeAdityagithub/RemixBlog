@@ -124,7 +124,7 @@ function DashboardCommentCard({
         fetcher.data?.message === "deleted" && refetch();
     }, [fetcher.data]);
     return (
-        <div className="w-full p-4 border rounded-md flex justify-between flex-col sm:flex-row">
+        <div className="w-full p-4 border border-l-border/30 border-r-border/30 rounded-md flex justify-between flex-col sm:flex-row">
             <div className="">
                 <div className="flex items-start flex-col">
                     <Link
