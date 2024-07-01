@@ -18,50 +18,18 @@ import { Separator } from "~/components/ui/separator";
 import ReplyToComment from "./ReplyToComment";
 import CommentCard from "./cards/CommentCard";
 import { useQueryClient } from "@tanstack/react-query";
+import useCommentList from "~/hooks/useCommentList";
 type Props = {
     comments: CommentDoc[];
     revalidate: () => void;
 };
 
 const CommentList = ({ comments: initialComments, revalidate }: Props) => {
-    const [comments, setComments] = useState(initialComments);
-    const [sorting, setSorting] = useState("mostRelevant");
-    const commentHighlight = useSearchParams()[0].get("comment");
-    const queryClient = useQueryClient();
+    const [comments, setSorting, handleSort] = useCommentList({
+        initialComments,
+        revalidate,
+    });
 
-    useEffect(() => {
-        handleSort(sorting);
-    }, [sorting, initialComments]);
-
-    useEffect(() => {
-        if (
-            commentHighlight &&
-            !comments.some(
-                (comment) => comment._id.toString() === commentHighlight
-            )
-        ) {
-            const comment = queryClient.getQueryData([
-                "highlightedComment",
-            ]) as CommentDoc;
-            if (comment) {
-                setComments((prev) => [comment, ...prev]);
-            }
-        }
-    }, [commentHighlight, queryClient, comments]);
-
-    function handleSort(value: string) {
-        const sortedComments = [...initialComments].sort((a, b) => {
-            if (value === "mostRelevant") {
-                return b.likes - a.likes;
-            } else {
-                return (
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                );
-            }
-        });
-        setComments(sortedComments);
-    }
     return (
         <div className="flex flex-col gap-2">
             <Separator />

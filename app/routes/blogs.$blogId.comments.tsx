@@ -52,9 +52,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
     const form = await request.formData();
     const { blogId } = params;
-    const { _id: userId } = await authenticator.isAuthenticated(request, {
-        failureRedirect: "/login",
-    });
+    const { _id: userId, username } = await authenticator.isAuthenticated(
+        request,
+        {
+            failureRedirect: "/login",
+        }
+    );
     invariant(blogId);
     try {
         await connect();

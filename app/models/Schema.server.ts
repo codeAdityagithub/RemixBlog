@@ -45,7 +45,7 @@ export interface ReplyDocument {
 export interface ReplyDocumentwUser {
     _id: Types.ObjectId;
     content: string;
-    user: { username: string; picture?: string; id: ObjectId };
+    user: { username: string; picture?: string; _id: ObjectId };
     blogId: Types.ObjectId;
     likes: number;
     likedBy: Types.ObjectId[];
@@ -57,7 +57,7 @@ export interface ReplyDocumentwUser {
 export interface CommentDocumentwUser {
     _id: Types.ObjectId;
     content: string;
-    user: { username: string; picture?: string; id: ObjectId };
+    user: { username: string; picture?: string; _id: ObjectId };
     blogId: Types.ObjectId;
     likes: number;
     likedBy: Types.ObjectId[];
@@ -115,6 +115,18 @@ export interface FollowDoc {
     createdAt: Date | string;
     updatedAt: Date | string;
 }
+export interface NotificationDoc {
+    _id: ObjectId;
+    targetUser: ObjectId;
+    link: string;
+    count: number;
+    type: "comment" | "reply" | "mention";
+    read: boolean;
+    readAt?: Date | string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+}
+
 // User Schema
 const userSchema = new mongoose.Schema<UserDocument>(
     {
@@ -167,7 +179,7 @@ const replySchema = new mongoose.Schema<ReplyDocument>(
         },
         parentComment: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Users",
+            ref: "Comments",
             index: true,
         },
         tag: {
@@ -230,11 +242,51 @@ const followSchema = new mongoose.Schema<FollowDoc>(
 );
 followSchema.index({ follower: 1, following: 1 }, { unique: true });
 
+const notificationSchema = new mongoose.Schema<NotificationDoc>(
+    {
+        type: {
+            type: String,
+            enum: ["comment", "reply", "mention"],
+            required: true,
+        },
+        link: {
+            type: String,
+            required: true,
+        },
+        targetUser: {
+            type: Types.ObjectId,
+            ref: "Users",
+            required: true,
+            index: true,
+        },
+        count: {
+            type: Number,
+            default: 0,
+        },
+        read: {
+            type: Boolean,
+            default: false,
+        },
+        readAt: {
+            type: Date,
+        },
+    },
+    { timestamps: true }
+);
+notificationSchema.index({ readAt: 1 }, { expireAfterSeconds: 172800 });
+notificationSchema.index(
+    { link: 1, targetUser: 1, read: 1, type: 1 },
+    { unique: false }
+);
+
 export const Users: Model<UserDocument> =
     mongoose.models.Users || mongoose.model<UserDocument>("Users", userSchema);
 export const Follows: Model<FollowDoc> =
     mongoose.models.Follows ||
     mongoose.model<FollowDoc>("Follows", followSchema);
+export const Notifications: Model<NotificationDoc> =
+    mongoose.models.Notifications ||
+    mongoose.model<NotificationDoc>("Notifications", notificationSchema);
 
 export const Comments: Model<CommentDocument> =
     mongoose.models.Comments ||

@@ -20,7 +20,7 @@ const Dashboard = (props: Props) => {
         <div className="w-full h-full flex flex-col relative bg-background text-foreground">
             <DashboardDropdown />
 
-            <div className="p-4 pb-2 flex flex-col flex-1 items-center justify-start h-[calc(100svh-100px)] max-h-[calc(100svh-100px)] overflow-auto ver_scroll">
+            <div className="p-4 pb-2 flex flex-col flex-1 items-center justify-start h-[calc(100svh-100px)] max-h-[calc(100svh-100px)] overflow-auto ver_scroll scroll-smooth scroll-mt-20">
                 <Outlet />
             </div>
         </div>

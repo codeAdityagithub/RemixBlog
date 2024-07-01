@@ -3,9 +3,9 @@ import {
     ChevronDownIcon,
     DotFilledIcon,
 } from "@radix-ui/react-icons";
-import { Link, useFetcher } from "@remix-run/react";
+import { Link, useFetcher, useLocation } from "@remix-run/react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import {
     Card,
@@ -27,7 +27,15 @@ type Card = Omit<
 >;
 const DashboardComments = (props: Props) => {
     const user = useUser()!;
-
+    const location = useLocation();
+    const ref = useRef<HTMLHeadingElement>(null);
+    if (location.hash.slice(1) === "dashboardComments" && ref.current) {
+        ref.current.scrollIntoView();
+        ref.current.classList.add("bg-secondary");
+        setTimeout(() => {
+            ref.current?.classList.remove("bg-secondary");
+        }, 1000);
+    }
     const {
         data: comments,
         fetchNextPage,
@@ -60,12 +68,15 @@ const DashboardComments = (props: Props) => {
 
     return (
         <div
-            className="col-span-6 md:col-span-3 space-y-2 mt-8"
+            className="col-span-6 md:col-span-3 space-y-2 mt-8 rounded-md"
             id="dashboardComments"
         >
             <h2 className="text-2xl font-bold mb-6">Latest Comments</h2>
 
-            <div className="flex flex-col gap-2 p-2 border rounded-md max-h-[400px] overflow-auto ver_scroll">
+            <div
+                ref={ref}
+                className="flex flex-col gap-2 p-2 border rounded-md max-h-[400px] overflow-auto ver_scroll"
+            >
                 {error && error.message}
                 {isLoading &&
                     [0, 1, 2].map((i) => (

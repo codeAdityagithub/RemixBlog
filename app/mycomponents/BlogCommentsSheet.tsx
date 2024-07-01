@@ -28,7 +28,7 @@ export type CommentDoc = Omit<CommentDocumentwUser, "likedBy"> & {
 
 const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const commentHighlight = !!searchParams.get("comment");
+    const commentHighlight = searchParams.has("comment");
     const [open, setOpen] = useState(commentHighlight);
     const params = useParams();
     let fetcher = useFetcher<any>();
@@ -56,7 +56,8 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     }, [fetcher]);
 
     useEffect(() => {
-        if (commentHighlight) fetchComments();
+        if (commentHighlight && !fetcher.data) fetchComments();
+        if (commentHighlight) setOpen(true);
     }, [commentHighlight]);
     const fetchComments = () => {
         fetcher.load(`/blogs/${params.blogId}/comments?page=${page.current}`);
@@ -70,6 +71,7 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     setSearchParams(
                         (prev) => {
                             prev.delete("comment");
+                            prev.delete("reply");
                             return prev;
                         },
                         { preventScrollReset: true }

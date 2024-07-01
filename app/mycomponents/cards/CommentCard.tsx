@@ -56,7 +56,7 @@ const CommentCard = ({ comment, revalidate }: Props) => {
             }, 1000);
         }
     }, [commentHighlight, comment]);
-
+    // console.log()
     return (
         <div
             ref={divref}
@@ -106,7 +106,10 @@ const CommentCard = ({ comment, revalidate }: Props) => {
                     fetcher={fetcher}
                     likes={comment.likes}
                 />
-                <ReplyToComment commentId={comment._id.toString()} />
+                <ReplyToComment
+                    commentUser={comment.user._id.toString()}
+                    commentId={comment._id.toString()}
+                />
             </div>
         </div>
     );

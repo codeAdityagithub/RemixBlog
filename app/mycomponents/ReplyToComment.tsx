@@ -1,5 +1,5 @@
-import { useFetcher, useParams } from "@remix-run/react";
-import { useCallback, useEffect, useState } from "react";
+import { useFetcher, useParams, useSearchParams } from "@remix-run/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     Accordion,
     AccordionContent,
@@ -17,25 +17,41 @@ import { ReplyDocumentwUser } from "~/models/Schema.server";
 
 type Props = {
     commentId: string;
+    commentUser: string;
 };
 
 type ReplyDoc = Omit<ReplyDocumentwUser, "likedBy"> & {
     liked: boolean;
 };
 
-const ReplyToComment = ({ commentId }: Props) => {
+const ReplyToComment = ({ commentId, commentUser }: Props) => {
     // const fetcher1 = useFetcher<any>({ key: `load-replies${commentId}` });
     const fetcher = useFetcher<any>();
     const [replies, setReplies] = useState<ReplyDoc[] | null>(null);
     const [reply, setReply] = useState("");
     const blogId = useParams().blogId;
-
+    const searchParams = useSearchParams()[0];
+    const replyHiglight = searchParams.get("reply");
+    const isCurrent = searchParams.get("comment") === commentId;
+    const btnref = useRef<HTMLButtonElement>(null);
     useEffect(() => {
         if (fetcher.data?.message === "added") {
             setReply("");
             fetchReplies();
         }
     }, [fetcher.data]);
+
+    useEffect(() => {
+        if (replyHiglight && isCurrent) {
+            if (replies === null)
+                fetchReplies().then(() => {
+                    if (btnref.current?.dataset.state === "closed")
+                        btnref.current?.click();
+                });
+            else if (btnref.current?.dataset.state === "close")
+                btnref.current?.click();
+        }
+    }, [replyHiglight]);
 
     const fetchReplies = useCallback(async () => {
         // if (fetcher1.state === "idle") fetcher1.load(`comments/${commentId}`);
@@ -57,6 +73,11 @@ const ReplyToComment = ({ commentId }: Props) => {
                             type="hidden"
                             name="parentComment"
                             value={commentId}
+                        />
+                        <input
+                            type="hidden"
+                            name="commentUser"
+                            value={commentUser}
                         />
                         <small className="text-red-600 w-full">
                             {fetcher.data?.message !== "added" &&
@@ -89,10 +110,11 @@ const ReplyToComment = ({ commentId }: Props) => {
             <AccordionItem value="replies" className="border-none">
                 <MyAccordionTrigger asChild>
                     <Button
+                        ref={btnref}
                         onClick={(e) => {
                             const state = e.currentTarget.dataset.state;
 
-                            if (state === "closed" && !replies) {
+                            if (state === "closed" && replies === null) {
                                 fetchReplies();
                             }
                             if (state === "closed")

@@ -42,8 +42,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
     const fetcher = useFetcher<any>();
     const user = useUser();
     const divref = useRef<HTMLDivElement>(null);
-    // const commentHighlight =
-    //     useSearchParams()[0].get("comment") === reply._id.toString();
+
     const [searchParams, setSearchParams] = useSearchParams();
     useEffect(() => {
         if (
@@ -63,16 +62,37 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
                 inline: "center",
             });
         }
-    }, [searchParams]);
+    }, [searchParams.get("tag")]);
+    useEffect(() => {
+        if (searchParams.get("reply") === reply._id.toString()) {
+            setTimeout(
+                () =>
+                    divref.current?.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                        inline: "center",
+                    }),
+                500
+            );
+            setTimeout(
+                () =>
+                    setSearchParams((prev) => {
+                        prev.delete("reply");
+                        return prev;
+                    }),
+                1300
+            );
+        }
+    }, [searchParams.get("reply")]);
 
-    // console.log(reply.tag);
     return (
         <div
             ref={divref}
             id={`replycard-${reply._id.toString()}`}
             className={cn(
                 "p-1 border border-primary/25 rounded-md space-y-2 transition-colors",
-                searchParams.get("tag") === reply._id.toString()
+                searchParams.get("tag") === reply._id.toString() ||
+                    searchParams.get("reply") === reply._id.toString()
                     ? "bg-secondary"
                     : ""
             )}
@@ -114,7 +134,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
                 ) : null}
             </div>
 
-            <p className="line-clamp-3 break-words">
+            <span className="line-clamp-3 break-words">
                 {reply.tag ? (
                     <Badge
                         // to={`#replycard-${reply.tag.replyId}`}
@@ -129,7 +149,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
                                     prev.delete("tag");
                                     return prev;
                                 });
-                            }, 500);
+                            }, 800);
                         }}
                         variant="secondary"
                         className="text-blue-600 cursor-pointer mr-1"
@@ -138,7 +158,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
                     </Badge>
                 ) : null}
                 {reply.content}
-            </p>
+            </span>
             <div className="flex justify-between items-start relative">
                 <LikeButton
                     replyId={reply._id.toString()}
@@ -151,6 +171,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
                         fetcher={fetcher}
                         replyId={reply._id.toString()}
                         username={reply.user.username}
+                        replyUser={reply.user._id.toString()}
                         parentComment={reply.parentComment.toString()}
                     />
                 ) : (
@@ -165,11 +186,13 @@ function ReplyAccordian({
     fetcher,
     replyId,
     username,
+    replyUser,
     parentComment,
 }: {
     fetcher: FetcherWithComponents<any>;
     replyId: string;
     username: string;
+    replyUser: string;
     parentComment: string;
 }) {
     const [reply, setReply] = useState("");
@@ -200,6 +223,7 @@ function ReplyAccordian({
                                     _action: "tagReply",
                                     replyId,
                                     username,
+                                    replyUser,
                                     parentComment,
                                     reply,
                                 },

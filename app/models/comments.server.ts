@@ -1,6 +1,12 @@
 import mongoose, { Types } from "mongoose";
 import invariant from "tiny-invariant";
-import { Blogs, Comments, Replies } from "./Schema.server";
+import {
+    Blogs,
+    Comments,
+    NotificationDoc,
+    Notifications,
+    Replies,
+} from "./Schema.server";
 
 export const likeComment = async (commentId: string, userId: string) => {
     const comment = await Comments.findOne(
@@ -132,16 +138,24 @@ export async function addCommentToBlog(
             { $inc: { comments: 1 } },
             { projection: { author: 1 } }
         );
-        await Comments.create({
+        invariant(blog?.author);
+        const dbcomment = await Comments.create({
             blogId,
             content,
             user: userId,
             blogOwner: blog?.author,
         });
+        if (blog.author.toString() !== userId) {
+            await sendNotification({
+                targetUser: blog.author.toString(),
+                link: `/dashboard#dashboardComments`,
+                type: "comment",
+            });
+        }
         // console.log(updated);
     } catch (error: any) {
         await session.abortTransaction();
-        console.error("Error updating likes count:", error?.message ?? error);
+        console.error("Error adding comment:", error?.message ?? error);
         // return false;
     } finally {
         session.endSession();
@@ -151,16 +165,81 @@ export async function replyCommentToBlog(
     blogId: string,
     userId: string,
     content: string,
-    parentComment: string
+    parentComment: string,
+    commentUser: string
 ) {
-    await Replies.create({ blogId, content, user: userId, parentComment });
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    // console.log(blogId, userId);
+    try {
+        const source = await Comments.findOne({ _id: parentComment });
+        if (!source) throw new Error("Comment does not exist");
+        const reply = await Replies.create({
+            blogId,
+            content,
+            user: userId,
+            parentComment,
+        });
+        await sendNotification({
+            targetUser: commentUser,
+            link: `/blogs/${blogId}?comment=${parentComment}`,
+            type: "reply",
+        });
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error("Error adding reply:", error?.message ?? error);
+    } finally {
+        session.endSession();
+    }
 }
 export async function tagReply(
     tag: { username: string; replyId: string },
     blogId: string,
     userId: string,
     content: string,
-    parentComment: string
+    parentComment: string,
+    replyUser: string
 ) {
-    await Replies.create({ blogId, content, user: userId, parentComment, tag });
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    // console.log(blogId, userId);
+    try {
+        const source = await Replies.findOne({ _id: tag.replyId });
+        if (!source) throw new Error("Reply does not exist");
+        const reply = await Replies.create({
+            blogId,
+            content,
+            user: userId,
+            parentComment,
+            tag,
+        });
+
+        await sendNotification({
+            targetUser: replyUser,
+            link: `/blogs/${blogId}?comment=${parentComment}&reply=${tag.replyId}`,
+            type: "mention",
+        });
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error("Error tagging reply:", error?.message ?? error);
+    } finally {
+        session.endSession();
+    }
+}
+
+async function sendNotification({
+    link,
+    targetUser,
+    type,
+}: Pick<NotificationDoc, "type" | "link"> & {
+    targetUser: string;
+}) {
+    await Notifications.findOneAndUpdate(
+        { link, targetUser, read: false, type },
+        {
+            $set: { type },
+            $inc: { count: 1 },
+        },
+        { upsert: true }
+    );
 }

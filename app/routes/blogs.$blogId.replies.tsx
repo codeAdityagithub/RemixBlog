@@ -95,12 +95,14 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
                 );
             const replyId = String(form.get("replyId"));
             const reply = String(form.get("reply"));
+            const replyUser = String(form.get("replyUser"));
             const parentComment = String(form.get("parentComment"));
 
             const username = String(form.get("username"));
 
             invariant(replyId);
             invariant(reply);
+            invariant(replyUser);
             invariant(parentComment);
             if (username === user_name) return { message: "cannot tag self" };
             await tagReply(
@@ -108,7 +110,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
                 blogId,
                 userId,
                 reply,
-                parentComment
+                parentComment,
+                replyUser
             );
             return { message: "tagged" };
         } else {
@@ -121,8 +124,16 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
                 );
             const reply = String(form.get("reply"));
             const parentComment = String(form.get("parentComment"));
+            const commentUser = String(form.get("commentUser"));
             invariant(reply);
-            await replyCommentToBlog(blogId, userId, reply, parentComment);
+            invariant(commentUser);
+            await replyCommentToBlog(
+                blogId,
+                userId,
+                reply,
+                parentComment,
+                commentUser
+            );
             return { message: "added" };
         }
     } catch (error) {
