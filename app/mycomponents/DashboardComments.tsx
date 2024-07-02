@@ -61,6 +61,7 @@ const DashboardComments = (props: Props) => {
             lastPage?.length === 0 ? null : lastPageParam + 1,
         staleTime: 1000 * 60 * 2,
         refetchInterval: 1000 * 60,
+        maxPages: 3,
     });
     const refetchComments = useCallback(() => {
         refetch();

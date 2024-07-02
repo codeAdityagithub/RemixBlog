@@ -22,6 +22,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const user = await authenticator.isAuthenticated(request, {
         failureRedirect: "/login",
     });
+    await connect();
     const blogNotifs = (await Follows.find(
         { notification: { $ne: "" }, follower: user._id },
         { notification: 1, updatedAt: 1, read: 1, link: 1 }

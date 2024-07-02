@@ -44,7 +44,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     currentUrl,
     nextUrl,
 }) => {
-    console.log(formAction);
+    // console.log(formAction);
     if (
         formAction?.startsWith("/logout") ||
         formAction?.startsWith("/api/profile") ||
@@ -53,7 +53,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
         formAction?.startsWith("/verify")
     )
         return defaultShouldRevalidate;
-    if (!formAction && currentUrl.pathname === nextUrl.pathname) return false;
+    if (currentUrl.pathname === nextUrl.pathname) return false;
     return defaultShouldRevalidate;
 };
 

@@ -1,7 +1,14 @@
 import { ChatBubbleIcon, ChevronDownIcon } from "@radix-ui/react-icons";
-import { useFetcher, useParams, useSearchParams } from "@remix-run/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "@remix-run/react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "~/components/ui/select";
 import {
     Sheet,
     SheetContent,
@@ -15,6 +22,9 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "~/components/ui/tooltip";
+
+import { Separator } from "~/components/ui/separator";
+import useComments from "~/hooks/useComments";
 import { CommentDocumentwUser } from "~/models/Schema.server";
 import CommentForm from "./CommentForm";
 import CommentList from "./CommentList";
@@ -30,38 +40,35 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const commentHighlight = searchParams.has("comment");
     const [open, setOpen] = useState(commentHighlight);
-    const params = useParams();
-    let fetcher = useFetcher<any>();
-    const [comments, setComments] = useState<CommentDoc[]>([]);
-    const page = useRef<number | null>(1);
+    const {
+        comments,
+        fetchComments,
+        updateCommentsLiked,
+        deleteComment,
+        setSortBy,
+        sortBy,
+        hasMore,
+        isLoading,
+        addComment,
+    } = useComments({ enabled: open });
     // console.log(fetcher.data);
-    useEffect(() => {
-        if (fetcher.data) {
-            // console.log(fetcher.data.append);
-            if (!fetcher.data.append) {
-                setComments(fetcher.data.comments as CommentDoc[]);
-            } else {
-                setComments((prev) => [
-                    ...prev,
-                    ...(fetcher.data.comments as CommentDoc[]),
-                ]);
-            }
-        }
-    }, [fetcher.data]);
 
-    const revalidate = useCallback(() => {
-        fetcher.load(
-            `/blogs/${params.blogId}/comments?page=${page.current}&all=true`
-        );
-    }, [fetcher]);
-
-    useEffect(() => {
-        if (commentHighlight && !fetcher.data) fetchComments();
-        if (commentHighlight) setOpen(true);
-    }, [commentHighlight]);
-    const fetchComments = () => {
-        fetcher.load(`/blogs/${params.blogId}/comments?page=${page.current}`);
+    const revalidate = ({
+        message,
+        commentId,
+    }: {
+        message: "liked" | "deleted";
+        commentId: string;
+    }) => {
+        if (message === "liked") updateCommentsLiked(commentId);
+        if (message === "deleted") deleteComment(commentId);
     };
+
+    // useEffect(() => {
+    //     if (commentHighlight && !fetcher.data) fetchComments();
+    //     if (commentHighlight) setOpen(true);
+    // }, [commentHighlight]);
+
     return (
         <Sheet
             open={open}
@@ -77,9 +84,7 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                         { preventScrollReset: true }
                     );
                 }
-                if (open && !fetcher.data) {
-                    fetchComments();
-                }
+
                 setOpen(open);
             }}
         >
@@ -109,9 +114,29 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                     </SheetTitle>
                 </SheetHeader>
                 {/* form for comments */}
-                <CommentForm revalidate={revalidate} />
+                <CommentForm
+                    revalidate={(comment: CommentDoc) => {
+                        addComment(comment);
+                    }}
+                />
+                <Separator />
+                <Select
+                    value={sortBy}
+                    onValueChange={(value: "likes" | "createdAt") => {
+                        setSortBy(value);
+                    }}
+                >
+                    <SelectTrigger className="w-full my-3">
+                        <SelectValue placeholder="" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="likes">Most Relevant</SelectItem>
+                        <SelectItem value="createdAt">Most Recent</SelectItem>
+                    </SelectContent>
+                </Select>
                 <CommentList comments={comments} revalidate={revalidate} />
-                {fetcher.state === "loading" && comments.length === 0 && (
+
+                {isLoading && comments.length === 0 && (
                     <div className="flex flex-col gap-4">
                         {Array.from({ length: 3 }).map((i, ind) => (
                             <CommentLoader key={ind} />
@@ -121,15 +146,9 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
                 <Button
                     variant="secondary"
                     onClick={() => {
-                        if (page.current) {
-                            page.current += 1;
-                            fetchComments();
-                        }
+                        fetchComments();
                     }}
-                    disabled={
-                        fetcher.state !== "idle" ||
-                        fetcher.data?.comments.length === 0
-                    }
+                    disabled={isLoading || !hasMore}
                 >
                     <ChevronDownIcon />
                 </Button>

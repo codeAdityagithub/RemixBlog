@@ -2,11 +2,13 @@ import mongoose, { Types } from "mongoose";
 import invariant from "tiny-invariant";
 import {
     Blogs,
+    CommentDocumentwUser,
     Comments,
     NotificationDoc,
     Notifications,
     Replies,
 } from "./Schema.server";
+import { CommentDoc } from "~/mycomponents/BlogCommentsSheet";
 
 export const likeComment = async (commentId: string, userId: string) => {
     const comment = await Comments.findOne(
@@ -126,7 +128,9 @@ export const deleteCommentAdmin = async (commentId: string, userId: string) => {
 export async function addCommentToBlog(
     blogId: string,
     userId: string,
-    content: string
+    content: string,
+    username: string,
+    picture?: string
 ) {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -152,6 +156,11 @@ export async function addCommentToBlog(
                 type: "comment",
             });
         }
+        return {
+            // @ts-expect-error
+            ...dbcomment._doc,
+            user: { _id: userId, username, picture },
+        } as CommentDoc;
         // console.log(updated);
     } catch (error: any) {
         await session.abortTransaction();

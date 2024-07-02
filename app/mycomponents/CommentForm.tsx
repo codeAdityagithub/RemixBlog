@@ -1,13 +1,10 @@
-import { useFetcher, useParams } from "@remix-run/react";
-import React, { useEffect, useRef, useState } from "react";
+import { useFetcher } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { CommentDocumentwUser } from "~/models/Schema.server";
 
 type Props = {
-    revalidate: () => void;
+    revalidate: (data: any) => void;
 };
 
 const BlogComments = ({ revalidate }: Props) => {
@@ -16,7 +13,7 @@ const BlogComments = ({ revalidate }: Props) => {
     useEffect(() => {
         if (fetcher.data?.message === "added") {
             setComment("");
-            revalidate();
+            revalidate(fetcher.data.comment);
         }
         // console.log(fetcher.formData);
 

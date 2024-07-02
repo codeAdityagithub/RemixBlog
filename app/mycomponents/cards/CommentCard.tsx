@@ -5,12 +5,10 @@ import {
     useFetcher,
     useSearchParams,
 } from "@remix-run/react";
-import React, { useEffect, useRef, useState } from "react";
-import { CommentDoc } from "../BlogCommentsSheet";
-import { formatTime, useUser } from "~/utils/general";
-import { Button } from "~/components/ui/button";
+import { useEffect, useRef, useState } from "react";
 import { FaRegThumbsUp } from "react-icons/fa";
-import ReplyToComment from "../ReplyToComment";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,12 +17,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { cn } from "~/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { formatTime, useUser } from "~/utils/general";
+import { CommentDoc } from "../BlogCommentsSheet";
+import ReplyToComment from "../ReplyToComment";
 
 type Props = {
     comment: CommentDoc;
-    revalidate: () => void;
+    revalidate: (data: any) => void;
 };
 
 const CommentCard = ({ comment, revalidate }: Props) => {
@@ -38,7 +37,7 @@ const CommentCard = ({ comment, revalidate }: Props) => {
             fetcher.data?.message === "deleted" ||
             fetcher.data?.message === "liked"
         ) {
-            revalidate();
+            revalidate(fetcher.data);
         }
     }, [fetcher.data]);
 
@@ -127,20 +126,13 @@ function LikeButton({
     fetcher: FetcherWithComponents<any>;
 }) {
     const [state, setState] = useState({ likes, liked });
-    // if (fetcher.formData?.get("_action") === "likeComment") {
-    //     setState((prev) => ({
-    //         likes: prev.likes + (liked ? -1 : 1),
-    //         liked: !prev.liked,
-    //     }));
-    // }
-
     return (
         <form
             className="absolute top-0 left-0"
             onSubmit={(e) => {
                 e.preventDefault();
                 setState((prev) => ({
-                    likes: prev.likes + (liked ? -1 : 1),
+                    likes: prev.liked ? prev.likes - 1 : prev.likes + 1,
                     liked: !prev.liked,
                 }));
                 fetcher.submit(
@@ -154,6 +146,7 @@ function LikeButton({
                 size="sm"
                 className="flex gap-2 px-2"
                 variant="ghost"
+                disabled={fetcher.state === "submitting"}
             >
                 <FaRegThumbsUp className={state.liked ? "text-blue-600" : ""} />
                 {state.likes}

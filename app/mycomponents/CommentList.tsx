@@ -1,52 +1,18 @@
-import { AvatarIcon, DotFilledIcon } from "@radix-ui/react-icons";
-import React, { useEffect, useState } from "react";
-import { Button } from "~/components/ui/button";
-import { CommentDocumentwUser } from "~/models/Schema.server";
-import { formatTime, useUser } from "~/utils/general";
-import { FaRegThumbsUp } from "react-icons/fa";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "~/components/ui/select";
-
 import type { CommentDoc } from "./BlogCommentsSheet";
-import { useFetcher, useSearchParams } from "@remix-run/react";
-import { Separator } from "~/components/ui/separator";
-import ReplyToComment from "./ReplyToComment";
 import CommentCard from "./cards/CommentCard";
-import { useQueryClient } from "@tanstack/react-query";
-import useCommentList from "~/hooks/useCommentList";
 type Props = {
     comments: CommentDoc[];
-    revalidate: () => void;
+    revalidate: (data: any) => void;
 };
 
-const CommentList = ({ comments: initialComments, revalidate }: Props) => {
-    const [comments, setSorting, handleSort] = useCommentList({
-        initialComments,
-        revalidate,
-    });
+const CommentList = ({ comments, revalidate }: Props) => {
+    // const [comments, setSorting, handleSort] = useCommentList({
+    //     initialComments,
+    //     revalidate,
+    // });
 
     return (
         <div className="flex flex-col gap-2">
-            <Separator />
-            <Select
-                onValueChange={(value) => {
-                    setSorting(value);
-                    handleSort(value);
-                }}
-            >
-                <SelectTrigger className="w-full my-4">
-                    <SelectValue placeholder="mostRelevant" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="mostRelevant">Most Relevant</SelectItem>
-                    <SelectItem value="mostRecent">Most Recent</SelectItem>
-                </SelectContent>
-            </Select>
             {comments &&
                 (comments.length === 0 ? (
                     <p className="p-2 text-muted-foreground">

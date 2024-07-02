@@ -1,5 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { ShouldRevalidateFunction } from "@remix-run/react";
+import { Types } from "mongoose";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { connect } from "~/db.server";
@@ -11,27 +12,61 @@ import {
 } from "~/models/comments.server";
 import { ratelimitId } from "~/utils/ratelimit.server";
 
-type Props = {};
-
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     // await Comments.find({blogId:})
     const { blogId } = params;
     invariant(blogId);
     const user = await authenticator.isAuthenticated(request);
-    const page = parseInt(new URL(request.url).searchParams.get("page") ?? "1");
-    const all = new URL(request.url).searchParams.get("all");
-    const pageSize = all === "true" ? page * 10 : 10;
-    const skip = all === "true" ? 0 : (page - 1) * pageSize;
+    const pageSize = 10;
+    const cursor = new URL(request.url).searchParams.get("cursor");
+    const sortBy = new URL(request.url).searchParams.get("sortBy") || "likes"; // "likes" or "createdAt"
+
     await connect();
-    const comments = await Comments.find({ blogId }, {})
-        .sort({ likes: -1 })
-        .skip(skip)
+
+    const commentsQuery = Comments.find({ blogId });
+
+    if (sortBy === "likes") {
+        commentsQuery.sort({ likes: -1, _id: -1 }); // Sort by likes descending, then by _id descending
+    } else if (sortBy === "createdAt") {
+        commentsQuery.sort({ _id: -1 }); // Sort by _id descending which aligns with createdAt as well
+    }
+
+    // Apply cursor-based pagination logic
+    if (cursor && cursor !== "" && cursor !== "null") {
+        const [cursorLikes, cursorId] = cursor.split(",");
+
+        if (sortBy === "likes") {
+            commentsQuery.where({
+                $or: [
+                    { likes: { $lt: Number(cursorLikes) } },
+                    {
+                        likes: Number(cursorLikes),
+                        _id: { $lt: new Types.ObjectId(cursorId) },
+                    },
+                ],
+            });
+        } else if (sortBy === "createdAt") {
+            commentsQuery.where({
+                _id: { $lt: new Types.ObjectId(cursorId) },
+            });
+        }
+    }
+
+    const comments = await commentsQuery
         .limit(pageSize)
-        .populate("user", {
-            username: 1,
-            picture: 1,
-        })
+        .populate("user", { username: 1, picture: 1 })
         .lean();
+    // console.log(sortBy, cursor);
+    // Extract the new cursor from the last document
+    const newCursor =
+        comments.length > 0
+            ? `${comments[comments.length - 1].likes},${comments[
+                  comments.length - 1
+              ]._id.toString()}`
+            : null;
+
+    // Check if there are more comments to load
+    const hasMore = comments.length === pageSize;
 
     // Check if each comment is liked by the current user
     const commentsWithLiked = comments.map((comment) => {
@@ -44,20 +79,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
             liked: isLiked,
         };
     });
-
-    // console.log("comments fetched with liked status");
-    return { comments: commentsWithLiked, append: all !== "true" };
+    // console.log(sortBy);
+    return { comments: commentsWithLiked, cursor: newCursor, hasMore };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
     const form = await request.formData();
     const { blogId } = params;
-    const { _id: userId, username } = await authenticator.isAuthenticated(
-        request,
-        {
-            failureRedirect: "/login",
-        }
-    );
+    const {
+        _id: userId,
+        username,
+        picture,
+    } = await authenticator.isAuthenticated(request, {
+        failureRedirect: "/login",
+    });
     invariant(blogId);
     try {
         await connect();
@@ -65,12 +100,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
             const commentId = form.get("commentId");
             invariant(commentId);
             await likeComment(commentId.toString(), userId);
-            return { message: "liked" };
+            return { message: "liked", commentId };
         } else if (form.get("_action") === "deleteComment") {
             const commentId = form.get("commentId");
             invariant(commentId);
             await deleteComment(commentId.toString(), userId);
-            return { message: "deleted" };
+            return { message: "deleted", commentId };
         } else {
             const comment = form.get("comment");
             invariant(comment);
@@ -81,8 +116,16 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
                     { message: "You can only add 3 comments per minute" },
                     { status: 429 }
                 );
-            await addCommentToBlog(blogId, userId, comment.toString());
-            return { message: "added" };
+            // @ts-expect-error
+            const { __v, likedBy, ...addedComment } = await addCommentToBlog(
+                blogId,
+                userId,
+                comment.toString(),
+                username,
+                picture
+            );
+            // console.log(addedComment);
+            return { message: "added", comment: addedComment };
         }
     } catch (error) {
         return { error: "Something went Wrong" };

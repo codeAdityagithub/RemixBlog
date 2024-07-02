@@ -31,7 +31,7 @@ import { deleteBlog } from "~/models/functions.server";
 import BlogFormTags from "~/mycomponents/BlogFormTags";
 import { editorExtensions } from "~/mycomponents/Editor";
 import EditorClient from "~/mycomponents/EditorClient";
-import useInitialForm from "~/mycomponents/hooks/useInitialForm";
+import useInitialForm from "~/hooks/useInitialForm";
 import { limitImageTags, parseZodBlogError } from "~/utils/general";
 import {
     cachedClientAction,

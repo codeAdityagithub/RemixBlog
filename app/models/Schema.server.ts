@@ -162,6 +162,7 @@ const commentSchema = new mongoose.Schema<CommentDocument>(
     },
     { timestamps: true }
 );
+commentSchema.index({ blogId: 1, likes: -1, _id: -1 });
 const replySchema = new mongoose.Schema<ReplyDocument>(
     {
         content: { type: String, required: true },
