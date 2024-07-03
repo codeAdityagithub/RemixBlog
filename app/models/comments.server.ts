@@ -7,6 +7,7 @@ import {
   NotificationDoc,
   Notifications,
   Replies,
+  ReplyDocumentwUser,
 } from "./Schema.server";
 import { CommentDoc } from "~/mycomponents/BlogCommentsSheet";
 
@@ -170,9 +171,11 @@ export async function replyCommentToBlog(
   userId: string,
   content: string,
   parentComment: string,
-  commentUser: string
+  commentUser: string,
+  username: string,
+  picture?: string
 ) {
-  if (commentUser !== userId) return;
+  if (commentUser === userId) return;
   const session = await mongoose.startSession();
   session.startTransaction();
   // console.log(blogId, userId);
@@ -190,6 +193,12 @@ export async function replyCommentToBlog(
       link: `/blogs/${blogId}?comment=${parentComment}`,
       type: "reply",
     });
+    // @ts-expect-error
+    const { likedBy, __v, tag, ...doc } = reply._doc;
+    // console.log(reply._doc);
+    return {
+      reply: { ...doc, liked: false, user: { _id: userId, username, picture } },
+    };
   } catch (error: any) {
     await session.abortTransaction();
     console.error("Error adding reply:", error?.message ?? error);
@@ -203,7 +212,9 @@ export async function tagReply(
   userId: string,
   content: string,
   parentComment: string,
-  replyUser: string
+  replyUser: string,
+  username: string,
+  picture?: string
 ) {
   if (userId === replyUser) return;
   const session = await mongoose.startSession();
@@ -219,12 +230,16 @@ export async function tagReply(
       parentComment,
       tag,
     });
-
     await sendNotification({
       targetUser: replyUser,
       link: `/blogs/${blogId}?comment=${parentComment}&reply=${tag.replyId}`,
       type: "mention",
     });
+    // @ts-expect-error
+    const { likedBy, __v, ...doc } = reply._doc;
+    return {
+      reply: { ...doc, liked: false, user: { _id: userId, username, picture } },
+    };
   } catch (error: any) {
     await session.abortTransaction();
     console.error("Error tagging reply:", error?.message ?? error);

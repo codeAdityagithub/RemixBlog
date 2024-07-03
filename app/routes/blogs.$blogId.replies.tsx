@@ -47,10 +47,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   const form = await request.formData();
   const { blogId } = params;
-  const { _id: userId, username: user_name } =
-    await authenticator.isAuthenticated(request, {
-      failureRedirect: "/login",
-    });
+  const {
+    _id: userId,
+    username: user_name,
+    picture,
+  } = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
   invariant(blogId);
   await connect();
   try {
@@ -58,12 +61,12 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       const replyId = form.get("replyId");
       invariant(replyId);
       await likeReply(replyId.toString(), userId);
-      return { message: "liked" };
+      return { message: "liked", replyId };
     } else if (form.get("_action") === "deleteReply") {
       const replyId = form.get("replyId");
       invariant(replyId);
       await deleteReply(replyId.toString(), userId);
-      return { message: "deleted" };
+      return { message: "deleted", replyId };
     } else if (form.get("_action") === "tagReply") {
       const { left } = await ratelimitId("tagReply", userId, 60, 3);
       // console.log(left);
@@ -84,15 +87,17 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       invariant(replyUser);
       invariant(parentComment);
       if (username === user_name) return { message: "cannot tag self" };
-      await tagReply(
+      const doc = await tagReply(
         { replyId, username },
         blogId,
         userId,
         reply,
         parentComment,
-        replyUser
+        replyUser,
+        user_name,
+        picture
       );
-      return { message: "tagged" };
+      return { message: "tagged", reply: doc?.reply };
     } else {
       const { left } = await ratelimitId("reply", userId, 60, 3);
       // console.log(left);
@@ -106,14 +111,17 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       const commentUser = String(form.get("commentUser"));
       invariant(reply);
       invariant(commentUser);
-      await replyCommentToBlog(
+      const doc = await replyCommentToBlog(
         blogId,
         userId,
         reply,
         parentComment,
-        commentUser
+        commentUser,
+        user_name,
+        picture
       );
-      return { message: "added" };
+      console.log(doc);
+      return { message: "added", reply: doc?.reply };
     }
   } catch (error) {
     console.log(error);

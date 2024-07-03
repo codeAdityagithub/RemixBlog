@@ -21,8 +21,9 @@ type Props = {
   commentUser: string;
 };
 
-type ReplyDoc = Omit<ReplyDocumentwUser, "likedBy"> & {
+type ReplyDoc = Omit<ReplyDocumentwUser, "likedBy" | "_id"> & {
   liked: boolean;
+  _id: string;
 };
 
 const ReplyToComment = ({ commentId, commentUser }: Props) => {
@@ -40,7 +41,8 @@ const ReplyToComment = ({ commentId, commentUser }: Props) => {
   useEffect(() => {
     if (fetcher.data?.message === "added") {
       setReply("");
-      fetchReplies();
+      if (fetcher.data?.reply)
+        setReplies((prev) => (prev ? [...prev, fetcher.data?.reply] : null));
     }
   }, [fetcher.data]);
 
@@ -67,7 +69,37 @@ const ReplyToComment = ({ commentId, commentUser }: Props) => {
       isFetching.current = false;
     }
   }, []);
-
+  const revalidateReplies = useCallback(
+    (data: {
+      replyId?: string;
+      message: "liked" | "deleted" | "tagged";
+      reply?: ReplyDoc;
+    }) => {
+      if (data.message === "tagged" && data.reply) {
+        let reply = data.reply;
+        setReplies((prev) => (prev ? [...prev, reply] : null));
+      } else if (data.message === "liked" && data.replyId) {
+        setReplies((prev) =>
+          prev
+            ? prev.map((reply) =>
+                reply._id === data.replyId
+                  ? {
+                      ...reply,
+                      likes: reply.likes + (reply.liked ? -1 : 1),
+                      liked: !reply.liked,
+                    }
+                  : reply
+              )
+            : null
+        );
+      } else if (data.message === "deleted" && data.replyId) {
+        setReplies((prev) =>
+          prev ? prev.filter((reply) => reply._id !== data.replyId) : null
+        );
+      }
+    },
+    []
+  );
   return (
     <Accordion
       className="w-full space-y-2"
@@ -156,7 +188,7 @@ const ReplyToComment = ({ commentId, commentUser }: Props) => {
                 <ReplyCard
                   key={reply._id.toString()}
                   reply={reply}
-                  revalidate={fetchReplies}
+                  revalidate={revalidateReplies}
                 />
               ))
             )

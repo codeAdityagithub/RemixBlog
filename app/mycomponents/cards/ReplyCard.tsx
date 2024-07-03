@@ -32,10 +32,11 @@ import { Badge } from "~/components/ui/badge";
 import { ReplyDocument, ReplyDocumentwUser } from "~/models/Schema.server";
 
 type Props = {
-  reply: Omit<ReplyDocumentwUser, "likedBy"> & {
+  reply: Omit<ReplyDocumentwUser, "likedBy" | "_id"> & {
     liked: boolean;
+    _id: string;
   };
-  revalidate: () => void;
+  revalidate: (data: any) => void;
 };
 
 const ReplyCard = ({ reply, revalidate }: Props) => {
@@ -50,7 +51,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
       fetcher.data?.message === "liked" ||
       fetcher.data?.message === "tagged"
     ) {
-      revalidate();
+      revalidate(fetcher.data);
     }
   }, [fetcher.data]);
 
