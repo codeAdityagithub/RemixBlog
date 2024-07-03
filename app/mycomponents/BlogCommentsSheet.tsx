@@ -1,6 +1,6 @@
 import { ChatBubbleIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { useSearchParams } from "@remix-run/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
     Select,
@@ -32,14 +32,15 @@ import CommentLoader from "./loaders/CommentLoader";
 type Props = {
     comments: number;
 };
-export type CommentDoc = Omit<CommentDocumentwUser, "likedBy"> & {
+export type CommentDoc = Omit<CommentDocumentwUser, "likedBy" | "_id"> & {
     liked: boolean;
+    _id: string;
 };
 
 const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const commentHighlight = searchParams.has("comment");
-    const [open, setOpen] = useState(commentHighlight);
+    const [open, setOpen] = useState(false);
     const {
         comments,
         fetchComments,
@@ -64,11 +65,9 @@ const BlogCommentsSheet = ({ comments: commentsNumber }: Props) => {
         if (message === "deleted") deleteComment(commentId);
     };
 
-    // useEffect(() => {
-    //     if (commentHighlight && !fetcher.data) fetchComments();
-    //     if (commentHighlight) setOpen(true);
-    // }, [commentHighlight]);
-
+    useEffect(() => {
+        if (commentHighlight) setOpen(true);
+    }, [commentHighlight]);
     return (
         <Sheet
             open={open}
