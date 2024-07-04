@@ -33,7 +33,7 @@ const ReplyToComment = ({ commentId, commentUser }: Props) => {
   const [replies, setReplies] = useState<ReplyDoc[] | null>(null);
   const [reply, setReply] = useState("");
   const blogId = useParams().blogId;
-  const searchParams = useSearchParams()[0];
+  const [searchParams, setSearchParams] = useSearchParams();
   const replyHiglight = searchParams.get("reply");
   const isCurrent = searchParams.get("comment") === commentId;
   const btnref = useRef<HTMLButtonElement>(null);
@@ -43,6 +43,14 @@ const ReplyToComment = ({ commentId, commentUser }: Props) => {
       setReply("");
       if (fetcher.data?.reply)
         setReplies((prev) => (prev ? [...prev, fetcher.data?.reply] : null));
+      setSearchParams(
+        (prev) => {
+          prev.set("reply", fetcher.data?.reply._id);
+          return prev;
+        },
+        { replace: true }
+      );
+      if (btnref.current?.dataset.state === "closed") btnref.current?.click();
     }
   }, [fetcher.data]);
 

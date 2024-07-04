@@ -52,6 +52,26 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
       fetcher.data?.message === "tagged"
     ) {
       revalidate(fetcher.data);
+      if (fetcher.data?.message === "tagged") {
+        setSearchParams(
+          (prev) => {
+            prev.set("tag", fetcher.data?.reply._id);
+            return prev;
+          },
+          { replace: true }
+        );
+        setTimeout(
+          () =>
+            setSearchParams(
+              (prev) => {
+                prev.delete("tag");
+                return prev;
+              },
+              { replace: true }
+            ),
+          500
+        );
+      }
     }
   }, [fetcher.data]);
 
@@ -73,15 +93,18 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
             block: "center",
             inline: "center",
           }),
-        500
+        300
       );
       setTimeout(
         () =>
-          setSearchParams((prev) => {
-            prev.delete("reply");
-            return prev;
-          }),
-        1300
+          setSearchParams(
+            (prev) => {
+              prev.delete("reply");
+              return prev;
+            },
+            { replace: true }
+          ),
+        1000
       );
     }
   }, [searchParams.get("reply")]);
@@ -140,16 +163,22 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
           <Badge
             // to={`#replycard-${reply.tag.replyId}`}
             onClick={(e) => {
-              setSearchParams((prev) => {
-                // @ts-expect-error
-                prev.set(`tag`, reply.tag.replyId.toString());
-                return prev;
-              });
-              setTimeout(() => {
-                setSearchParams((prev) => {
-                  prev.delete("tag");
+              setSearchParams(
+                (prev) => {
+                  // @ts-expect-error
+                  prev.set(`tag`, reply.tag.replyId.toString());
                   return prev;
-                });
+                },
+                { replace: true }
+              );
+              setTimeout(() => {
+                setSearchParams(
+                  (prev) => {
+                    prev.delete("tag");
+                    return prev;
+                  },
+                  { replace: true }
+                );
               }, 800);
             }}
             variant="secondary"

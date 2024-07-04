@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BellIcon, DotFilledIcon } from "@radix-ui/react-icons";
 import {
   Form,
@@ -10,7 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +25,7 @@ import {
   action,
   loader,
 } from "~/routes/api.notifications";
-import { useUser } from "~/utils/general";
+import { formatTime, useUser } from "~/utils/general";
 
 type Props = {};
 const Notifications = (props: Props) => {
@@ -42,9 +42,7 @@ const Notifications = (props: Props) => {
     staleTime: 1000 * 60 * 5,
     refetchInterval: 1000 * 60 * 5,
   });
-  // useEffect(() => {
-  //     console.log(data);
-  // }, [data]);
+
   const blogNotifs = useMemo(() => {
     if (!data || !data.blogNotifs) return { read: [], unread: [] };
     return data.blogNotifs.reduce<{
@@ -75,6 +73,18 @@ const Notifications = (props: Props) => {
       { read: [], unread: [] }
     );
   }, [data]);
+  const readNotifs = useMemo(() => {
+    return [...blogNotifs.read, ...otherNotifs.read].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [blogNotifs.read, otherNotifs.read]);
+  const unreadNotifs = useMemo(() => {
+    return [...blogNotifs.unread, ...otherNotifs.unread].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [blogNotifs.unread, otherNotifs.unread]);
   const fetcher = useFetcher<typeof action>();
   useEffect(() => {
     if (fetcher.data?.ok) {
@@ -116,57 +126,38 @@ const Notifications = (props: Props) => {
             <TabsTrigger value="read">Read</TabsTrigger>
           </TabsList>
           <TabsContent value="new">
-            {blogNotifs.unread.length === 0 &&
-            otherNotifs.unread.length === 0 ? (
+            {unreadNotifs.length === 0 ? (
               <DropdownMenuItem className="justify-center">
                 No new notifications
               </DropdownMenuItem>
             ) : null}
-            {blogNotifs.unread.map((notification) => (
-              <DropdownMenuItem
-                key={notification._id}
-                className="focus:bg-background"
-              >
-                <p className="w-full">{notification.notification}</p>
-                <Button
-                  onClick={(e) => {
-                    navigate(notification.link);
-                    if (notification.read) return;
-                    fetcher.submit(
-                      {
-                        notificationId: notification._id,
-                        type: "blogNotif",
-                      },
-                      {
-                        method: "POST",
-                        action: "/api/notifications",
-                      }
-                    );
-                  }}
-                  className="ml-2"
-                  size="sm"
-                  variant="outline"
-                >
-                  view
-                </Button>
-              </DropdownMenuItem>
-            ))}
-
-            {otherNotifs.unread.map(
-              ({ _id, count, link, read, type, createdAt }) => (
+            {unreadNotifs.map((notification) => {
+              return (
                 <DropdownMenuItem
-                  key={_id}
+                  key={notification._id}
                   className="focus:bg-background"
                 >
-                  <p className="w-full">{getText({ count, type })}</p>
+                  <div className="flex-1">
+                    <p className="w-full">
+                      {notification.type
+                        ? getText({
+                            count: notification.count,
+                            type: notification.type,
+                          })
+                        : notification.notification}
+                    </p>
+                    <small>
+                      {formatTime(notification.createdAt.toString())}
+                    </small>
+                  </div>
                   <Button
                     onClick={(e) => {
-                      navigate(link);
-                      if (read) return;
+                      navigate(notification.link);
+                      if (notification.read) return;
                       fetcher.submit(
                         {
-                          notificationId: _id,
-                          type: "otherNotif",
+                          notificationId: notification._id,
+                          type: notification.type ? "otherNotif" : "blogNotif",
                         },
                         {
                           method: "POST",
@@ -181,21 +172,31 @@ const Notifications = (props: Props) => {
                     view
                   </Button>
                 </DropdownMenuItem>
-              )
-            )}
+              );
+            })}
           </TabsContent>
           <TabsContent value="read">
-            {blogNotifs.read.length === 0 && otherNotifs.read.length === 0 ? (
+            {readNotifs.length === 0 && otherNotifs.read.length === 0 ? (
               <DropdownMenuItem className="justify-center">
-                No new notifications
+                No previous notifications
               </DropdownMenuItem>
             ) : null}
-            {blogNotifs.read.map((notification) => (
+            {readNotifs.map((notification) => (
               <DropdownMenuItem
                 key={notification._id}
                 className="focus:bg-background"
               >
-                <p className="w-full">{notification.notification}</p>
+                <div className="flex flex-col flex-1">
+                  <p className="w-full">
+                    {notification.type
+                      ? getText({
+                          count: notification.count,
+                          type: notification.type,
+                        })
+                      : notification.notification}
+                  </p>
+                  <small>{formatTime(notification.createdAt.toString())}</small>
+                </div>
                 <Button
                   onClick={(e) => {
                     navigate(notification.link);
@@ -208,27 +209,6 @@ const Notifications = (props: Props) => {
                 </Button>
               </DropdownMenuItem>
             ))}
-
-            {otherNotifs.read.map(
-              ({ _id, count, link, read, type, createdAt }) => (
-                <DropdownMenuItem
-                  key={_id}
-                  className="focus:bg-background"
-                >
-                  <p className="w-full">{getText({ count, type })}</p>
-                  <Button
-                    onClick={(e) => {
-                      navigate(link);
-                    }}
-                    className="ml-2"
-                    size="sm"
-                    variant="outline"
-                  >
-                    view
-                  </Button>
-                </DropdownMenuItem>
-              )
-            )}
           </TabsContent>
         </Tabs>
       </DropdownMenuContent>

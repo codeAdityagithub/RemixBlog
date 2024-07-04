@@ -1,15 +1,13 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { ClientSession, Types } from "mongoose";
 import invariant from "tiny-invariant";
+import { CommentDoc } from "~/mycomponents/BlogCommentsSheet";
 import {
   Blogs,
-  CommentDocumentwUser,
   Comments,
   NotificationDoc,
   Notifications,
   Replies,
-  ReplyDocumentwUser,
 } from "./Schema.server";
-import { CommentDoc } from "~/mycomponents/BlogCommentsSheet";
 
 export const likeComment = async (commentId: string, userId: string) => {
   const comment = await Comments.findOne(
@@ -38,18 +36,28 @@ export const deleteComment = async (commentId: string, userId: string) => {
   // console.log(blogId, userId);
   try {
     // Update logic for both documents within the transaction block
-    const deletedComment = await Comments.findOneAndDelete({
-      user: userId,
-      _id: commentId,
-    });
+    const deletedComment = await Comments.findOneAndDelete(
+      {
+        user: userId,
+        _id: commentId,
+      },
+      { session }
+    );
+    // console.log(deletedComment);
     // if(deletedComment?.parentComment!==null)
     if (!deletedComment) throw new Error("error deleting");
     await Blogs.updateOne(
       { _id: deletedComment.blogId },
-      { $inc: { comments: -1 } }
+      { $inc: { comments: -1 } },
+      { session }
     );
-    await Replies.deleteMany({ parentComment: deletedComment._id });
-
+    await Replies.deleteMany(
+      { parentComment: deletedComment.id },
+      {
+        session,
+      }
+    );
+    await session.commitTransaction();
     // console.log(updated);
   } catch (error: any) {
     await session.abortTransaction();
@@ -99,17 +107,27 @@ export const deleteCommentAdmin = async (commentId: string, userId: string) => {
   // console.log(blogId, userId);
   try {
     // Update logic for both documents within the transaction block
-    const deletedComment = await Comments.findOneAndDelete({
-      blogOwner: userId,
-      _id: commentId,
-    });
+    const deletedComment = await Comments.findOneAndDelete(
+      {
+        blogOwner: userId,
+        _id: commentId,
+      },
+      { session }
+    );
     // if(deletedComment?.parentComment!==null)
     if (!deletedComment) throw new Error("error deleting");
     await Blogs.updateOne(
       { _id: deletedComment.blogId },
-      { $inc: { comments: -1 } }
+      { $inc: { comments: -1 } },
+      { session }
     );
-    await Replies.deleteMany({ parentComment: deletedComment._id });
+    await Replies.deleteMany(
+      { parentComment: deletedComment._id },
+      {
+        session,
+      }
+    );
+    await session.commitTransaction();
 
     // console.log(updated);
   } catch (error: any) {
@@ -136,25 +154,32 @@ export async function addCommentToBlog(
     const blog = await Blogs.findOneAndUpdate(
       { _id: blogId },
       { $inc: { comments: 1 } },
-      { projection: { author: 1 } }
+      { projection: { author: 1 }, session }
     );
     invariant(blog?.author);
-    const dbcomment = await Comments.create({
-      blogId,
-      content,
-      user: userId,
-      blogOwner: blog?.author,
-    });
+    const dbcomment = await Comments.create(
+      [
+        {
+          blogId,
+          content,
+          user: userId,
+          blogOwner: blog?.author,
+        },
+      ],
+      { session }
+    );
     if (blog.author.toString() !== userId) {
       await sendNotification({
         targetUser: blog.author.toString(),
         link: `/dashboard#dashboardComments`,
         type: "comment",
+        session,
       });
     }
+    await session.commitTransaction();
     return {
       // @ts-expect-error
-      ...dbcomment._doc,
+      ...dbcomment[0]._doc,
       user: { _id: userId, username, picture },
     } as CommentDoc;
     // console.log(updated);
@@ -182,19 +207,27 @@ export async function replyCommentToBlog(
   try {
     const source = await Comments.findOne({ _id: parentComment });
     if (!source) throw new Error("Comment does not exist");
-    const reply = await Replies.create({
-      blogId,
-      content,
-      user: userId,
-      parentComment,
-    });
+    const reply = await Replies.create(
+      [
+        {
+          blogId,
+          content,
+          user: userId,
+          parentComment,
+        },
+      ],
+      { session }
+    );
     await sendNotification({
       targetUser: commentUser,
       link: `/blogs/${blogId}?comment=${parentComment}`,
       type: "reply",
+      session,
     });
+    await session.commitTransaction();
+
     // @ts-expect-error
-    const { likedBy, __v, tag, ...doc } = reply._doc;
+    const { likedBy, __v, tag, ...doc } = reply[0]._doc;
     // console.log(reply._doc);
     return {
       reply: { ...doc, liked: false, user: { _id: userId, username, picture } },
@@ -223,20 +256,27 @@ export async function tagReply(
   try {
     const source = await Replies.findOne({ _id: tag.replyId });
     if (!source) throw new Error("Reply does not exist");
-    const reply = await Replies.create({
-      blogId,
-      content,
-      user: userId,
-      parentComment,
-      tag,
-    });
+    const reply = await Replies.create(
+      [
+        {
+          blogId,
+          content,
+          user: userId,
+          parentComment,
+          tag,
+        },
+      ],
+      { session }
+    );
     await sendNotification({
       targetUser: replyUser,
       link: `/blogs/${blogId}?comment=${parentComment}&reply=${tag.replyId}`,
       type: "mention",
+      session,
     });
+    await session.commitTransaction();
     // @ts-expect-error
-    const { likedBy, __v, ...doc } = reply._doc;
+    const { likedBy, __v, ...doc } = reply[0]._doc;
     return {
       reply: { ...doc, liked: false, user: { _id: userId, username, picture } },
     };
@@ -252,8 +292,10 @@ async function sendNotification({
   link,
   targetUser,
   type,
+  session,
 }: Pick<NotificationDoc, "type" | "link"> & {
   targetUser: string;
+  session: ClientSession;
 }) {
   await Notifications.findOneAndUpdate(
     { link, targetUser, read: false, type },
@@ -261,6 +303,6 @@ async function sendNotification({
       $set: { type },
       $inc: { count: 1 },
     },
-    { upsert: true }
+    { upsert: true, session }
   );
 }

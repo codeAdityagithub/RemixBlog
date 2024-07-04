@@ -120,7 +120,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         user_name,
         picture
       );
-      console.log(doc);
+      // console.log(doc);
       return { message: "added", reply: doc?.reply };
     }
   } catch (error) {
