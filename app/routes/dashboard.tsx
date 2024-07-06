@@ -7,24 +7,27 @@ import DashboardDropdown from "~/mycomponents/DashboardDropdown";
 type Props = {};
 
 const Dashboard = (props: Props) => {
-    // const [isOpen, setIsOpen] = useState(false);
-    // const breadcrumbs = useLocation()
-    //     .pathname.split("/")
-    //     .splice(1)
-    //     .map((str) =>
-    //         str !== "" ? str[0]?.toUpperCase() + str?.slice(1) : ""
-    //     );
-    // console.log(breadcrumbs);
+  // const [isOpen, setIsOpen] = useState(false);
+  // const breadcrumbs = useLocation()
+  //     .pathname.split("/")
+  //     .splice(1)
+  //     .map((str) =>
+  //         str !== "" ? str[0]?.toUpperCase() + str?.slice(1) : ""
+  //     );
+  // console.log(breadcrumbs);
 
-    return (
-        <div className="w-full h-full flex flex-col relative bg-background text-foreground">
-            <DashboardDropdown />
+  return (
+    <div className="w-full h-full flex flex-col relative bg-background text-foreground">
+      <DashboardDropdown />
 
-            <div className="p-4 pb-2 flex flex-col flex-1 items-center justify-start h-[calc(100svh-100px)] max-h-[calc(100svh-100px)] overflow-auto ver_scroll scroll-smooth scroll-mt-20">
-                <Outlet />
-            </div>
-        </div>
-    );
+      <div
+        id="dashboardOutlet"
+        className="p-4 pb-2 flex flex-col flex-1 items-center justify-start h-[calc(100svh-100px)] max-h-[calc(100svh-100px)] overflow-auto ver_scroll scroll-smooth scroll-mt-20"
+      >
+        <Outlet />
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;

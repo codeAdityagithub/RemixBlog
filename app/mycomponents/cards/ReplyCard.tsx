@@ -30,6 +30,7 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
 import { ReplyDocument, ReplyDocumentwUser } from "~/models/Schema.server";
+import TransitionLink from "../TransitionLink";
 
 type Props = {
   reply: Omit<ReplyDocumentwUser, "likedBy" | "_id"> & {
@@ -123,7 +124,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
     >
       <div className="flex flex-row items-center gap-4">
         <Avatar className="h-9 w-9">
-          <Link to={`/profiles/${reply.user.username}`}>
+          <TransitionLink to={`/profiles/${reply.user.username}`}>
             <AvatarImage
               width={96}
               height={96}
@@ -131,7 +132,7 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
               src={reply.user.picture}
               className=""
             ></AvatarImage>
-          </Link>
+          </TransitionLink>
           <AvatarFallback>
             <AvatarIcon
               className="w-full h-full"
@@ -141,9 +142,9 @@ const ReplyCard = ({ reply, revalidate }: Props) => {
         </Avatar>
         <div className="flex flex-col">
           <p className="text-sm">
-            <Link to={`/profiles/${reply.user.username}`}>
+            <TransitionLink to={`/profiles/${reply.user.username}`}>
               {reply.user.username}
-            </Link>
+            </TransitionLink>
             {reply.user.username === user?.username && " (You)"}
           </p>
           <small className="text-muted-foreground">

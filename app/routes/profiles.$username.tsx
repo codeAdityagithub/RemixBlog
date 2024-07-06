@@ -25,6 +25,7 @@ import { cn } from "~/lib/utils";
 import { Blogs, Users } from "~/models/Schema.server";
 import { getFollowStats } from "~/models/follow.server";
 import FollowButton from "~/mycomponents/FollowButton";
+import TransitionLink from "~/mycomponents/TransitionLink";
 import { formatTime, useUser } from "~/utils/general";
 
 export const meta: MetaFunction = ({ params }) => {
@@ -163,13 +164,13 @@ const UserProfile = () => {
               ind === flatBlogs.length - 1 ? "" : "border-b"
             )}
           >
-            <Link
+            <TransitionLink
               to={`/blogs/${blog._id}`}
               className="col-span-2 sm:col-span-3 w-full row-span-2"
             >
               <h3 className="text-xl font-bold line-clamp-2">{blog.title}</h3>
               <p className="text-muted-foreground line-clamp-2 ">{blog.desc}</p>
-            </Link>
+            </TransitionLink>
             <img
               alt="Blog Post Image"
               className="row-span-3 col-span-2 sm:col-span-1 w-full max-w-[200px] aspect-video object-cover rounded"

@@ -3,8 +3,9 @@ import { MouseEvent, ReactNode, useRef } from "react";
 
 const TransitionLink = ({
   children,
+  querySelector = "#mainPage",
   ...props
-}: LinkProps & { children: ReactNode }) => {
+}: LinkProps & { children: ReactNode; querySelector?: string }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -15,7 +16,7 @@ const TransitionLink = ({
     e.preventDefault();
 
     if (props.to === location.pathname) return;
-    const body = document.querySelector("body");
+    const body = document.querySelector(querySelector);
     body?.classList.add("page-transition");
     navigate(props.to);
     await sleep(200);

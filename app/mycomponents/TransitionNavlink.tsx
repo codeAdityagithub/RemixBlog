@@ -1,10 +1,17 @@
-import { LinkProps, NavLink, useLocation, useNavigate } from "@remix-run/react";
-import { MouseEvent, ReactNode, useRef } from "react";
+import {
+  LinkProps,
+  NavLink,
+  NavLinkProps,
+  useLocation,
+  useNavigate,
+} from "@remix-run/react";
+import { MouseEvent, ReactNode } from "react";
 
 const TransitionNavlink = ({
   children,
+  querySelector = "#mainPage",
   ...props
-}: LinkProps & { children: ReactNode }) => {
+}: NavLinkProps & { children: ReactNode; querySelector?: string }) => {
   const navigate = useNavigate();
   const location = useLocation();
   function sleep(ms: number) {
@@ -12,9 +19,8 @@ const TransitionNavlink = ({
   }
   async function transition(e: MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
-
     if (props.to === location.pathname) return;
-    const body = document.querySelector("body");
+    const body = document.querySelector(querySelector);
     body?.classList.add("page-transition");
     navigate(props.to);
     await sleep(200);

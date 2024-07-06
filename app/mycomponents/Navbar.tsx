@@ -94,15 +94,18 @@ const Navbar = (props: Props) => {
                   <DropdownMenuSeparator />
 
                   <ProfileDialog />
-                  <DropdownMenuItem asChild>
-                    <TransitionLink
-                      className="w-full text-xs font-normal pl-3 cursor-pointer"
-                      to={"/profiles/" + user.username}
-                    >
+                  {/* <DropdownMenuItem asChild> */}
+                  <Button
+                    size="sm"
+                    asChild
+                    variant="ghost"
+                    className="w-full font-normal hover:bg-secondary/80 justify-start"
+                  >
+                    <TransitionLink to={"/profiles/" + user.username}>
                       View profile
                     </TransitionLink>
-                  </DropdownMenuItem>
-
+                    {/* </DropdownMenuItem> */}
+                  </Button>
                   <DropdownMenuItem
                     asChild
                     className="p-0"

@@ -27,7 +27,7 @@ const TopPerformingBlogs = (props: Props) => {
       id="dashboardComments"
     >
       <h2 className="text-2xl font-bold mb-6">Top Performing Blogs</h2>
-      <div className="flex flex-col gap-2 p-2 border rounded-md h-[400px] max-h-[400px] max-w-[600px] overflow-auto ver_scroll">
+      <div className="flex flex-col gap-4 p-2 border rounded-md h-[400px] max-h-[400px] max-w-[600px] overflow-auto ver_scroll">
         {!isLoading &&
           data &&
           data.map((blog) => (

@@ -20,6 +20,7 @@ import { useToast } from "~/components/ui/use-toast";
 import { connect } from "~/db.server";
 import { BlogDocument, Follows } from "~/models/Schema.server";
 import { unfollow } from "~/models/follow.server";
+import TransitionLink from "~/mycomponents/TransitionLink";
 import DashboardBlogCard from "~/mycomponents/cards/DashboardBlogCard";
 import { formatTime } from "~/utils/general";
 
@@ -112,12 +113,12 @@ const Following = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-3 flex-1">
-              <Link to={"/profiles/" + user.username}>
+              <TransitionLink to={"/profiles/" + user.username}>
                 <p>{user.username}</p>
                 <small className="text-muted-foreground">
                   Following since {formatTime(createdAt)}
                 </small>
-              </Link>
+              </TransitionLink>
             </div>
             <Button
               disabled={fetcher.state !== "idle"}

@@ -3,13 +3,14 @@
 @tailwind utilities;
 @layer components {
   .page-transition {
-    transform: scale(0.9);
-    opacity: 0;
+    transform: scale(0.98);
+    opacity: 0.1;
   }
-  body {
+  #mainPage,
+  #dashboardOutlet {
     transition-property: opacity, transform;
     transition-timing-function: ease-in-out;
-    transition-duration: 150ms;
+    transition-duration: 100ms;
   }
   div#tiptap {
     @apply max-w-[calc(100vw-32px)] min-w-[320px] sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto;

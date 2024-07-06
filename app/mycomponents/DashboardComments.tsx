@@ -19,6 +19,7 @@ import { CommentDocument, CommentDocumentwUser } from "~/models/Schema.server";
 import { formatTime, useUser } from "~/utils/general";
 import DeleteButtonwDialog from "./DeleteButtonwDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import TransitionLink from "./TransitionLink";
 
 type Props = {};
 type Card = Omit<
@@ -140,7 +141,7 @@ function DashboardCommentCard({
     <div className="w-full p-4 border border-l-border/30 border-r-border/30 rounded-md flex justify-between flex-col sm:flex-row">
       <div className="">
         <div className="flex items-start flex-col">
-          <Link
+          <TransitionLink
             className="flex items-center flex-wrap"
             to={`/profiles/${comment.user.username}`}
           >
@@ -167,14 +168,14 @@ function DashboardCommentCard({
               <DotFilledIcon className="w-2 h-2 mx-2 inline" />
               {formatTime(comment.createdAt.toString())}
             </span>
-          </Link>
+          </TransitionLink>
         </div>
         <p className="line-clamp-2 break-words p-1 text-foreground/80">
           {comment.content}
         </p>
       </div>
       <div className="flex sm:pb-0 gap-4 items-center justify-end">
-        <Link
+        <TransitionLink
           to={`/blogs/${comment.blogId.toString()}?comment=${comment._id.toString()}`}
           onClick={(e) => {
             queryClient.setQueryData(["highlightedComment"], comment);
@@ -182,7 +183,7 @@ function DashboardCommentCard({
           className="line-clamp-2 leading-5"
         >
           View
-        </Link>
+        </TransitionLink>
         <DeleteButtonwDialog
           disabled={fetcher.state === "submitting"}
           action={deleteComment}

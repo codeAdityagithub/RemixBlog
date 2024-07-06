@@ -101,7 +101,10 @@ export default function App() {
           <div className="w-full h-[100svh] flex flex-col">
             <Toaster />
             <Navbar />
-            <main className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground">
+            <main
+              id="mainPage"
+              className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground"
+            >
               <Outlet />
             </main>
           </div>
