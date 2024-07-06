@@ -42,8 +42,8 @@ const BlogCardLarge = ({
             to={`/blogs/${_id}`}
             prefetch="intent"
           >
-            <h2 className="text-2xl font-bold mb-2 line-clamp-1">{title}</h2>
-            <p className="text-muted-foreground leading-relaxed line-clamp-1">
+            <h2 className="text-2xl font-bold mb-2 line-clamp-2">{title}</h2>
+            <p className="text-muted-foreground leading-relaxed line-clamp-2">
               {desc}
             </p>
           </TransitionLink>
