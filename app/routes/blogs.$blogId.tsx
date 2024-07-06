@@ -11,6 +11,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { Types } from "mongoose";
+import { useEffect, useRef } from "react";
 import invariant from "tiny-invariant";
 import { authenticator } from "~/auth.server";
 import { TypographyH1 } from "~/components/Typography";
@@ -102,13 +103,18 @@ export let headers: HeadersFunction = ({ loaderHeaders }) => {
 };
 const BlogPage = () => {
   const { blog, readTime } = useLoaderData<typeof loader>();
-  // console.log(liked);
+  const h1ref = useRef<HTMLHeadingElement>(null);
   const user = useUser();
-  // console.log(blog.author.picture);
+  useEffect(() => {
+    h1ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
   return (
     <div className="w-full max-w-2xl p-4 bg-background text-foreground">
       <header className="space-y-8 pb-10 mb-8 border-b border-border relative">
-        <h1 className="text-3xl md:text-4xl font-bold break-words">
+        <h1
+          ref={h1ref}
+          className="text-3xl md:text-4xl font-bold break-words"
+        >
           {blog.title}
         </h1>
         <div className="flex flex-row h-16 items-center gap-4 p-4 rounded-lg">
