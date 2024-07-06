@@ -32,11 +32,11 @@ const BlogCardSmall = ({
     });
   };
   return (
-    <Card className="w-full max-w-md h-min">
+    <Card className="w-full max-w-md h-min border-none bg-transparent shadow-md shadow-primary/5">
       <img
         alt="Blog Post Image"
         loading="lazy"
-        className="w-full h-48 object-cover rounded-t-lg"
+        className="w-full h-48 object-cover rounded-lg"
         height={360}
         src={thumbnail}
         style={{

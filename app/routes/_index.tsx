@@ -1,21 +1,24 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import {
+  redirect,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from "@remix-run/node";
 
 export const meta: MetaFunction = () => {
-    return [
-        { title: "RemixBlog" },
-        { name: "description", content: "Welcome to RemixBlog" },
-    ];
+  return [
+    { title: "RemixBlog" },
+    { name: "description", content: "Welcome to RemixBlog" },
+  ];
 };
 
 export const loader = async ({}: LoaderFunctionArgs) => {
-    // await connect();
-    return {};
+  return redirect("/blogs");
 };
 
 export default function Index() {
-    return (
-        <div>
-            <h1>Welcome to RemixBlog</h1>
-        </div>
-    );
+  return (
+    <div>
+      <h1>Welcome to RemixBlog</h1>
+    </div>
+  );
 }

@@ -40,9 +40,6 @@ const Navbar = (props: Props) => {
         </NavigationMenuItem>
         <div className="flex-1 flex gap-3">
           <NavigationMenuItem>
-            <TransitionNavlink to="/">Home</TransitionNavlink>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
             <TransitionNavlink
               to="/blogs"
               prefetch="intent"
@@ -164,20 +161,26 @@ const Navbar = (props: Props) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem className="p-0">
-                <Link
-                  className="px-2 py-1.5 w-full h-full"
-                  to={`/changeTheme?theme=light&redirect=${pathname}`}
+                <Form
+                  method="POST"
+                  className="w-full"
+                  action={`/changeTheme?theme=light&redirect=${pathname}`}
                 >
-                  Light
-                </Link>
+                  <button className="text-left px-2 py-1.5 w-full h-full">
+                    Light
+                  </button>
+                </Form>
               </DropdownMenuItem>
               <DropdownMenuItem className="p-0">
-                <Link
-                  className="w-full h-full px-2 py-1.5"
-                  to={`/changeTheme?theme=dark&redirect=${pathname}`}
+                <Form
+                  method="POST"
+                  className="w-full"
+                  action={`/changeTheme?theme=dark&redirect=${pathname}`}
                 >
-                  Dark
-                </Link>
+                  <button className="text-left px-2 py-1.5 w-full h-full">
+                    Dark
+                  </button>
+                </Form>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

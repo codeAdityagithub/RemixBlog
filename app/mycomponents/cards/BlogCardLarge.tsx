@@ -23,11 +23,11 @@ const BlogCardLarge = ({
     });
   };
   return (
-    <Card>
+    <Card className="border-none">
       <img
         alt="Blog Post Image"
         loading="lazy"
-        className="w-full h-[300px] md:h-[400px] object-cover rounded-t-lg"
+        className="w-full h-[300px] md:h-[400px] object-cover rounded-lg"
         height={600}
         src={thumbnail}
         style={{
@@ -38,10 +38,15 @@ const BlogCardLarge = ({
       />
       <CardContent className="p-6 grid grid-cols-4 gap-2">
         <div className="col-span-4 sm:col-span-3">
-          <h2 className="text-2xl font-bold mb-2 line-clamp-1">{title}</h2>
-          <p className="text-muted-foreground leading-relaxed line-clamp-1">
-            {desc}
-          </p>
+          <TransitionLink
+            to={`/blogs/${_id}`}
+            prefetch="intent"
+          >
+            <h2 className="text-2xl font-bold mb-2 line-clamp-1">{title}</h2>
+            <p className="text-muted-foreground leading-relaxed line-clamp-1">
+              {desc}
+            </p>
+          </TransitionLink>
         </div>
         <TransitionLink
           className="col-span-4 sm:col-span-1 flex items-center justify-end"
