@@ -3,10 +3,10 @@ import { Link, useFetcher } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { BlogDoc } from "~/routes/dashboard.blogs._index";
 import { formatTime } from "~/utils/general";
-import { CardTitle, Card, CardFooter } from "~/components/ui/card";
+import { CardTitle, Card } from "~/components/ui/card";
 import TransitionLink from "../TransitionLink";
 
-const TopPerformingCard = ({
+const GeneralBlogCard = ({
   _id,
   title,
   createdAt,
@@ -70,14 +70,14 @@ const TopPerformingCard = ({
         </div>
         <TransitionLink
           className="mt-4 sm:mt-0"
-          to={`/dashboard/blogs/${_id}`}
+          to={`/blogs/${_id}`}
           prefetch="intent"
         >
-          <Button size="sm">Edit</Button>
+          <Button size="sm">view</Button>
         </TransitionLink>
       </div>
     </Card>
   );
 };
 
-export default TopPerformingCard;
+export default GeneralBlogCard;

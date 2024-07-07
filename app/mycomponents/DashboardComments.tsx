@@ -21,12 +21,14 @@ import DeleteButtonwDialog from "./DeleteButtonwDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import TransitionLink from "./TransitionLink";
 
-type Props = {};
-type Card = Omit<
+type Props = {
+  mine?: boolean;
+};
+type Card = Pick<
   CommentDocumentwUser,
-  "likedBy" | "updatedAt" | "parentComment" | "blogOwner"
+  "_id" | "blogId" | "content" | "createdAt" | "user"
 >;
-const DashboardComments = (props: Props) => {
+const DashboardComments = ({ mine = false }: Props) => {
   const user = useUser()!;
   const location = useLocation();
   const ref = useRef<HTMLHeadingElement>(null);
@@ -46,12 +48,15 @@ const DashboardComments = (props: Props) => {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["dashboardComments"],
+    queryKey: mine ? ["MyComments"] : ["dashboardComments"],
     initialPageParam: 1,
     queryFn: async ({ pageParam }) => {
-      const res = await fetch(`/api/comments?page=${pageParam}`, {
-        credentials: "same-origin",
-      });
+      const res = await fetch(
+        `/api/comments?page=${pageParam}${mine ? "&mine=true" : ""}`,
+        {
+          credentials: "same-origin",
+        }
+      );
       const data = await res.json();
       // console.log(data);
       if (!res.ok) throw new Error("Something went wrong");
@@ -59,7 +64,7 @@ const DashboardComments = (props: Props) => {
       return data?.comments as Card[];
     },
     getNextPageParam: (lastPage, _, lastPageParam) =>
-      lastPage?.length === 0 ? null : lastPageParam + 1,
+      lastPage?.length < 10 ? null : lastPageParam + 1,
     staleTime: 1000 * 60 * 2,
     refetchInterval: 1000 * 60 * 2,
     maxPages: 3,
@@ -73,11 +78,13 @@ const DashboardComments = (props: Props) => {
       className="col-span-6 lg:col-span-3 space-y-2 mt-8 rounded-md"
       id="dashboardComments"
     >
-      <h2 className="text-2xl font-bold mb-6">Latest Comments</h2>
+      <h2 className="text-2xl font-bold mb-6">
+        {mine ? "My Comments" : "Latest Comments"}
+      </h2>
 
       <div
         ref={ref}
-        className="flex flex-col gap-2 p-2 border rounded-md max-h-[400px] max-w-[600px] overflow-auto ver_scroll"
+        className="flex flex-col gap-2 p-2 border rounded-md h-[400px] max-h-[400px] max-w-[600px] overflow-auto ver_scroll"
       >
         {error && error.message}
         {isLoading &&
@@ -93,6 +100,7 @@ const DashboardComments = (props: Props) => {
           comments.pages.length > 0 &&
           comments.pages.flat().map((comment) => (
             <DashboardCommentCard
+              mine={mine}
               key={comment._id.toString()}
               comment={comment}
               user={user}
@@ -103,7 +111,7 @@ const DashboardComments = (props: Props) => {
           <Button
             onClick={() => fetchNextPage({ cancelRefetch: false })}
             disabled={isFetchingNextPage || !hasNextPage}
-            className="w-full"
+            className="w-full mt-auto"
             variant="ghost"
           >
             <ChevronDownIcon />
@@ -118,21 +126,30 @@ function DashboardCommentCard({
   comment,
   user,
   refetch,
+  mine,
 }: {
   comment: Card;
   user: ReturnType<typeof useUser>;
   refetch: () => void;
+  mine: boolean;
 }) {
   const fetcher = useFetcher<any>();
   const queryClient = useQueryClient();
   const deleteComment = () => {
-    fetcher.submit(
-      { commentId: comment._id.toString() },
-      {
-        method: "DELETE",
-        action: `/api/comments`,
-      }
-    );
+    if (mine) {
+      fetcher.submit(
+        { _action: "deleteComment", commentId: comment._id.toString() },
+        { method: "POST", action: `/blogs/${comment.blogId}/comments` }
+      );
+    } else {
+      fetcher.submit(
+        { commentId: comment._id.toString() },
+        {
+          method: "DELETE",
+          action: `/api/comments`,
+        }
+      );
+    }
   };
   useEffect(() => {
     fetcher.data?.message === "deleted" && refetch();

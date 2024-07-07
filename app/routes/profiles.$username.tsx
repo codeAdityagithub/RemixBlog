@@ -26,6 +26,7 @@ import { Blogs, Users } from "~/models/Schema.server";
 import { getFollowStats } from "~/models/follow.server";
 import FollowButton from "~/mycomponents/FollowButton";
 import TransitionLink from "~/mycomponents/TransitionLink";
+import GeneralBlogCard from "~/mycomponents/cards/BlogCardGen";
 import { formatTime, useUser } from "~/utils/general";
 
 export const meta: MetaFunction = ({ params }) => {
@@ -116,7 +117,7 @@ const UserProfile = () => {
   });
   const flatBlogs = useMemo(() => blogs.pages.flat(), [blogs]);
   return (
-    <div className="w-full max-w-2xl p-8 h-full bg-background max-h-[calc(100svh-56px)] overflow-auto ver_scroll">
+    <div className="w-full max-w-2xl p-8 h-full bg-background max-h-[calc(100svh-56px)] overflow-auto ver_scroll relative">
       <div className="flex gap-4 flex-col sm:flex-row items-center border-b border-border p-4 pb-8">
         <Avatar className="h-24 w-24">
           <AvatarImage
@@ -150,52 +151,20 @@ const UserProfile = () => {
           />
         </div>
       </div>
+      <h1 className="text-2xl font-bold text-center sm:text-left sm:pl-4 pt-6 pb-4 sticky -top-10 bg-background">
+        Uploaded Blogs
+      </h1>
       <div className="pt-4 px-2 space-y-2">
         {blogs.pages[0]?.length === 0 && (
           <div className="text-center">
             {user.username} hasn't uploaded any blogs.
           </div>
         )}
-        {flatBlogs.map((blog, ind) => (
-          <div
-            key={blog._id.toString()}
-            className={cn(
-              "p-2 py-4 grid grid-cols-4 grid-rows-3 gap-2 place-items-start",
-              ind === flatBlogs.length - 1 ? "" : "border-b"
-            )}
-          >
-            <TransitionLink
-              to={`/blogs/${blog._id}`}
-              className="col-span-2 sm:col-span-3 w-full row-span-2"
-            >
-              <h3 className="text-xl font-bold line-clamp-2">{blog.title}</h3>
-              <p className="text-muted-foreground line-clamp-2 ">{blog.desc}</p>
-            </TransitionLink>
-            <img
-              alt="Blog Post Image"
-              className="row-span-3 col-span-2 sm:col-span-1 w-full max-w-[200px] aspect-video object-cover rounded"
-              height={180}
-              src={blog.thumbnail}
-              width={320}
-            />
-            <div className="col-span-2 sm:col-span-3 w-full flex items-center gap-4">
-              <span className="text-muted-foreground">
-                {formatTime(blog.createdAt)}
-              </span>
-              <span
-                title={blog.likes + " likes"}
-                className="hidden sm:flex items-center gap-1 cursor-pointer"
-              >
-                <HeartIcon /> {blog.likes ?? 0}
-              </span>
-              <span
-                title={blog.comments + " responses"}
-                className="hidden sm:flex items-center gap-1 cursor-pointer"
-              >
-                <ChatBubbleIcon /> {blog.comments ?? 0}
-              </span>
-            </div>
-          </div>
+        {flatBlogs.map((blog) => (
+          <GeneralBlogCard
+            key={blog._id}
+            {...blog}
+          />
         ))}
         <Button
           onClick={() => fetchNextPage({ cancelRefetch: false })}

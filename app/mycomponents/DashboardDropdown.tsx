@@ -20,7 +20,7 @@ const DashboardDropdown = (props: Props) => {
   // console.log(isDashboard);
   return (
     <>
-      <div className="hidden sm:flex flex-row gap-2 items-end justify-center sm:justify-start h-10 px-2 sm:px-6 border-b w-full">
+      <div className="hidden md:flex flex-row gap-2 items-end justify-center md:justify-start h-10 px-2 md:px-6 border-b w-full">
         <Button
           size="sm"
           asChild
@@ -64,7 +64,7 @@ const DashboardDropdown = (props: Props) => {
             className="tablink"
             querySelector="#dashboardOutlet"
           >
-            Your Blogs
+            My Blogs
           </TransitionNavlink>
         </Button>
         <Button
@@ -82,9 +82,24 @@ const DashboardDropdown = (props: Props) => {
             Following
           </TransitionNavlink>
         </Button>
+        <Button
+          size="sm"
+          asChild
+          variant="ghost"
+          className="hover:bg-secondary/60"
+        >
+          <TransitionNavlink
+            prefetch="intent"
+            to="/dashboard/myspace"
+            className="tablink"
+            querySelector="#dashboardOutlet"
+          >
+            My Space
+          </TransitionNavlink>
+        </Button>
         {isDashboard ? <DashboardBlogSearch /> : null}
       </div>
-      <div className="sm:hidden flex flex-row items-center justify-end gap-4 px-4 sm:px-8 h-10 border-b">
+      <div className="md:hidden flex flex-row items-center justify-end gap-4 px-4 md:px-8 h-10 border-b">
         {isDashboard ? <DashboardBlogSearch /> : null}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -153,6 +168,20 @@ const DashboardDropdown = (props: Props) => {
                 querySelector="#dashboardOutlet"
               >
                 Following
+              </TransitionNavlink>
+            </Button>
+            <Button
+              size="sm"
+              asChild
+              variant="ghost"
+              className="w-full hover:bg-secondary/60 justify-start"
+            >
+              <TransitionNavlink
+                to="/dashboard/myspace"
+                className="tablink"
+                querySelector="#dashboardOutlet"
+              >
+                My Space
               </TransitionNavlink>
             </Button>
           </DropdownMenuContent>
