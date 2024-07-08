@@ -3,6 +3,7 @@ import { useInView } from "react-intersection-observer";
 import { BlogDoc } from "~/routes/api.topBlogs";
 import { useUser } from "~/utils/general";
 import TopPerformingCard from "./cards/TopPerformingCard";
+import { Skeleton } from "~/components/ui/skeleton";
 
 type Props = {};
 const TopPerformingBlogs = (props: Props) => {
@@ -18,6 +19,7 @@ const TopPerformingBlogs = (props: Props) => {
     },
     staleTime: 1000 * 60 * 60,
     enabled: isInview,
+    retry: 1,
   });
   // console.log(data);
   return (
@@ -28,6 +30,16 @@ const TopPerformingBlogs = (props: Props) => {
     >
       <h2 className="text-2xl font-bold mb-6">Top Performing Blogs</h2>
       <div className="flex flex-col gap-4 p-2 border rounded-md h-[400px] max-h-[400px] max-w-[600px] overflow-auto ver_scroll">
+        {isLoading &&
+          [0, 1, 2, 3].map((i) => (
+            <Skeleton
+              key={i}
+              className="w-full h-32"
+            />
+          ))}
+        {(!data || data.length === 0) && !isLoading && (
+          <h2 className="text-lg font-semibold">You haven't liked any blogs</h2>
+        )}
         {!isLoading &&
           data &&
           data.map((blog) => (

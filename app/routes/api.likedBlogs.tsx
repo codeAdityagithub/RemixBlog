@@ -9,7 +9,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     failureRedirect: "/login?redirectTo=/dashboard/blogs",
   });
   await connect();
-  const likedBlogs = (await Engagements.find(
+  const likedBlogs = await Engagements.find(
     { userId: user._id, likes: 1 },
     { blogId: 1 }
   )
@@ -21,6 +21,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       comments: 1,
       thumbnail: 1,
     })
-    .lean()) as BlogDoc[];
+    .lean();
   return { likedBlogs };
 };

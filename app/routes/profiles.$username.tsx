@@ -156,7 +156,7 @@ const UserProfile = () => {
       </h1>
       <div className="pt-4 px-2 space-y-2">
         {blogs.pages[0]?.length === 0 && (
-          <div className="text-center">
+          <div className="text-center text-lg font-semibold">
             {user.username} hasn't uploaded any blogs.
           </div>
         )}

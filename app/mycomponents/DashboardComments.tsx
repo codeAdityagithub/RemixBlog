@@ -88,14 +88,16 @@ const DashboardComments = ({ mine = false }: Props) => {
       >
         {error && error.message}
         {isLoading &&
-          [0, 1, 2].map((i) => (
+          [0, 1, 2, 3].map((i) => (
             <Skeleton
               key={i}
               className="w-full h-32"
             />
           ))}
         {!comments ||
-          (comments.pages[0]?.length === 0 && "No comments to show.")}
+          (comments.pages[0]?.length === 0 && (
+            <h2 className="text-lg font-semibold">No comments to show</h2>
+          ))}
         {comments &&
           comments.pages.length > 0 &&
           comments.pages.flat().map((comment) => (
