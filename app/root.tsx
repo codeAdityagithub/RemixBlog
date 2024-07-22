@@ -18,11 +18,13 @@ import RootError from "./mycomponents/RootError";
 import styles from "./tailwind.css?url";
 // import { queryClient } from "./utils/queryClient.client";
 import { Themes, themeCookie } from "./utils/themeCookie.server";
+import { commitSession, getSession } from "./session.server";
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const theme: Themes = await themeCookie.parse(request.headers.get("Cookie"));
+  const theme = await themeCookie.parse(request.headers.get("Cookie"));
   const user = await authenticator.isAuthenticated(request);
+  const session = await getSession(request.headers.get("cookie"));
   if (!theme) {
     return json(
       { theme: "dark", user: user },
@@ -33,7 +35,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     );
   }
-  return { theme, user };
+  return json(
+    { theme, user },
+    { headers: { "Set-Cookie": await commitSession(session) } }
+  );
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -103,7 +108,7 @@ export default function App() {
             <Navbar />
             <main
               id="mainPage"
-              className="h-full flex-1 grid place-items-center bg-secondary text-secondary-foreground"
+              className="h-full flex-1 grid place-items-center bg-white/5 text-secondary-foreground"
             >
               <Outlet />
             </main>

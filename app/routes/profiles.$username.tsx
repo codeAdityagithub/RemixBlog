@@ -56,7 +56,7 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
   const { followersCount, followingCount } = await getFollowStats(user._id);
   const blogs = await Blogs.find(
     { author: user?._id },
-    { title: 1, desc: 1, likes: 1, comments: 1, createdAt: 1, thumbnail: 1 }
+    { title: 1, desc: 1, likes: 1, comments: 1, createdAt: 1, thumbnail: 1, views:1 }
   )
     .sort({ createdAt: -1 })
     .limit(10)

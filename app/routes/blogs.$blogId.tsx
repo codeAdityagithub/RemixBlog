@@ -51,7 +51,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     })
     .lean()) as Omit<
     BlogDocumentwUser,
-    "likes" | "comments" | "updatedAt" | "views" | ""
+    "likes" | "comments" | "updatedAt" | "views"
   >;
 
   if (!blog)
@@ -106,7 +106,7 @@ const BlogPage = () => {
   const h1ref = useRef<HTMLHeadingElement>(null);
   const user = useUser();
   useEffect(() => {
-    h1ref.current?.scrollIntoView({ behavior: "smooth" });
+    h1ref.current?.scrollIntoView({ behavior: "instant" });
   }, []);
   return (
     <div className="w-full max-w-2xl p-4 bg-background text-foreground">
