@@ -67,13 +67,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         {
           headers: {
             "Set-cookie": cookie,
-            "Cache-Control": "max-age=14400, s-max-age=86400",
+            "Cache-Control": "max-age=14400, s-maxage=86400",
           },
         }
       )
     : json(
         { blog, readTime },
-        { headers: { "Cache-Control": "max-age=14400, s-max-age=86400" } }
+        { headers: { "Cache-Control": "max-age=14400, s-maxage=86400" } }
       );
 };
 

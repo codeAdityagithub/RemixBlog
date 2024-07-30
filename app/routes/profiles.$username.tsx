@@ -56,7 +56,15 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
   const { followersCount, followingCount } = await getFollowStats(user._id);
   const blogs = await Blogs.find(
     { author: user?._id },
-    { title: 1, desc: 1, likes: 1, comments: 1, createdAt: 1, thumbnail: 1, views:1 }
+    {
+      title: 1,
+      desc: 1,
+      likes: 1,
+      comments: 1,
+      createdAt: 1,
+      thumbnail: 1,
+      views: 1,
+    }
   )
     .sort({ createdAt: -1 })
     .limit(10)
@@ -66,7 +74,11 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
     {
       headers: {
         "Cache-Control":
-          "public, max-age=3600, s-maxage=3600, stale-while-revalidate=200",
+          "public, max-age=300, s-maxage=3600, stale-while-revalidate=200",
+        "CDN-Cache-Control":
+          "public, s-maxage=3600, stale-while-revalidate=200",
+        "Vercel-CDN-Cache-Control":
+          "public, s-maxage=3600, stale-while-revalidate=200",
       },
     }
   );
@@ -74,7 +86,12 @@ export const loader = async ({ request, params }: ActionFunctionArgs) => {
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
   // console.log(loaderHeaders);
-  return { "Cache-Control": loaderHeaders.get("Cache-Control") ?? "" };
+  return {
+    "Cache-Control": loaderHeaders.get("Cache-Control") ?? "",
+    "CDN-Cache-Control": loaderHeaders.get("CDN-Cache-Control") ?? "",
+    "Vercel-CDN-Cache-Control":
+      loaderHeaders.get("Vercel-CDN-Cache-Control") ?? "",
+  };
 };
 export const shouldRevalidate: ShouldRevalidateFunction = ({}) => {
   return false;
