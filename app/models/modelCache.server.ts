@@ -42,9 +42,9 @@ async function getLatestBlogs() {
 const updateCache = async () => {
   try {
     await connect();
-    const popularBlogs = await getPopularBlogs();
-    const trendingBlogs = await getTrendingBlogs();
-    const latestBlogs = await getLatestBlogs();
+   
+  const [popularBlogs, trendingBlogs, latestBlogs] = await Promise.all([getPopularBlogs(), getTrendingBlogs(), getLatestBlogs()]);
+    
     setCache("popularBlogs", popularBlogs, 1800);
     setCache("trendingBlogs", trendingBlogs, 1800);
     setCache("latestBlogs", latestBlogs, 1800);
@@ -61,9 +61,8 @@ const updateCache = async () => {
   }
 };
 export const getBlogs = async () => {
-  const popularBlogs = await getCache("popularBlogs");
-  const trendingBlogs = await getCache("trendingBlogs");
-  const latestBlogs = await getCache("latestBlogs");
+  
+  const [popularBlogs, trendingBlogs, latestBlogs] = await Promise.all([getCache("popularBlogs"), getCache("trendingBlogs"), getCache("latestBlogs")]);
   if (
     typeof popularBlogs === "object" &&
     popularBlogs &&
