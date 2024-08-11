@@ -32,7 +32,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       status: 400,
       statusText: "Invalid BlogId",
     });
-    
+
   await connect();
 
   const blog = (await Blogs.findById(blogId, {
@@ -60,7 +60,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const readTime = readMin(blog.content);
   return json(
     { blog, readTime },
-    { headers: { "Cache-Control": "max-age=300, s-maxage=86400" } }
+    { headers: { "Cache-Control": "s-maxage=86400" } }
   );
 };
 
