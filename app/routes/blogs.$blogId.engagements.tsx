@@ -5,6 +5,7 @@ import { authenticator } from "~/auth.server";
 import { connect } from "~/db.server";
 import { BlogDocument, Blogs } from "~/models/Schema.server";
 import { isBlogLikedViewed, likeBlog } from "~/models/functions.server";
+import { checkUnauthViewed } from "~/utils/blogUtils.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const { blogId } = params;
@@ -12,9 +13,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     await connect();
     const user = await authenticator.isAuthenticated(request);
     let liked = false;
+    let cookie = null;
     if (user) {
         liked = (await isBlogLikedViewed(blogId, user._id)) ?? false;
+    }else{
+      cookie = await checkUnauthViewed(request, blogId);
     }
+
     const blog = (await Blogs.findById(blogId, {
         likes: 1,
         comments: 1,
@@ -27,6 +32,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
             statusText: "Requested blog not found",
         });
     // console.log(blog);
+    if(cookie){
+        return json({...blog, liked}, {headers:{ "Set-cookie": cookie}})
+    }
     return { ...blog, liked };
 };
 export const action = async ({ request, params }: ActionFunctionArgs) => {

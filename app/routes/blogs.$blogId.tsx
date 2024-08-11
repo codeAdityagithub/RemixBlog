@@ -32,12 +32,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       status: 400,
       statusText: "Invalid BlogId",
     });
+    
   await connect();
-  const user = await authenticator.isAuthenticated(request);
-  let cookie = null;
-  if (!user) {
-    cookie = await checkUnauthViewed(request, blogId);
-  }
+
   const blog = (await Blogs.findById(blogId, {
     likes: 0,
     comments: 0,
@@ -61,20 +58,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     });
   // console.log(blog);
   const readTime = readMin(blog.content);
-  return cookie
-    ? json(
-        { blog, readTime },
-        {
-          headers: {
-            "Set-cookie": cookie,
-            "Cache-Control": "max-age=14400, s-maxage=86400",
-          },
-        }
-      )
-    : json(
-        { blog, readTime },
-        { headers: { "Cache-Control": "max-age=14400, s-maxage=86400" } }
-      );
+  return json(
+    { blog, readTime },
+    { headers: { "Cache-Control": "max-age=300, s-maxage=86400" } }
+  );
 };
 
 export const meta: MetaFunction = ({ data }) => {
